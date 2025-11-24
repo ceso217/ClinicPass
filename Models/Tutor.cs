@@ -12,6 +12,6 @@ namespace ClinicPass.Models
         public string? Telefono { get; set; }
         public string? Ocupacion { get; set; }
 
-        public ICollection<TutorResponsablePaciente> Pacientes { get; set; } = new();
+        public ICollection<TutorResponsablePaciente> Pacientes { get; set; } = new List<TutorResponsablePaciente>();
     }
 }

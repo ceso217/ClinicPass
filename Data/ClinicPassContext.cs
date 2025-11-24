@@ -45,6 +45,12 @@ namespace ClinicPass.Data
             modelBuilder.Entity<ProfesionalPaciente>()
                 .HasKey(pp => new { pp.IdUsuario, pp.IdPaciente });
 
+            // Relación 1:1 entre Paciente e HistoriaClinica
+            modelBuilder.Entity<Paciente>()
+                .HasOne(p => p.HistoriaClinica)
+                .WithOne(h => h.Paciente)
+                .HasForeignKey<HistoriaClinica>(h => h.IdPaciente);
+
             // HISTORIAL - TRATAMIENTO
             modelBuilder.Entity<HCTratamiento>()
                 .HasKey(hc => new { hc.IdTratamiento, hc.IdHistorialClinico });
