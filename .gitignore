@@ -39,5 +39,11 @@
 *.vspscc
 *.suo
 
+# Ignorar archivos temporales de Visual Studio
+.vs/
+bin/
+obj/
+
+
 
 
