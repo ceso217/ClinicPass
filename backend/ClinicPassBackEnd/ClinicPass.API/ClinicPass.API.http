@@ -1,0 +1,6 @@
+@ClinicPass.API_HostAddress = http://localhost:5075
+
+GET {{ClinicPass.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
