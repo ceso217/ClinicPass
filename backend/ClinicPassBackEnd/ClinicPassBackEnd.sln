@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36121.58
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11217.181 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicPass.API", "ClinicPass.API\ClinicPass.API.csproj", "{BEDE265C-9ADB-4AAB-ACD4-6CC93293D62F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{79407FFD-18AA-4DAE-ADA2-C747D6D112F7} = {79407FFD-18AA-4DAE-ADA2-C747D6D112F7}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicPass.BusinessLayer", "ClinicPass.BusinessLayer\ClinicPass.BusinessLayer.csproj", "{79407FFD-18AA-4DAE-ADA2-C747D6D112F7}"
 EndProject

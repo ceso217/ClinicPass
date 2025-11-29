@@ -1,5 +1,6 @@
-namespace ClinicPass.Models
+namespace ClinicPass.DataAccessLayer.Models
 {
+
     public class ProfesionalPaciente
     {
         public int IdUsuario { get; set; }
