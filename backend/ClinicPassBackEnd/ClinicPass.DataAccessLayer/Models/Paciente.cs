@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-
-namespace ClinicPass.Models
+namespace ClinicPass.DataAccessLayer.Models
 {
     public class Paciente
     {

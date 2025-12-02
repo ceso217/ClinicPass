@@ -1,4 +1,4 @@
-namespace ClinicPass.Models
+namespace ClinicPass.DataAccessLayer.Models
 {
     public class ProfesionalTurno
     {

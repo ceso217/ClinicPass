@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ClinicPass.Models;
+using ClinicPass.DataAccessLayer.Models;
 
-namespace ClinicPass.Data
+
+namespace ClinicPass.DataAccessLayer.Data
 {
     public class ClinicPassContext : DbContext
     {
