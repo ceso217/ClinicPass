@@ -9,7 +9,12 @@ namespace ClinicPass.DataAccessLayer.Models
         public DateTime Fecha { get; set; }
         public string? Estado { get; set; }
 
-        public int IdPaciente { get; set; }
+
+        public int? FichaDeSeguimientoID { get; set; }
+        public FichaDeSeguimiento? FichaDeSeguimiento { get; set; }
+
+
+        public int PacienteId { get; set; }
         public Paciente Paciente { get; set; } = null!;
 
         public ICollection<ProfesionalTurno> ProfesionalTurnos { get; set; } = new List<ProfesionalTurno>();

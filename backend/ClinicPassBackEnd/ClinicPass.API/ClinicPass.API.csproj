@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ClinicPass.BusinessLayer\ClinicPass.BusinessLayer.csproj" />
     <ProjectReference Include="..\ClinicPass.DataAccessLayer\ClinicPass.DataAccessLayer.csproj" />
   </ItemGroup>
 

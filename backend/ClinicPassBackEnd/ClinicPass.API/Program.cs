@@ -1,10 +1,14 @@
-﻿using ClinicPass.Data;
+﻿using ClinicPass.BusinessLayer.Interfaces;
+using ClinicPass.BusinessLayer.Services;
+using ClinicPass.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ClinicPassContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<ITurnoService, TurnoService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

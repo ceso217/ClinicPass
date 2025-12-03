@@ -66,6 +66,7 @@ namespace ClinicPass.Data
             // PASE DIARIO (PK triple)
             modelBuilder.Entity<PaseDiario>()
                 .HasKey(p => new { p.IdTratamiento, p.IdTurno, p.IdFichaSeguimiento });
+
         }
     }
 }

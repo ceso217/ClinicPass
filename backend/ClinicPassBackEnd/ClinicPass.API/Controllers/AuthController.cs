@@ -17,13 +17,12 @@ namespace ClinicPass.API.Controllers
 	{
 		private readonly UserManager<Profesional> _userManager;
 		private readonly SignInManager<Profesional> _signInManager;
-		//private readonly 
+        //private readonly 
 
 
 
-
-		// GET: api/<ValuesController>
-		[HttpPost("login")]
+        // GET: api/<ValuesController>
+        [HttpPost("login")]
 		public IEnumerable<string> Login()
 		{
 			return new string[] { "value1", "value2" };
