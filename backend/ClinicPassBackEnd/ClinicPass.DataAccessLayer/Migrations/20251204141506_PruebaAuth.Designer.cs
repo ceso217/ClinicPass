@@ -3,6 +3,7 @@ using System;
 using ClinicPass.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ClinicPass.Migrations
 {
     [DbContext(typeof(ClinicPassContext))]
-    partial class ClinicPassContextModelSnapshot : ModelSnapshot
+    [Migration("20251204141506_PruebaAuth")]
+    partial class PruebaAuth
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,14 +100,14 @@ namespace ClinicPass.Migrations
                     b.Property<string>("Observaciones")
                         .HasColumnType("text");
 
-                    b.Property<int>("ProfesionalId")
+                    b.Property<int>("ProfesionalIdUsuario")
                         .HasColumnType("integer");
 
                     b.HasKey("IdFichaSeguimiento");
 
                     b.HasIndex("HistoriaClinicaIdHistorialClinico");
 
-                    b.HasIndex("ProfesionalId");
+                    b.HasIndex("ProfesionalIdUsuario");
 
                     b.ToTable("FichasDeSeguimiento");
                 });
@@ -295,11 +298,11 @@ namespace ClinicPass.Migrations
 
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.Profesional", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("IdUsuario")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdUsuario"));
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
@@ -308,7 +311,6 @@ namespace ClinicPass.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
                         .HasColumnType("text");
 
                     b.Property<string>("Correo")
@@ -319,14 +321,16 @@ namespace ClinicPass.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Especialidad")
                         .HasColumnType("text");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -339,12 +343,10 @@ namespace ClinicPass.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("text");
 
                     b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("text");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text");
@@ -365,19 +367,11 @@ namespace ClinicPass.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("IdUsuario");
 
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex");
-
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("Profesionales");
                 });
 
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.ProfesionalPaciente", b =>
@@ -391,14 +385,14 @@ namespace ClinicPass.Migrations
                     b.Property<int>("PacienteIdPaciente")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ProfesionalId")
+                    b.Property<int>("ProfesionalIdUsuario")
                         .HasColumnType("integer");
 
                     b.HasKey("IdUsuario", "IdPaciente");
 
                     b.HasIndex("PacienteIdPaciente");
 
-                    b.HasIndex("ProfesionalId");
+                    b.HasIndex("ProfesionalIdUsuario");
 
                     b.ToTable("ProfesionalPacientes");
                 });
@@ -411,7 +405,7 @@ namespace ClinicPass.Migrations
                     b.Property<int>("IdTurno")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ProfesionalId")
+                    b.Property<int>("ProfesionalIdUsuario")
                         .HasColumnType("integer");
 
                     b.Property<int>("TurnoIdTurno")
@@ -419,7 +413,7 @@ namespace ClinicPass.Migrations
 
                     b.HasKey("IdUsuario", "IdTurno");
 
-                    b.HasIndex("ProfesionalId");
+                    b.HasIndex("ProfesionalIdUsuario");
 
                     b.HasIndex("TurnoIdTurno");
 
@@ -520,138 +514,6 @@ namespace ClinicPass.Migrations
                     b.ToTable("TutorResponsables");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
-
-                    b.ToTable("AspNetRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetUserRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("text");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("AspNetUserTokens", (string)null);
-                });
-
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.Documento", b =>
                 {
                     b.HasOne("ClinicPass.DataAccessLayer.Models.FichaDeSeguimiento", "FichaSeguimiento")
@@ -673,7 +535,7 @@ namespace ClinicPass.Migrations
 
                     b.HasOne("ClinicPass.DataAccessLayer.Models.Profesional", "Profesional")
                         .WithMany()
-                        .HasForeignKey("ProfesionalId")
+                        .HasForeignKey("ProfesionalIdUsuario")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -787,7 +649,7 @@ namespace ClinicPass.Migrations
 
                     b.HasOne("ClinicPass.DataAccessLayer.Models.Profesional", "Profesional")
                         .WithMany("ProfesionalPacientes")
-                        .HasForeignKey("ProfesionalId")
+                        .HasForeignKey("ProfesionalIdUsuario")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -800,7 +662,7 @@ namespace ClinicPass.Migrations
                 {
                     b.HasOne("ClinicPass.DataAccessLayer.Models.Profesional", "Profesional")
                         .WithMany("ProfesionalTurnos")
-                        .HasForeignKey("ProfesionalId")
+                        .HasForeignKey("ProfesionalIdUsuario")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -843,57 +705,6 @@ namespace ClinicPass.Migrations
                     b.Navigation("Paciente");
 
                     b.Navigation("Tutor");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
-                {
-                    b.HasOne("ClinicPass.DataAccessLayer.Models.Profesional", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
-                {
-                    b.HasOne("ClinicPass.DataAccessLayer.Models.Profesional", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ClinicPass.DataAccessLayer.Models.Profesional", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
-                {
-                    b.HasOne("ClinicPass.DataAccessLayer.Models.Profesional", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.FichaDeSeguimiento", b =>
