@@ -54,8 +54,14 @@ namespace ClinicPass.BusinessLayer.Services
         }
 
         // CREATE
+        //segun a paciente create dto voy a crear un paciente, validar dni unico
         public async Task<PacienteDTO> Create(PacienteCreateDTO dto)
         {
+            // Validar DNI único
+            var existeDni = await _context.Pacientes.AnyAsync(p => p.Dni == dto.Dni);
+            if (existeDni)
+                throw new Exception("Ya existe un paciente con ese DNI.");
+
             var nuevo = new Paciente
             {
                 NombreCompleto = dto.NombreCompleto,
@@ -67,9 +73,10 @@ namespace ClinicPass.BusinessLayer.Services
                 Telefono = dto.Telefono
             };
 
-            _context.Pacientes.Add(nuevo);
-            await _context.SaveChangesAsync();
+            _context.Pacientes.Add(nuevo); //agrego el nuevo paciente al contexto
+            await _context.SaveChangesAsync(); //savechanges guarda los cambios en la base de datos
 
+            //aca retorno el dto del nuevo paciente creado
             return new PacienteDTO
             {
                 IdPaciente = nuevo.IdPaciente,
@@ -83,10 +90,20 @@ namespace ClinicPass.BusinessLayer.Services
             };
         }
 
+
         // UPDATE
         public async Task<PacienteDTO?> Update(int id, PacienteUpdateDTO dto)
         {
             var p = await _context.Pacientes.FindAsync(id);
+            // Validar DNI único (excepto él mismo)
+            var dniEnUso = await _context.Pacientes  //ingreso al contexto de pacientes
+                .AnyAsync(p => p.Dni == dto.Dni && p.IdPaciente != id);
+
+            if (dniEnUso)
+            {
+                throw new Exception("El DNI ingresado ya pertenece a otro paciente.");
+            }
+
 
             if (p == null)
                 return null;
@@ -127,5 +144,28 @@ namespace ClinicPass.BusinessLayer.Services
 
             return true;
         }
+
+        public async Task<PacienteDTO?> GetByDni(string dni) //quiero buscar al paciente por dni
+        {
+            var p = await _context.Pacientes
+                .FirstOrDefaultAsync(x => x.Dni == dni);
+
+            if (p == null)
+                return null;
+
+            return new PacienteDTO
+            {
+                IdPaciente = p.IdPaciente,
+                NombreCompleto = p.NombreCompleto,
+                Dni = p.Dni,
+                FechaNacimiento = p.FechaNacimiento,
+                Localidad = p.Localidad,
+                Provincia = p.Provincia,
+                Calle = p.Calle,
+                Telefono = p.Telefono
+            };
+        }
+
+
     }
 }
