@@ -67,6 +67,7 @@ namespace ClinicPass.Data
             modelBuilder.Entity<PaseDiario>()
                 .HasKey(p => new { p.IdTratamiento, p.IdTurno, p.IdFichaSeguimiento });
 
+
         }
     }
 }

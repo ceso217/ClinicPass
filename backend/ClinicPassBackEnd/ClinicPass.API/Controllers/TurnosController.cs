@@ -58,11 +58,41 @@ namespace ClinicPass.API.Controllers
             }
         }
 
-        // PUT api/<TurnosController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        //// PUT api/<TurnosController>/5
+        //[HttpPut("{id}")]
+        //public void Put(int id, [FromBody] string value)
+        //{
+        //}
+
+        //PUT
+        [HttpPut("{idTurno}/estado")]
+        public async Task<IActionResult> ActualizarEstado(int idTurno, [FromBody] ActualizarEstadoTurnoDTO dto)
         {
+            var turno = await _turnoService.ActualizarEstadoAsync(idTurno, dto.Estado);
+            return Ok(turno);
         }
+
+        [HttpPut("{idTurno}/fecha")]
+        public async Task<IActionResult> ActualizarFecha(int idTurno, [FromBody] ActualizarFechaTurnoDTO dto)
+        {
+            var turno = await _turnoService.ActualizarFechaAsync(idTurno, dto.Fecha);
+            return Ok(turno);
+        }
+
+        [HttpPut("{idTurno}/ficha")]
+        public async Task<IActionResult> ActualizarFicha(int idTurno, [FromBody] ActualizarFichaDTO dto)
+        {
+            var turno = await _turnoService.ActualizarFichaAsync(idTurno, dto.FichaDeSeguimientoID);
+            return Ok(turno);
+        }
+
+        [HttpPut("{idTurno}")]
+        public async Task<IActionResult> ActualizarCompleto(int idTurno, [FromBody] ActualizarTurnoCompletoDTO dto)
+        {
+            var turno = await _turnoService.ActualizarCompletoAsync(idTurno, dto);
+            return Ok(turno);
+        }
+
 
         // DELETE api/<TurnosController>/5
         [HttpDelete("{id}")]

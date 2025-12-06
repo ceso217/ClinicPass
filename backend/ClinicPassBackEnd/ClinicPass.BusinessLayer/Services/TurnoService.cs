@@ -17,12 +17,14 @@ namespace ClinicPass.BusinessLayer.Services
     public class TurnoService : ITurnoService
 
     {
+        // Inyección de dependencia del contexto de la base de datos
         private readonly ClinicPassContext _context;
         public TurnoService(ClinicPassContext context)
         {
             _context = context;
         }
 
+        // Método para crear un nuevo turno
         public async Task<Turno> CrearTurnoAsync(CrearTurnosDTO dto)
         {
             // Convertir la fecha a UTC para evitar el error de PostgreSQL
@@ -63,6 +65,81 @@ namespace ClinicPass.BusinessLayer.Services
             _context.Turnos.Add(nuevoturno);
             await _context.SaveChangesAsync();
             return nuevoturno;
+        }
+        // Otros métodos de actualización de turno
+        private async Task<Turno> ObtenerTurnoAsync(int idTurno)
+        {
+            var turno = await _context.Turnos.FindAsync(idTurno);
+
+            if (turno == null)
+                throw new KeyNotFoundException("El turno no existe.");
+
+            return turno;
+        }
+
+        public async Task<Turno> ActualizarEstadoAsync(int idTurno, string estado)
+        {
+            var turno = await ObtenerTurnoAsync(idTurno);
+
+            turno.Estado = estado;
+
+            await _context.SaveChangesAsync();
+            return turno;
+        }
+
+        public async Task<Turno> ActualizarFechaAsync(int idTurno, DateTime nuevaFecha)
+        {
+            if (nuevaFecha < DateTime.Now)
+                throw new ArgumentException("La fecha del turno no puede ser anterior.");
+
+            var conflicto = await _context.Turnos.AnyAsync(t => t.Fecha == nuevaFecha && t.IdTurno != idTurno);
+            if (conflicto)
+                throw new InvalidOperationException("Ya existe un turno en esa fecha y hora.");
+
+            var turno = await ObtenerTurnoAsync(idTurno);
+
+            turno.Fecha = nuevaFecha;
+
+            await _context.SaveChangesAsync();
+            return turno;
+        }
+
+        public async Task<Turno> ActualizarFichaAsync(int idTurno, int? fichaId)
+        {
+            var turno = await ObtenerTurnoAsync(idTurno);
+
+            turno.FichaDeSeguimientoID = fichaId;
+
+            await _context.SaveChangesAsync();
+            return turno;
+        }
+
+        public async Task<Turno> ActualizarCompletoAsync(int idTurno, ActualizarTurnoCompletoDTO dto)
+        {
+            var turno = await ObtenerTurnoAsync(idTurno);
+
+            if (dto.Fecha < DateTime.Now)
+                throw new ArgumentException("La fecha del turno no puede ser anterior.");
+
+            bool conflicto = await _context.Turnos
+                .AnyAsync(t => t.Fecha == dto.Fecha && t.IdTurno != idTurno);
+
+            if (conflicto)
+                throw new InvalidOperationException("Ya existe un turno en esa fecha y hora.");
+
+            bool pacienteExiste = await _context.Pacientes
+                .AnyAsync(p => p.IdPaciente == dto.PacienteId);
+
+            if (!pacienteExiste)
+                throw new InvalidOperationException("El paciente no existe.");
+
+            turno.Fecha = dto.Fecha;
+            turno.Estado = dto.Estado;
+            turno.PacienteId = dto.PacienteId;
+            turno.FichaDeSeguimientoID = dto.FichaDeSeguimientoID;
+
+            await _context.SaveChangesAsync();
+            return turno;
         }
     }
 }

@@ -10,6 +10,14 @@ namespace ClinicPass.BusinessLayer.Interfaces
 {
     public interface ITurnoService
     {
+        //POST
         Task<Turno> CrearTurnoAsync(CrearTurnosDTO dto);
+
+
+        //PUT
+        Task<Turno> ActualizarEstadoAsync(int idTurno, string estado);
+        Task<Turno> ActualizarFechaAsync(int idTurno, DateTime nuevaFecha);
+        Task<Turno> ActualizarFichaAsync(int idTurno, int? fichaId);
+        Task<Turno> ActualizarCompletoAsync(int idTurno, ActualizarTurnoCompletoDTO dto);
     }
 }
