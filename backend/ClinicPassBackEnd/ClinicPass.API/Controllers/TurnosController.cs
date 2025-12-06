@@ -24,19 +24,42 @@ namespace ClinicPass.API.Controllers
         {
             return "hola-api";
         }
-        // GET: api/<TurnosController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-        
+        //// GET: api/<TurnosController>
+        //[HttpGet]
+        //public IEnumerable<string> Get()
+        //{
+        //    return new string[] { "value1", "value2" };
+        //}
 
-        // GET api/<TurnosController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+
+        //// GET api/<TurnosController>/5
+        //[HttpGet("{id}")]
+        //public string Get(int id)
+        //{
+        //    return "values";
+        //}
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetTodos()
         {
-            return "values";
+            var turnos = await _turnoService.ObtenerTodosAsync();
+            return Ok(turnos);
+        }
+
+        
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPorId(int id)
+        {
+            try
+            {
+                var turno = await _turnoService.ObtenerPorIdAsync(id);
+                return Ok(turno);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { mensaje = ex.Message });
+            }
         }
 
         //// POST api/<TurnosController>

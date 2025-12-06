@@ -24,6 +24,49 @@ namespace ClinicPass.BusinessLayer.Services
             _context = context;
         }
 
+
+        // Método para obtener todos los turnos
+        
+        public async Task<IEnumerable<TurnoResponseDTO>> ObtenerTodosAsync()
+        {
+            return await _context.Turnos
+                .Select(t => new TurnoResponseDTO
+                {
+                    IdTurno = t.IdTurno,
+                    Fecha = t.Fecha,
+                    Estado = t.Estado,
+                    PacienteId = t.PacienteId,
+                    NombrePaciente = t.Paciente.NombreCompleto,
+                    FichaDeSeguimientoID = t.FichaDeSeguimientoID
+                })
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+
+        // Método para obtener un turno por su ID
+        public async Task<TurnoResponseDTO> ObtenerPorIdAsync(int idTurno)
+        {
+            var turno = await _context.Turnos
+                .Where(t => t.IdTurno == idTurno)
+                .Select(t => new TurnoResponseDTO
+                {
+                    IdTurno = t.IdTurno,
+                    Fecha = t.Fecha,
+                    Estado = t.Estado,
+                    PacienteId = t.PacienteId,
+                    NombrePaciente = t.Paciente.NombreCompleto,
+                    FichaDeSeguimientoID = t.FichaDeSeguimientoID
+                })
+                .FirstOrDefaultAsync();
+
+            if (turno == null)
+                throw new KeyNotFoundException("El turno no existe.");
+
+            return turno;
+        }
+
+
         // Método para crear un nuevo turno
         public async Task<Turno> CrearTurnoAsync(CrearTurnosDTO dto)
         {
@@ -66,7 +109,7 @@ namespace ClinicPass.BusinessLayer.Services
             await _context.SaveChangesAsync();
             return nuevoturno;
         }
-        // Otros métodos de actualización de turno
+        
         private async Task<Turno> ObtenerTurnoAsync(int idTurno)
         {
             var turno = await _context.Turnos.FindAsync(idTurno);
@@ -76,7 +119,7 @@ namespace ClinicPass.BusinessLayer.Services
 
             return turno;
         }
-
+        //Método para actualizar el estado de un turno
         public async Task<Turno> ActualizarEstadoAsync(int idTurno, string estado)
         {
             var turno = await ObtenerTurnoAsync(idTurno);

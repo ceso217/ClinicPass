@@ -10,6 +10,11 @@ namespace ClinicPass.BusinessLayer.Interfaces
 {
     public interface ITurnoService
     {
+        //GET
+        Task<IEnumerable<TurnoResponseDTO>> ObtenerTodosAsync();
+        Task<TurnoResponseDTO> ObtenerPorIdAsync(int idTurno);
+
+
         //POST
         Task<Turno> CrearTurnoAsync(CrearTurnosDTO dto);
 
