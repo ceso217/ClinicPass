@@ -58,35 +58,26 @@ namespace ClinicPass.BusinessLayer.Services
         public async Task<PacienteDTO> Create(PacienteCreateDTO dto)
         {
             // Validar DNI único
-            var existeDni = await _context.Pacientes.AnyAsync(p => p.Dni == dto.Dni);
-            if (existeDni)
+           bool existe = await _context.Pacientes.AnyAsync(p => p.Dni == dto.Dni);
+            if (existe)
                 throw new Exception("Ya existe un paciente con ese DNI.");
+
 
             var nuevo = new Paciente
             {
                 NombreCompleto = dto.NombreCompleto,
-                Dni = dto.Dni,
-                FechaNacimiento = dto.FechaNacimiento,
-                Localidad = dto.Localidad,
-                Provincia = dto.Provincia,
-                Calle = dto.Calle,
-                Telefono = dto.Telefono
+                Dni = dto.Dni
+                // No enviar más nada
             };
 
-            _context.Pacientes.Add(nuevo); //agrego el nuevo paciente al contexto
-            await _context.SaveChangesAsync(); //savechanges guarda los cambios en la base de datos
+            _context.Pacientes.Add(nuevo);
+            await _context.SaveChangesAsync();
 
-            //aca retorno el dto del nuevo paciente creado
             return new PacienteDTO
             {
                 IdPaciente = nuevo.IdPaciente,
                 NombreCompleto = nuevo.NombreCompleto,
-                Dni = nuevo.Dni,
-                FechaNacimiento = nuevo.FechaNacimiento,
-                Localidad = nuevo.Localidad,
-                Provincia = nuevo.Provincia,
-                Calle = nuevo.Calle,
-                Telefono = nuevo.Telefono
+                Dni = nuevo.Dni
             };
         }
 
@@ -95,13 +86,13 @@ namespace ClinicPass.BusinessLayer.Services
         public async Task<PacienteDTO?> Update(int id, PacienteUpdateDTO dto)
         {
             var p = await _context.Pacientes.FindAsync(id);
-            // Validar DNI único (excepto él mismo)
-            var dniEnUso = await _context.Pacientes  //ingreso al contexto de pacientes
+
+            // Validar DNI único al actualizar
+            bool existeOtro = await _context.Pacientes
                 .AnyAsync(p => p.Dni == dto.Dni && p.IdPaciente != id);
 
-            if (dniEnUso)
-            {
-                throw new Exception("El DNI ingresado ya pertenece a otro paciente.");
+            if (existeOtro){
+                throw new Exception("El DNI pertenece a otro paciente.");
             }
 
 
