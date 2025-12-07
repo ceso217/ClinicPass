@@ -16,6 +16,6 @@ namespace ClinicPass.DataAccessLayer.DTOs
 		public string RepeatPassword { get; set; }
 
 
-		public string Telefono {  get; set; }
+		public string PhoneNumber {  get; set; }
 	}
 }

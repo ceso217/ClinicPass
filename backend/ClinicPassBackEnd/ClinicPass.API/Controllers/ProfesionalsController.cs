@@ -77,32 +77,32 @@ namespace ClinicPass.API.Controllers
         }
 
         // POST: api/Profesionals
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Profesional>> PostProfesional([FromBody]RegisterDTO request)
-        {
-            var profesional = new Profesional
-            {
-                UserName = request.Email,
-                Email = request.Email,
-                NombreCompleto = $"{request.Name} {request.LastName}",
-                Dni = request.Dni,
-                PhoneNumber = request.Telefono,
-                Activo = true
-            };
+        // Ya existe endpoint para crear profesional en AuthController/Register
+        //[HttpPost]
+        //public async Task<ActionResult<Profesional>> PostProfesional([FromBody]RegisterDTO request)
+        //{
+        //    var profesional = new Profesional
+        //    {
+        //        UserName = request.Email,
+        //        Email = request.Email,
+        //        NombreCompleto = $"{request.Name} {request.LastName}",
+        //        Dni = request.Dni,
+        //        PhoneNumber = request.PhoneNumber,
+        //        Activo = true
+        //    };
 
-            var resultado = await _userManager.CreateAsync(profesional, request.Password);
-            if (!resultado.Succeeded)
-            {
-                return BadRequest(resultado.Errors);
+        //    var resultado = await _userManager.CreateAsync(profesional, request.Password);
+        //    if (!resultado.Succeeded)
+        //    {
+        //        return BadRequest(resultado.Errors);
 
-            }
+        //    }
 
-            //se asigna el rol de profesional
-            await _userManager.AddToRoleAsync(profesional, "Profesional");
+        //    //se asigna el rol de profesional
+        //    await _userManager.AddToRoleAsync(profesional, "Profesional");
 
-            return Ok("Usuario correctamente creado: " + profesional);
-        }
+        //    return Ok("Usuario correctamente creado: " + profesional);
+        //}
 
         // DELETE: api/Profesionals/5
         [HttpDelete("{id}")]
