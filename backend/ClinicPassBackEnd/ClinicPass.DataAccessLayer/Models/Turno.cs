@@ -6,13 +6,21 @@ namespace ClinicPass.DataAccessLayer.Models
     {
         [Key]
         public int IdTurno { get; set; }
-        public DateTime Fecha { get; set; }
-        public string? Estado { get; set; }
 
+        //Turno pertenece a un Paciente
         public int IdPaciente { get; set; }
         public Paciente Paciente { get; set; } = null!;
 
-        public ICollection<ProfesionalTurno> ProfesionalTurnos { get; set; } = new List<ProfesionalTurno>();
-        public ICollection<PaseDiario> PasesDiarios { get; set; } = new List<PaseDiario>();
+        //Turno puede tener una ficha (después de ser atendido)
+        public int? IdFichaSeguimiento { get; set; }
+        public FichaDeSeguimiento? FichaDeSeguimiento { get; set; }
+        public DateTime FechaHora { get; set; }
+        public string Estado { get; set; } = "Pendiente";
+        public string? Frecuencia { get; set; }
+        public ICollection<ProfesionalTurno> Profesionales { get; set; } = new List<ProfesionalTurno>();
+
+        // RELACIÓN N–N con Tratamiento mediante Pase
+        public ICollection<PaseDiario> Pases { get; set; } = new List<PaseDiario>();
     }
 }
+

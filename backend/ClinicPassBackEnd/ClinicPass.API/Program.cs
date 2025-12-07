@@ -12,6 +12,11 @@ builder.Services.AddSwaggerGen();
 
 // Registro del servicio de Pacientes
 builder.Services.AddScoped<IPacienteService, PacienteService>();
+builder.Services.AddScoped<TratamientoService>(); //registro TratamientoService
+builder.Services.AddScoped<HistoriaClinicaService>();//registro HistoriaClinicaService
+builder.Services.AddScoped<FichaDeSeguimientoService>();//registro FichaDeSeguimientoService
+
+
 
 
 builder.Services.AddDbContext<ClinicPassContext>(options =>
