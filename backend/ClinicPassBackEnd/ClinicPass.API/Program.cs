@@ -97,7 +97,7 @@ using (var scope = app.Services.CreateScope())
             UserName = adminName,
             Email = "admin123@test.com",
             NombreCompleto = "Admin User",
-            Telefono = "12345678",
+            PhoneNumber = "12345678",
             Activo = true,
             Dni = "12345678"
         };

@@ -76,7 +76,7 @@ namespace ClinicPass.API.Controllers
 		{
 			//validar datos vacios
 
-			//verificar si el usuario exite (username, email, DNI, ID)
+			//verificar si el usuario existe (username, email, DNI, ID)
 
 			//si existe enviar una BadRequest
 
@@ -85,7 +85,7 @@ namespace ClinicPass.API.Controllers
 				UserName = request.Email,
 				Email = request.Email,
 				NombreCompleto = request.Name + " " + request.LastName,
-				Telefono = request.Telefono,
+				PhoneNumber = request.PhoneNumber,
 				Activo = true,
 				Dni = request.Dni
 

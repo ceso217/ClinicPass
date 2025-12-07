@@ -65,7 +65,7 @@ namespace ClinicPass.API.Controllers
 
             profesional.NombreCompleto = profesionalUpdated.NombreCompleto;
             profesional.Dni = profesionalUpdated.Dni;
-            profesional.Telefono = profesionalUpdated?.Telefono;
+            profesional.PhoneNumber = profesionalUpdated?.PhoneNumber;
             profesional.Especialidad = profesionalUpdated.Especialidad;
             profesional.Activo = profesionalUpdated.Activo;
 
@@ -87,7 +87,7 @@ namespace ClinicPass.API.Controllers
                 Email = request.Email,
                 NombreCompleto = $"{request.Name} {request.LastName}",
                 Dni = request.Dni,
-                Telefono = request.Telefono,
+                PhoneNumber = request.Telefono,
                 Activo = true
             };
 
@@ -101,10 +101,7 @@ namespace ClinicPass.API.Controllers
             //se asigna el rol de profesional
             await _userManager.AddToRoleAsync(profesional, "Profesional");
 
-            return Ok("Usuario Correctamente creado :" + profesional);
-
-
-            
+            return Ok("Usuario correctamente creado: " + profesional);
         }
 
         // DELETE: api/Profesionals/5
@@ -123,7 +120,7 @@ namespace ClinicPass.API.Controllers
                 return BadRequest(result.Errors);
             }
 
-            return Ok($"Profesional {id} correctamente eliminado");
+            return Ok($"Profesional {id} correctamente eliminado.");
         }
 
         // PUT api/Profesionals/5/ResetPassword
