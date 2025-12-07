@@ -117,10 +117,17 @@ namespace ClinicPass.API.Controllers
         }
 
 
-        // DELETE api/<TurnosController>/5
+        //// DELETE api/<TurnosController>/5
+        //[HttpDelete("{id}")]
+        //public void Delete(int id)
+        //{
+
+        //}
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
+            await _turnoService.EliminarAsync(id);
+            return NoContent(); 
         }
     }
 }

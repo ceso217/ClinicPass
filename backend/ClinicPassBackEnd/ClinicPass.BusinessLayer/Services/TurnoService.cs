@@ -184,5 +184,19 @@ namespace ClinicPass.BusinessLayer.Services
             await _context.SaveChangesAsync();
             return turno;
         }
+
+        // Metodo para eliminar turnos
+        public async Task EliminarAsync(int idTurno)
+        {
+            var turno = await _context.Turnos
+                .FirstOrDefaultAsync(t => t.IdTurno == idTurno);
+
+            if (turno == null)
+                throw new KeyNotFoundException("El turno no existe.");
+
+            _context.Turnos.Remove(turno);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

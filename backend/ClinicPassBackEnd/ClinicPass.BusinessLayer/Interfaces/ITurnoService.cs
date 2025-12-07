@@ -24,5 +24,9 @@ namespace ClinicPass.BusinessLayer.Interfaces
         Task<Turno> ActualizarFechaAsync(int idTurno, DateTime nuevaFecha);
         Task<Turno> ActualizarFichaAsync(int idTurno, int? fichaId);
         Task<Turno> ActualizarCompletoAsync(int idTurno, ActualizarTurnoCompletoDTO dto);
+
+        //DELETE
+        Task EliminarAsync(int idTurno);
+
     }
 }
