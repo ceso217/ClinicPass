@@ -16,11 +16,10 @@ const Registrar = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
         console.log("Datos del profesional:", form);
 
-        // Cuando tengas la API lista:
-        // await fetch("https://localhost:5001/api/profesionales", {
+        // Luego conectarás tu API:
+        // await fetch("/api/profesionales", {
         //     method: "POST",
         //     headers: { "Content-Type": "application/json" },
         //     body: JSON.stringify(form)
@@ -28,76 +27,90 @@ const Registrar = () => {
     };
 
     return (
-        <div style={{ maxWidth: "400px", margin: "0 auto" }}>
-            <h2>Registrar Profesional</h2>
+        <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow-lg mt-10">
+            <h2 className="text-2xl font-bold mb-5 text-center text-blue-600">Registrar Profesional</h2>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="space-y-4">
+
                 <div>
-                    <label>Nombre completo</label>
+                    <label className="block font-medium mb-1">Nombre completo</label>
                     <input
                         type="text"
                         name="nombre"
                         value={form.nombre}
                         onChange={handleChange}
                         required
+                        className="w-full border border-gray-300 p-2 rounded-lg"
                     />
                 </div>
 
                 <div>
-                    <label>Dni</label>
+                    <label className="block font-medium mb-1">DNI</label>
                     <input
                         type="text"
                         name="dni"
-                        value={form.telefono}
+                        value={form.dni}
                         onChange={handleChange}
+                        className="w-full border border-gray-300 p-2 rounded-lg"
                     />
                 </div>
 
-
                 <div>
-                    <label>Teléfono</label>
+                    <label className="block font-medium mb-1">Teléfono</label>
                     <input
                         type="text"
                         name="telefono"
                         value={form.telefono}
                         onChange={handleChange}
+                        className="w-full border border-gray-300 p-2 rounded-lg"
                     />
                 </div>
 
                 <div>
-                    <label>Especialidad</label>
+                    <label className="block font-medium mb-1">Especialidad</label>
                     <input
                         type="text"
                         name="especialidad"
                         value={form.especialidad}
                         onChange={handleChange}
+                        className="w-full border border-gray-300 p-2 rounded-lg"
                     />
                 </div>
 
                 <div>
-                    <label>Email</label>
+                    <label className="block font-medium mb-1">Email</label>
                     <input
                         type="email"
                         name="email"
                         value={form.email}
                         onChange={handleChange}
                         required
+                        className="w-full border border-gray-300 p-2 rounded-lg"
                     />
                 </div>
+
                 <div>
-                    <label>Contraseña</label>
+                    <label className="block font-medium mb-1">Contraseña</label>
                     <input
                         type="password"
                         name="password"
                         value={form.password}
                         onChange={handleChange}
                         required
+                        className="w-full border border-gray-300 p-2 rounded-lg"
                     />
                 </div>
-                <button type="submit">Registrar</button>
+
+                <button
+                    type="submit"
+                    className="w-full bg-blue-600 font-semibold hover:bg-blue-700 text-white py-2 rounded-lg mt-4"
+                >
+                    Registrar
+                </button>
             </form>
         </div>
     );
 };
 
 export default Registrar;
+

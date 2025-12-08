@@ -1,16 +1,25 @@
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+import { Outlet } from "react-router-dom";
+import Topbar from "./Topbar";
+import Sidebar from "./Sidebar";
 
-export default function Layout({ children }) {
+export default function Layout() {
     return (
-        <div>
-            <Navbar />
+        <div className="flex h-screen">
+            {/* Sidebar */}
+            <Sidebar />
 
-            <main style={{ padding: "20px" }}>
-                {children}
-            </main>
+            {/* Contenido derecho */}
+            <div className="flex flex-col flex-1">
 
-            <Footer />
+                {/* Topbar */}
+                <Topbar />
+
+                {/* Contenido de la página */}
+                <main className="p-6 flex-1 bg-gray-50">
+                    <Outlet />
+                </main>
+            </div>
         </div>
     );
 }
+
