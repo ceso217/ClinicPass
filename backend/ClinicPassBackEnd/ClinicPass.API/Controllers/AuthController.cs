@@ -30,6 +30,7 @@ namespace ClinicPass.API.Controllers
 			_authService = authService;
 		}
 
+		//Endpoint Login
 		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginDTO request)
 		{
