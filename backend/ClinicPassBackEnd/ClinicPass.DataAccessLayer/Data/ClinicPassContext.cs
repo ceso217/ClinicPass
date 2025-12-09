@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ClinicPass.DataAccessLayer.Models;
+﻿using ClinicPass.DataAccessLayer.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace ClinicPass.DataAccessLayer.Data
 {
-    public class ClinicPassContext : DbContext
-    {
+    public class ClinicPassContext : IdentityDbContext<Profesional, IdentityRole<int>, int>
+	{
         public ClinicPassContext(DbContextOptions<ClinicPassContext> options)
             : base(options)
         {
@@ -12,7 +14,7 @@ namespace ClinicPass.DataAccessLayer.Data
 
         // Tablas principales
         public DbSet<Paciente> Pacientes { get; set; }
-        public DbSet<Profesional> Profesionales { get; set; }
+        //public DbSet<Profesional> Profesionales { get; set; }
         public DbSet<Turno> Turnos { get; set; }
         public DbSet<HistoriaClinica> HistoriasClinicas { get; set; }
         public DbSet<Tratamiento> Tratamientos { get; set; }

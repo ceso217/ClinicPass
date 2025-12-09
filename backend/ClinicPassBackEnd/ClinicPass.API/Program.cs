@@ -35,6 +35,7 @@ builder.Services.AddIdentity<Profesional, IdentityRole<int>>(options =>
 
 
 builder.Services.AddScoped<ITurnoService, TurnoService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
