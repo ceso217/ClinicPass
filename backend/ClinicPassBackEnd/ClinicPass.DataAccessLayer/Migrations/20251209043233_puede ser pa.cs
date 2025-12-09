@@ -4,14 +4,59 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace ClinicPass.Migrations
+namespace ClinicPass.DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class puedeserpa : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "AspNetRoles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    NombreCompleto = table.Column<string>(type: "text", nullable: false),
+                    Dni = table.Column<string>(type: "text", nullable: false),
+                    Especialidad = table.Column<string>(type: "text", nullable: true),
+                    Activo = table.Column<bool>(type: "boolean", nullable: false),
+                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "CoberturasMedicas",
                 columns: table => new
@@ -46,24 +91,6 @@ namespace ClinicPass.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Profesionales",
-                columns: table => new
-                {
-                    IdUsuario = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    NombreCompleto = table.Column<string>(type: "text", nullable: false),
-                    Dni = table.Column<string>(type: "text", nullable: false),
-                    Telefono = table.Column<string>(type: "text", nullable: true),
-                    Especialidad = table.Column<string>(type: "text", nullable: true),
-                    Correo = table.Column<string>(type: "text", nullable: true),
-                    Activo = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Profesionales", x => x.IdUsuario);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Tratamientos",
                 columns: table => new
                 {
@@ -91,6 +118,112 @@ namespace ClinicPass.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tutor", x => x.DNI);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetRoleClaims",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RoleId = table.Column<int>(type: "integer", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetRoleClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserClaims",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserLogins",
+                columns: table => new
+                {
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    ProviderKey = table.Column<string>(type: "text", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
+                    UserId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserRoles",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    RoleId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserTokens",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -144,50 +277,28 @@ namespace ClinicPass.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Turnos",
-                columns: table => new
-                {
-                    IdTurno = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Fecha = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Estado = table.Column<string>(type: "text", nullable: true),
-                    IdPaciente = table.Column<int>(type: "integer", nullable: false),
-                    PacienteIdPaciente = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Turnos", x => x.IdTurno);
-                    table.ForeignKey(
-                        name: "FK_Turnos_Pacientes_PacienteIdPaciente",
-                        column: x => x.PacienteIdPaciente,
-                        principalTable: "Pacientes",
-                        principalColumn: "IdPaciente",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ProfesionalPacientes",
                 columns: table => new
                 {
                     IdUsuario = table.Column<int>(type: "integer", nullable: false),
                     IdPaciente = table.Column<int>(type: "integer", nullable: false),
-                    ProfesionalIdUsuario = table.Column<int>(type: "integer", nullable: false),
+                    ProfesionalId = table.Column<int>(type: "integer", nullable: false),
                     PacienteIdPaciente = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProfesionalPacientes", x => new { x.IdUsuario, x.IdPaciente });
                     table.ForeignKey(
+                        name: "FK_ProfesionalPacientes_AspNetUsers_ProfesionalId",
+                        column: x => x.ProfesionalId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_ProfesionalPacientes_Pacientes_PacienteIdPaciente",
                         column: x => x.PacienteIdPaciente,
                         principalTable: "Pacientes",
                         principalColumn: "IdPaciente",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProfesionalPacientes_Profesionales_ProfesionalIdUsuario",
-                        column: x => x.ProfesionalIdUsuario,
-                        principalTable: "Profesionales",
-                        principalColumn: "IdUsuario",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -252,10 +363,10 @@ namespace ClinicPass.Migrations
                 {
                     IdFichaSeguimiento = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    IdUsuario = table.Column<int>(type: "integer", nullable: false),
-                    ProfesionalIdUsuario = table.Column<int>(type: "integer", nullable: false),
-                    IdHistorialClinico = table.Column<int>(type: "integer", nullable: false),
-                    HistoriaClinicaIdHistorialClinico = table.Column<int>(type: "integer", nullable: false),
+                    UsuarioId = table.Column<int>(type: "integer", nullable: true),
+                    ProfesionalId = table.Column<int>(type: "integer", nullable: true),
+                    HistorialClinicoId = table.Column<int>(type: "integer", nullable: true),
+                    HistoriaClinicaIdHistorialClinico = table.Column<int>(type: "integer", nullable: true),
                     Fecha = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     FechaCreacion = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Observaciones = table.Column<string>(type: "text", nullable: true)
@@ -264,17 +375,15 @@ namespace ClinicPass.Migrations
                 {
                     table.PrimaryKey("PK_FichasDeSeguimiento", x => x.IdFichaSeguimiento);
                     table.ForeignKey(
+                        name: "FK_FichasDeSeguimiento_AspNetUsers_ProfesionalId",
+                        column: x => x.ProfesionalId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_FichasDeSeguimiento_HistoriasClinicas_HistoriaClinicaIdHist~",
                         column: x => x.HistoriaClinicaIdHistorialClinico,
                         principalTable: "HistoriasClinicas",
-                        principalColumn: "IdHistorialClinico",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_FichasDeSeguimiento_Profesionales_ProfesionalIdUsuario",
-                        column: x => x.ProfesionalIdUsuario,
-                        principalTable: "Profesionales",
-                        principalColumn: "IdUsuario",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "IdHistorialClinico");
                 });
 
             migrationBuilder.CreateTable(
@@ -304,32 +413,6 @@ namespace ClinicPass.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProfesionalTurnos",
-                columns: table => new
-                {
-                    IdUsuario = table.Column<int>(type: "integer", nullable: false),
-                    IdTurno = table.Column<int>(type: "integer", nullable: false),
-                    ProfesionalIdUsuario = table.Column<int>(type: "integer", nullable: false),
-                    TurnoIdTurno = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProfesionalTurnos", x => new { x.IdUsuario, x.IdTurno });
-                    table.ForeignKey(
-                        name: "FK_ProfesionalTurnos_Profesionales_ProfesionalIdUsuario",
-                        column: x => x.ProfesionalIdUsuario,
-                        principalTable: "Profesionales",
-                        principalColumn: "IdUsuario",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProfesionalTurnos_Turnos_TurnoIdTurno",
-                        column: x => x.TurnoIdTurno,
-                        principalTable: "Turnos",
-                        principalColumn: "IdTurno",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Documentos",
                 columns: table => new
                 {
@@ -349,6 +432,33 @@ namespace ClinicPass.Migrations
                         column: x => x.FichaSeguimientoIdFichaSeguimiento,
                         principalTable: "FichasDeSeguimiento",
                         principalColumn: "IdFichaSeguimiento",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Turnos",
+                columns: table => new
+                {
+                    IdTurno = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Fecha = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Estado = table.Column<string>(type: "text", nullable: true),
+                    FichaDeSeguimientoID = table.Column<int>(type: "integer", nullable: true),
+                    PacienteId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Turnos", x => x.IdTurno);
+                    table.ForeignKey(
+                        name: "FK_Turnos_FichasDeSeguimiento_FichaDeSeguimientoID",
+                        column: x => x.FichaDeSeguimientoID,
+                        principalTable: "FichasDeSeguimiento",
+                        principalColumn: "IdFichaSeguimiento");
+                    table.ForeignKey(
+                        name: "FK_Turnos_Pacientes_PacienteId",
+                        column: x => x.PacienteId,
+                        principalTable: "Pacientes",
+                        principalColumn: "IdPaciente",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -387,6 +497,69 @@ namespace ClinicPass.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ProfesionalTurnos",
+                columns: table => new
+                {
+                    IdUsuario = table.Column<int>(type: "integer", nullable: false),
+                    IdTurno = table.Column<int>(type: "integer", nullable: false),
+                    ProfesionalId = table.Column<int>(type: "integer", nullable: false),
+                    TurnoIdTurno = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProfesionalTurnos", x => new { x.IdUsuario, x.IdTurno });
+                    table.ForeignKey(
+                        name: "FK_ProfesionalTurnos_AspNetUsers_ProfesionalId",
+                        column: x => x.ProfesionalId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProfesionalTurnos_Turnos_TurnoIdTurno",
+                        column: x => x.TurnoIdTurno,
+                        principalTable: "Turnos",
+                        principalColumn: "IdTurno",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetRoleClaims_RoleId",
+                table: "AspNetRoleClaims",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "RoleNameIndex",
+                table: "AspNetRoles",
+                column: "NormalizedName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserClaims_UserId",
+                table: "AspNetUserClaims",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserLogins_UserId",
+                table: "AspNetUserLogins",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUserRoles_RoleId",
+                table: "AspNetUserRoles",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "EmailIndex",
+                table: "AspNetUsers",
+                column: "NormalizedEmail");
+
+            migrationBuilder.CreateIndex(
+                name: "UserNameIndex",
+                table: "AspNetUsers",
+                column: "NormalizedUserName",
+                unique: true);
+
             migrationBuilder.CreateIndex(
                 name: "IX_Documentos_FichaSeguimientoIdFichaSeguimiento",
                 table: "Documentos",
@@ -398,9 +571,9 @@ namespace ClinicPass.Migrations
                 column: "HistoriaClinicaIdHistorialClinico");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FichasDeSeguimiento_ProfesionalIdUsuario",
+                name: "IX_FichasDeSeguimiento_ProfesionalId",
                 table: "FichasDeSeguimiento",
-                column: "ProfesionalIdUsuario");
+                column: "ProfesionalId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HCTratamientos_HistoriaClinicaIdHistorialClinico",
@@ -459,14 +632,14 @@ namespace ClinicPass.Migrations
                 column: "PacienteIdPaciente");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProfesionalPacientes_ProfesionalIdUsuario",
+                name: "IX_ProfesionalPacientes_ProfesionalId",
                 table: "ProfesionalPacientes",
-                column: "ProfesionalIdUsuario");
+                column: "ProfesionalId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProfesionalTurnos_ProfesionalIdUsuario",
+                name: "IX_ProfesionalTurnos_ProfesionalId",
                 table: "ProfesionalTurnos",
-                column: "ProfesionalIdUsuario");
+                column: "ProfesionalId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProfesionalTurnos_TurnoIdTurno",
@@ -474,9 +647,14 @@ namespace ClinicPass.Migrations
                 column: "TurnoIdTurno");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Turnos_PacienteIdPaciente",
+                name: "IX_Turnos_FichaDeSeguimientoID",
                 table: "Turnos",
-                column: "PacienteIdPaciente");
+                column: "FichaDeSeguimientoID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Turnos_PacienteId",
+                table: "Turnos",
+                column: "PacienteId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TutorResponsables_PacienteIdPaciente",
@@ -492,6 +670,21 @@ namespace ClinicPass.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "AspNetRoleClaims");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserClaims");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserLogins");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserRoles");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUserTokens");
+
             migrationBuilder.DropTable(
                 name: "Documentos");
 
@@ -517,10 +710,10 @@ namespace ClinicPass.Migrations
                 name: "TutorResponsables");
 
             migrationBuilder.DropTable(
-                name: "CoberturasMedicas");
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "FichasDeSeguimiento");
+                name: "CoberturasMedicas");
 
             migrationBuilder.DropTable(
                 name: "Tratamientos");
@@ -532,10 +725,13 @@ namespace ClinicPass.Migrations
                 name: "Tutor");
 
             migrationBuilder.DropTable(
-                name: "HistoriasClinicas");
+                name: "FichasDeSeguimiento");
 
             migrationBuilder.DropTable(
-                name: "Profesionales");
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "HistoriasClinicas");
 
             migrationBuilder.DropTable(
                 name: "Pacientes");

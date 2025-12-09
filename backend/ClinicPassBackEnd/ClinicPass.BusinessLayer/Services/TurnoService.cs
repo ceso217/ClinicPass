@@ -68,7 +68,7 @@ namespace ClinicPass.BusinessLayer.Services
 
 
         // Método para crear un nuevo turno
-        public async Task<Turno> CrearTurnoAsync(CrearTurnosDTO dto)
+        public async Task<TurnoResponseDTO> CrearTurnoAsync(CrearTurnosDTO dto)
         {
             // Convertir la fecha a UTC para evitar el error de PostgreSQL
             DateTime fechaUtc = dto.Fecha.Kind == DateTimeKind.Unspecified
@@ -106,8 +106,17 @@ namespace ClinicPass.BusinessLayer.Services
 
             };
             _context.Turnos.Add(nuevoturno);
+            var turnoResponse = new TurnoResponseDTO
+            {
+                IdTurno = nuevoturno.IdTurno,
+                Fecha = nuevoturno.Fecha,
+                Estado = nuevoturno.Estado,
+                PacienteId = nuevoturno.PacienteId,
+                NombrePaciente = paciente.NombreCompleto,
+                FichaDeSeguimientoID = nuevoturno.FichaDeSeguimientoID
+            };
             await _context.SaveChangesAsync();
-            return nuevoturno;
+            return turnoResponse;
         }
         
         private async Task<Turno> ObtenerTurnoAsync(int idTurno)
