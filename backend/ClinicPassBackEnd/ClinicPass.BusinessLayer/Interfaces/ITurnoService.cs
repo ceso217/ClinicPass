@@ -16,7 +16,7 @@ namespace ClinicPass.BusinessLayer.Interfaces
 
 
         //POST
-        Task<Turno> CrearTurnoAsync(CrearTurnosDTO dto);
+        Task<TurnoResponseDTO> CrearTurnoAsync(CrearTurnosDTO dto);
 
 
         //PUT
@@ -27,6 +27,5 @@ namespace ClinicPass.BusinessLayer.Interfaces
 
         //DELETE
         Task EliminarAsync(int idTurno);
-
     }
 }
