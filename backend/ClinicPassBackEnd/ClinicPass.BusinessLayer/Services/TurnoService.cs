@@ -1,6 +1,6 @@
 ﻿
 using ClinicPass.BusinessLayer.Interfaces;
-using ClinicPass.Data;
+using ClinicPass.DataAccessLayer.Data;
 using ClinicPass.DataAccessLayer.DTOs.Turnos;
 using ClinicPass.DataAccessLayer.Models;
 using Microsoft.EntityFrameworkCore;

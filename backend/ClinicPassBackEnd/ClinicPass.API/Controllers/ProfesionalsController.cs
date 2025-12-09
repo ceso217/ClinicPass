@@ -127,14 +127,14 @@ namespace ClinicPass.API.Controllers
         }
 
         // PUT api/Profesionals/5/ResetPassword
-        [HttpPut("{id}")]
+        //[HttpPut("{id}")]
 
         //TODO
 
 
-        private bool ProfesionalExists(int id)
-        {
-            return _context.Users.Any(e => e.Id == id);
-        }
+        //private bool ProfesionalExists(int id)
+        //{
+        //    return _context.Users.Any(e => e.Id == id);
+        //}
     }
 }
