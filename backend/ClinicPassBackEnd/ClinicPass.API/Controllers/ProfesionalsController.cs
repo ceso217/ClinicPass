@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ClinicPass.Data;
 using ClinicPass.DataAccessLayer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using ClinicPass.DataAccessLayer.DTOs;
+using ClinicPass.DataAccessLayer.Data;
 
 namespace ClinicPass.API.Controllers
 {

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClinicPass.DataAccessLayer.DTOs.Turnos;
-using ClinicPass.DataAccessLayer.Models;
+using ClinicPass;
+using ClinicPass;
 
 namespace ClinicPass.BusinessLayer.Interfaces
 {

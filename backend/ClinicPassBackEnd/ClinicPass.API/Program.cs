@@ -1,6 +1,5 @@
 ﻿using ClinicPass.BusinessLayer.Interfaces;
 using ClinicPass.BusinessLayer.Services;
-using ClinicPass.Data;
 using ClinicPass.DataAccessLayer.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ClinicPass.BusinessLayer.Services;
 using ClinicPass.BusinessLayer.Interfaces;
 using Microsoft.IdentityModel.Tokens;
+using ClinicPass.DataAccessLayer.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);

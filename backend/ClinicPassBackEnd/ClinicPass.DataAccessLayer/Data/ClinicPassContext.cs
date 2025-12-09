@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace ClinicPass.Data
+namespace ClinicPass.DataAccessLayer.Data
 {
     public class ClinicPassContext : IdentityDbContext<Profesional, IdentityRole<int>, int>
 	{
