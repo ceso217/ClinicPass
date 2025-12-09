@@ -1,4 +1,5 @@
 ﻿using ClinicPass.DataAccessLayer.Models;
+using ClinicPass.DataAccessLayer.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
