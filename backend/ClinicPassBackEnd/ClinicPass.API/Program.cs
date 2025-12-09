@@ -1,4 +1,6 @@
-﻿using ClinicPass.Data;
+﻿using ClinicPass.BusinessLayer.Interfaces;
+using ClinicPass.BusinessLayer.Services;
+using ClinicPass.Data;
 using ClinicPass.DataAccessLayer.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +34,8 @@ builder.Services.AddIdentity<Profesional, IdentityRole<int>>(options =>
 
 
 
+
+builder.Services.AddScoped<ITurnoService, TurnoService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
