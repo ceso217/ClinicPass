@@ -19,7 +19,5 @@ namespace ClinicPass.BusinessLayer.Services
             _db = db;
             _userManager = userManager;
         }
-
-
     }
 }
