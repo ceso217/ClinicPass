@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using System.Text;
 using ClinicPass.BusinessLayer.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -70,11 +71,52 @@ namespace ClinicPass.API.Controllers
 		}
 
 		[HttpPost("register")]
-		public string Get(int id)
+		public async Task<IActionResult> Register([FromBody] RegisterDTO request)
 		{
-			return "value";
-		}
+			//validar datos vacios
 
+			//verificar si el usuario existe (username, email, DNI, ID)
+			var profesionalExist = await _userManager.Users.AnyAsync(x => x.Dni == request.Dni);
+
+            //si existe enviar una BadRequest
+            if (profesionalExist)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, "Ya existe un profesional con el DNI proporcionado.");
+            }
+
+            var user = new Profesional
+			{
+				UserName = request.Email,
+				Email = request.Email,
+				NombreCompleto = request.Name + " " + request.LastName,
+				PhoneNumber = request.PhoneNumber,
+				Activo = true,
+				Dni = request.Dni
+			};
+
+			var result = await _userManager.CreateAsync(user, request.Password);
+
+			if (!result.Succeeded) 
+			{
+				return BadRequest("El usuario ya existe / Ya esta registrado");
+			}
+
+			//añadir un rol por defecto al registrarse
+			await _userManager.AddToRoleAsync(user, "Profesional");
+
+			// crear DTO de respuesta con token JWT
+
+			var userCreatedDTO = new RegisterSuccessDTO
+			{
+				Dni = user.Dni,
+				Email = user.Email,
+				NombreCompleto = user.NombreCompleto,
+				PhoneNumber = user.PhoneNumber
+			};
+
+			var token = _authService.GenerateJwtToken(user.Id, user.UserName, ["Profesional"]);
+			return Ok(new { User = userCreatedDTO, Token = token });
+		}
 	}
 }
 //1.JULIÁN – Autenticación + JWT
