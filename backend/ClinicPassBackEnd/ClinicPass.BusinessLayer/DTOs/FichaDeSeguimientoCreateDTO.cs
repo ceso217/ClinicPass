@@ -6,7 +6,7 @@
         public int IdHistorialClinico { get; set; }
 
         public DateTime FechaPase { get; set; }
-        public string? FechaObservaciones { get; set; }
+        public string? Observaciones { get; set; }
     }
 }
 

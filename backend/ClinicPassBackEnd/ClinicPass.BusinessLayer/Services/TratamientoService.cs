@@ -14,7 +14,7 @@ namespace ClinicPass.BusinessLayer.Services
             _context = context;
         }
         // CREAR TRATAMIENTO Y ASOCIARLO AL PACIENTE
-        public async Task<TratamientoDTO?> CrearTratamientoAsync(TratamientoCreateDTO dto)
+        public async Task<TratamientoPacienteDTO?> CrearTratamientoAsync(TratamientoCreateDTO dto)
         {
             // Validar que el paciente exista
             var paciente = await _context.Pacientes.FindAsync(dto.IdPaciente);
@@ -45,7 +45,7 @@ namespace ClinicPass.BusinessLayer.Services
             await _context.SaveChangesAsync();
 
             // devuelve
-            return new TratamientoDTO
+            return new TratamientoPacienteDTO
             {
                 IdTratamiento = tratamiento.IdTratamiento,
                 TipoTratamiento = tratamiento.TipoTratamiento,
@@ -58,12 +58,12 @@ namespace ClinicPass.BusinessLayer.Services
         }
 
         //traer tratamientos por paciente
-        public async Task<List<TratamientoDTO>> GetByPacienteAsync(int idPaciente)
+        public async Task<List<TratamientoPacienteDTO>> GetByPacienteAsync(int idPaciente)
         {
             return await _context.PacienteTratamientos
                 .Where(pt => pt.IdPaciente == idPaciente)
                 .Include(pt => pt.Tratamiento)
-                .Select(pt => new TratamientoDTO
+                .Select(pt => new TratamientoPacienteDTO
                 {
                     IdTratamiento = pt.IdTratamiento,
                     TipoTratamiento = pt.Tratamiento.TipoTratamiento,

@@ -11,7 +11,7 @@
         public bool Activa { get; set; }
 
         // Lista de tratamientos del paciente
-        public List<TratamientoDTO> Tratamientos { get; set; } = new();
+        public List<TratamientoPacienteDTO> Tratamientos { get; set; } = new();
 
         // Lista de fichas clínicas del paciente
         public List<FichaDeSeguimientoDTO> Fichas { get; set; } = new();

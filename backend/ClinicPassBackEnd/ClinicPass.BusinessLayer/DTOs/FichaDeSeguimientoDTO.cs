@@ -11,6 +11,6 @@
 
         public DateTime FechaPase { get; set; }
         public DateTime FechaCreacion { get; set; }
-        public string? FechaObservaciones { get; set; }
+        public string? Observaciones { get; set; }
     }
 }

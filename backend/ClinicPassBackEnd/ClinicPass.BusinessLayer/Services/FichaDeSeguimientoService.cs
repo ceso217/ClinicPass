@@ -23,7 +23,7 @@ namespace ClinicPass.BusinessLayer.Services
                 IdHistorialClinico = dto.IdHistorialClinico,
                 FechaPase = dto.FechaPase,
                 FechaCreacion = DateTime.UtcNow,
-                FechaObservaciones = dto.FechaObservaciones
+                Observaciones = dto.Observaciones
             };
 
             _context.FichasDeSeguimiento.Add(ficha);
@@ -40,7 +40,7 @@ namespace ClinicPass.BusinessLayer.Services
                 IdHistorialClinico = ficha.IdHistorialClinico,
                 FechaPase = ficha.FechaPase,
                 FechaCreacion = ficha.FechaCreacion,
-                FechaObservaciones = ficha.FechaObservaciones
+                Observaciones = ficha.Observaciones
             };
         }
 
@@ -58,7 +58,7 @@ namespace ClinicPass.BusinessLayer.Services
                     IdHistorialClinico = f.IdHistorialClinico,
                     FechaPase = f.FechaPase,
                     FechaCreacion = f.FechaCreacion,
-                    FechaObservaciones = f.FechaObservaciones
+                    Observaciones = f.Observaciones
                 })
                 .ToListAsync();
         }
@@ -78,7 +78,7 @@ namespace ClinicPass.BusinessLayer.Services
                     IdHistorialClinico = f.IdHistorialClinico,
                     FechaPase = f.FechaPase,
                     FechaCreacion = f.FechaCreacion,
-                    FechaObservaciones = f.FechaObservaciones
+                    Observaciones = f.Observaciones
                 })
                 .ToListAsync();
         }
