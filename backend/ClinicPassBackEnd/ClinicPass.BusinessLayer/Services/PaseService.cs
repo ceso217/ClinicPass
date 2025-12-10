@@ -26,16 +26,21 @@ namespace ClinicPass.BusinessLayer.Services
             _context.Pases.Add(pase);
             await _context.SaveChangesAsync();
 
-            var turno = await _context.Turnos.Include(t => t.Profesional)
-                                             .FirstAsync(t => t.IdTurno == dto.IdTurno);
+            var turno = await _context.Turnos
+                .Include(t => t.Profesionales)
+                    .ThenInclude(pt => pt.Profesional)
+                .FirstAsync(t => t.IdTurno == dto.IdTurno);
+
+            var prof = turno.Profesionales.FirstOrDefault()?.Profesional?.NombreCompleto
+                       ?? "Sin profesional asignado";
 
             return new PaseDTO
             {
                 IdTratamiento = dto.IdTratamiento,
                 IdTurno = dto.IdTurno,
                 FrecuenciaTurno = dto.FrecuenciaTurno,
-                FechaTurno = turno.Fecha,
-                ProfesionalNombre = turno.Profesional.NombreCompleto
+                FechaTurno = turno.FechaHora,
+                ProfesionalNombre = prof
             };
         }
 
@@ -44,14 +49,19 @@ namespace ClinicPass.BusinessLayer.Services
             return await _context.Pases
                 .Where(p => p.IdTratamiento == idTratamiento)
                 .Include(p => p.Turno)
-                .ThenInclude(t => t.Profesional)
+                    .ThenInclude(t => t.Profesionales)
+                        .ThenInclude(pt => pt.Profesional)
                 .Select(p => new PaseDTO
                 {
                     IdTratamiento = p.IdTratamiento,
                     IdTurno = p.IdTurno,
                     FrecuenciaTurno = p.FrecuenciaTurno,
-                    FechaTurno = p.Turno.Fecha,
-                    ProfesionalNombre = p.Turno.Profesional.NombreCompleto
+
+                    FechaTurno = p.Turno.FechaHora,
+
+                    ProfesionalNombre =
+                        p.Turno.Profesionales.FirstOrDefault().Profesional.NombreCompleto
+                        ?? "Sin profesional asignado"
                 })
                 .ToListAsync();
         }

@@ -15,6 +15,6 @@ namespace ClinicPass.DataAccessLayer.Models
         // Campos clínicos
         public DateTime FechaPase { get; set; }
         public DateTime FechaCreacion { get; set; }      // cuando se cargó la ficha
-        public string? FechaObservaciones { get; set; }  // notas del profesional
+        public string? Observaciones { get; set; }  // notas del profesional
     }
 }
