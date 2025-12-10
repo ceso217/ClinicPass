@@ -24,11 +24,9 @@ namespace ClinicPass.DataAccessLayer.Models
         public int? HistorialClinicoId { get; set; }
         public HistoriaClinica? HistoriaClinica { get; set; }
 
-        public DateTime Fecha { get; set; }
-        public DateTime FechaCreacion { get; set; }
-        public string? Observaciones { get; set; }
-
-        public ICollection<Documento> Documentos { get; set; } = new List<Documento>();
-        public ICollection<PaseDiario> PasesDiarios { get; set; } = new List<PaseDiario>();
+        // Campos clínicos
+        public DateTime FechaPase { get; set; }
+        public DateTime FechaCreacion { get; set; }      // cuando se cargó la ficha
+        public string? Observaciones { get; set; }  // notas del profesional
     }
 }

@@ -6,8 +6,6 @@ namespace ClinicPass.DataAccessLayer.Models
     {
         [Key]
         public int IdTurno { get; set; }
-        public DateTime Fecha { get; set; }
-        public string? Estado { get; set; }
 
 
         public int? FichaDeSeguimientoID { get; set; }
@@ -21,3 +19,4 @@ namespace ClinicPass.DataAccessLayer.Models
         public ICollection<PaseDiario> PasesDiarios { get; set; } = new List<PaseDiario>();
     }
 }
+

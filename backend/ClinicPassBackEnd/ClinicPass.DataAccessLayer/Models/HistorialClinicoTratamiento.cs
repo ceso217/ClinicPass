@@ -1,6 +1,6 @@
-namespace ClinicPass.DataAccessLayer.Models
+﻿namespace ClinicPass.DataAccessLayer.Models
 {
-    public class HCTratamiento
+    public class HistorialClinicoTratamiento
     {
         public int IdTratamiento { get; set; }
         public Tratamiento Tratamiento { get; set; } = null!;
@@ -9,3 +9,4 @@ namespace ClinicPass.DataAccessLayer.Models
         public HistoriaClinica HistoriaClinica { get; set; } = null!;
     }
 }
+

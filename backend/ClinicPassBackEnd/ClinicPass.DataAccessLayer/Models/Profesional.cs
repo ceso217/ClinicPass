@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 
-namespace ClinicPass.DataAccessLayer.Models
+namespace ClinicPass.Models
 {
     public class Profesional :IdentityUser<int>
     {

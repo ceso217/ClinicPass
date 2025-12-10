@@ -25,11 +25,12 @@ namespace ClinicPass.DataAccessLayer.Data
         // Tablas intermedias
         public DbSet<PacienteCobertura> PacienteCoberturas { get; set; }
         public DbSet<PacienteTratamiento> PacienteTratamientos { get; set; }
-        public DbSet<HCTratamiento> HCTratamientos { get; set; }
         public DbSet<ProfesionalTurno> ProfesionalTurnos { get; set; }
         public DbSet<ProfesionalPaciente> ProfesionalPacientes { get; set; }
         public DbSet<TutorResponsablePaciente> TutorResponsables { get; set; }
-        public DbSet<PaseDiario> PasesDiarios { get; set; }
+
+        public DbSet<PaseDiario> Pases { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,7 +66,6 @@ namespace ClinicPass.DataAccessLayer.Data
             modelBuilder.Entity<TutorResponsablePaciente>()
                 .HasKey(tp => new { tp.DNITutor, tp.DNIPaciente });
 
-            // PASE DIARIO (PK triple)
             modelBuilder.Entity<PaseDiario>()
                 .HasKey(p => new { p.IdTratamiento, p.IdTurno, p.IdFichaSeguimiento });
 
