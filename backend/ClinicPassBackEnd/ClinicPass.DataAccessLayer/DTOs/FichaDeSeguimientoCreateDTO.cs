@@ -2,8 +2,8 @@
 {
     public class FichaDeSeguimientoCreateDTO
     {
-        public int IdUsuario { get; set; }
-        public int IdHistorialClinico { get; set; }
+        public string UsuarioId { get; set; }
+        public string HistorialClinicoId { get; set; }
 
         public DateTime FechaPase { get; set; }
         public string? Observaciones { get; set; }

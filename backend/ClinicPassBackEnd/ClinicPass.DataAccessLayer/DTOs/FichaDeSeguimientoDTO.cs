@@ -4,10 +4,10 @@
     {
         public int IdFichaSeguimiento { get; set; }
 
-        public int IdUsuario { get; set; }
+        public string UsuarioId { get; set; }
         public string NombreProfesional { get; set; } = null!;
 
-        public int IdHistorialClinico { get; set; }
+        public string HistorialClinicoId { get; set; }
 
         public DateTime FechaPase { get; set; }
         public DateTime FechaCreacion { get; set; }

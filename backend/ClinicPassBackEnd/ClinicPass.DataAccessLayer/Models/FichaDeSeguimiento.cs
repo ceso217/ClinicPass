@@ -15,13 +15,13 @@ namespace ClinicPass.DataAccessLayer.Models
          */
         //public int IdUsuario { get; set; }
         //public Profesional Profesional { get; set; } = null!;
-        public int? UsuarioId { get; set; }
+        public string UsuarioId{ get; set; }
         public Profesional? Profesional { get; set; }
 
         //public int IdHistorialClinico { get; set; }
         //public HistoriaClinica HistoriaClinica { get; set; } = null!;
         
-        public int? HistorialClinicoId { get; set; }
+        public string HistorialClinicoId { get; set; }
         public HistoriaClinica? HistoriaClinica { get; set; }
 
         // Campos clínicos

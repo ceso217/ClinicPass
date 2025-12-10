@@ -2,16 +2,20 @@
 using ClinicPass.BusinessLayer.DTOs;
 using ClinicPass.DataAccessLayer.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;    
 
 namespace ClinicPass.BusinessLayer.Services
 {
     public class FichaDeSeguimientoService
     {
         private readonly ClinicPassContext _context;
+        private readonly UserManager<Profesional> _userManager;
 
-        public FichaDeSeguimientoService(ClinicPassContext context)
+
+        public FichaDeSeguimientoService(ClinicPassContext context, UserManager<Profesional> userManager)
         {
             _context = context;
+            _userManager = userManager;  
         }
 
         // creo ficha de seguimiento
@@ -19,8 +23,8 @@ namespace ClinicPass.BusinessLayer.Services
         {
             var ficha = new FichaDeSeguimiento
             {
-                IdUsuario = dto.IdUsuario,
-                IdHistorialClinico = dto.IdHistorialClinico,
+                UsuarioId = dto.UsuarioId,
+                HistorialClinicoId = dto.HistorialClinicoId,
                 FechaPase = dto.FechaPase,
                 FechaCreacion = DateTime.UtcNow,
                 Observaciones = dto.Observaciones
@@ -30,14 +34,14 @@ namespace ClinicPass.BusinessLayer.Services
             await _context.SaveChangesAsync();
 
             // Traer el nombre del profesional
-            var profesional = await _context.Profesionales.FindAsync(dto.IdUsuario);
+            var profesional = await _userManager.FindByIdAsync(ficha.UsuarioId.ToString()); 
 
             return new FichaDeSeguimientoDTO
             {
                 IdFichaSeguimiento = ficha.IdFichaSeguimiento,
-                IdUsuario = ficha.IdUsuario,
+                UsuarioId = ficha.UsuarioId,
                 NombreProfesional = profesional?.NombreCompleto ?? "Desconocido",
-                IdHistorialClinico = ficha.IdHistorialClinico,
+                HistorialClinicoId = ficha.HistorialClinicoId,
                 FechaPase = ficha.FechaPase,
                 FechaCreacion = ficha.FechaCreacion,
                 Observaciones = ficha.Observaciones
@@ -48,14 +52,14 @@ namespace ClinicPass.BusinessLayer.Services
         public async Task<List<FichaDeSeguimientoDTO>> GetByHistoriaAsync(int idHistoria)
         {
             return await _context.FichasDeSeguimiento
-                .Where(f => f.IdHistorialClinico == idHistoria)
+                .Where(f => f.HistorialClinicoId.Equals(idHistoria))
                 .Include(f => f.Profesional)
                 .Select(f => new FichaDeSeguimientoDTO
                 {
                     IdFichaSeguimiento = f.IdFichaSeguimiento,
-                    IdUsuario = f.IdUsuario,
+                    UsuarioId = f.UsuarioId,
                     NombreProfesional = f.Profesional.NombreCompleto,
-                    IdHistorialClinico = f.IdHistorialClinico,
+                    HistorialClinicoId = f.HistorialClinicoId,
                     FechaPase = f.FechaPase,
                     FechaCreacion = f.FechaCreacion,
                     Observaciones = f.Observaciones
@@ -73,9 +77,9 @@ namespace ClinicPass.BusinessLayer.Services
                 .Select(f => new FichaDeSeguimientoDTO
                 {
                     IdFichaSeguimiento = f.IdFichaSeguimiento,
-                    IdUsuario = f.IdUsuario,
+                    UsuarioId = f.UsuarioId,
                     NombreProfesional = f.Profesional.NombreCompleto,
-                    IdHistorialClinico = f.IdHistorialClinico,
+                    HistorialClinicoId = f.HistorialClinicoId,
                     FechaPase = f.FechaPase,
                     FechaCreacion = f.FechaCreacion,
                     Observaciones = f.Observaciones

@@ -1,69 +1,71 @@
-﻿using ClinicPass.BusinessLayer.DTOs;
-using ClinicPass.DataAccessLayer.Data;
-using ClinicPass.DataAccessLayer.Models;
-using Microsoft.EntityFrameworkCore;
+﻿//using ClinicPass.BusinessLayer.DTOs;
+//using ClinicPass.DataAccessLayer.Data;
+//using ClinicPass.DataAccessLayer.Models;
+//using Microsoft.EntityFrameworkCore;
+//using Microsoft.AspNetCore.Identity;
+//namespace ClinicPass.BusinessLayer.Services
+//{
+//    public class PaseService
+//    {
+//        private readonly ClinicPassContext _context;
+//        private readonly UserManager<Profesional> _userManager;
 
-namespace ClinicPass.BusinessLayer.Services
-{
-    public class PaseService
-    {
-        private readonly ClinicPassContext _context;
+//        public PaseService(ClinicPassContext context, UserManager<Profesional> userManager)
+//        {
+//            _context = context;
+//            _userManager = userManager;
+//        }
 
-        public PaseService(ClinicPassContext context)
-        {
-            _context = context;
-        }
+//        public async Task<PaseDTO> CrearAsync(PaseCreateDTO dto)
+//        {
+//            var pase = new PaseDiario
+//            {
+//                IdTratamiento = dto.IdTratamiento,
+//                IdTurno = dto.IdTurno,
+//                FrecuenciaTurno = dto.FrecuenciaTurno
+//            };
 
-        public async Task<PaseDTO> CrearAsync(PaseCreateDTO dto)
-        {
-            var pase = new PaseDiario
-            {
-                IdTratamiento = dto.IdTratamiento,
-                IdTurno = dto.IdTurno,
-                FrecuenciaTurno = dto.FrecuenciaTurno
-            };
+//            _context.Pases.Add(pase);
+//            await _context.SaveChangesAsync();
 
-            _context.Pases.Add(pase);
-            await _context.SaveChangesAsync();
+//            var turno = await _context.Turnos
+//                .Include(t => t.)
+//                    .ThenInclude(pt => pt.Profesional)
+//                .FirstAsync(t => t.IdTurno == dto.IdTurno);
 
-            var turno = await _context.Turnos
-                .Include(t => t.Profesionales)
-                    .ThenInclude(pt => pt.Profesional)
-                .FirstAsync(t => t.IdTurno == dto.IdTurno);
+//            var prof = turno.Profesionales.FirstOrDefault()?.Profesional?.NombreCompleto
+//                       ?? "Sin profesional asignado";
 
-            var prof = turno.Profesionales.FirstOrDefault()?.Profesional?.NombreCompleto
-                       ?? "Sin profesional asignado";
+//            return new PaseDTO
+//            {
+//                IdTratamiento = dto.IdTratamiento,
+//                IdTurno = dto.IdTurno,
+//                FrecuenciaTurno = dto.FrecuenciaTurno,
+//                FechaTurno = turno.FechaHora,
+//                ProfesionalNombre = prof
+//            };
+//        }
 
-            return new PaseDTO
-            {
-                IdTratamiento = dto.IdTratamiento,
-                IdTurno = dto.IdTurno,
-                FrecuenciaTurno = dto.FrecuenciaTurno,
-                FechaTurno = turno.FechaHora,
-                ProfesionalNombre = prof
-            };
-        }
+//        public async Task<List<PaseDTO>> GetByTratamiento(int idTratamiento)
+//        {
+//            return await _context.Pases
+//                .Where(p => p.IdTratamiento == idTratamiento)
+//                .Include(p => p.Turno)
+//                    .ThenInclude(t => t.Profesionales)
+//                        .ThenInclude(pt => pt.Profesional)
+//                .Select(p => new PaseDTO
+//                {
+//                    IdTratamiento = p.IdTratamiento,
+//                    IdTurno = p.IdTurno,
+//                    FrecuenciaTurno = p.FrecuenciaTurno,
 
-        public async Task<List<PaseDTO>> GetByTratamiento(int idTratamiento)
-        {
-            return await _context.Pases
-                .Where(p => p.IdTratamiento == idTratamiento)
-                .Include(p => p.Turno)
-                    .ThenInclude(t => t.Profesionales)
-                        .ThenInclude(pt => pt.Profesional)
-                .Select(p => new PaseDTO
-                {
-                    IdTratamiento = p.IdTratamiento,
-                    IdTurno = p.IdTurno,
-                    FrecuenciaTurno = p.FrecuenciaTurno,
+//                    FechaTurno = p.Turno.FechaHora,
 
-                    FechaTurno = p.Turno.FechaHora,
-
-                    ProfesionalNombre =
-                        p.Turno.Profesionales.FirstOrDefault().Profesional.NombreCompleto
-                        ?? "Sin profesional asignado"
-                })
-                .ToListAsync();
-        }
-    }
-}
+//                    ProfesionalNombre =
+//                        p.Turno.Profesionales.FirstOrDefault().Profesional.NombreCompleto
+//                        ?? "Sin profesional asignado"
+//                })
+//                .ToListAsync();
+//        }
+//    }
+//}

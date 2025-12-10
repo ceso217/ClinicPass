@@ -28,7 +28,7 @@ namespace ClinicPass.DataAccessLayer.Data
         public DbSet<ProfesionalTurno> ProfesionalTurnos { get; set; }
         public DbSet<ProfesionalPaciente> ProfesionalPacientes { get; set; }
         public DbSet<TutorResponsablePaciente> TutorResponsables { get; set; }
-
+        
         public DbSet<PaseDiario> Pases { get; set; }
 
 
@@ -55,7 +55,7 @@ namespace ClinicPass.DataAccessLayer.Data
                 .HasForeignKey<HistoriaClinica>(h => h.IdPaciente);
 
             // HISTORIAL - TRATAMIENTO
-            modelBuilder.Entity<HCTratamiento>()
+            modelBuilder.Entity<HistorialClinicoTratamiento>()
                 .HasKey(hc => new { hc.IdTratamiento, hc.IdHistorialClinico });
 
             // PACIENTE - TRATAMIENTO

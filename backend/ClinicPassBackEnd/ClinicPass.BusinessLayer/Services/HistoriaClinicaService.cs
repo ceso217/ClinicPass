@@ -195,9 +195,9 @@ namespace ClinicPass.BusinessLayer.Services
                 Fichas = h.Fichas.Select(f => new FichaDeSeguimientoDTO
                 {
                     IdFichaSeguimiento = f.IdFichaSeguimiento,
-                    IdUsuario = f.IdUsuario,
+                    UsuarioId = f.UsuarioId,
                     NombreProfesional = f.Profesional.NombreCompleto,
-                    IdHistorialClinico = f.IdHistorialClinico,
+                    HistorialClinicoId = f.HistorialClinicoId,
                     FechaPase = f.FechaPase,
                     FechaCreacion = f.FechaCreacion,
                     Observaciones = f.Observaciones

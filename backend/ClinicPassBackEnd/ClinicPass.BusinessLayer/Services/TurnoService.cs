@@ -1,8 +1,9 @@
-﻿
+﻿﻿
 using ClinicPass.BusinessLayer.Interfaces;
 using ClinicPass.DataAccessLayer.Data;
 using ClinicPass.DataAccessLayer.DTOs.Turnos;
 using ClinicPass.DataAccessLayer.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -19,14 +20,17 @@ namespace ClinicPass.BusinessLayer.Services
     {
         // Inyección de dependencia del contexto de la base de datos
         private readonly ClinicPassContext _context;
-        public TurnoService(ClinicPassContext context)
+        private readonly UserManager<Profesional> _userManager;
+        public TurnoService(ClinicPassContext context, UserManager<Profesional> userManager)
         {
             _context = context;
+            _userManager = userManager;
+
         }
 
 
         // Método para obtener todos los turnos
-        
+
         public async Task<IEnumerable<TurnoResponseDTO>> ObtenerTodosAsync()
         {
             return await _context.Turnos
