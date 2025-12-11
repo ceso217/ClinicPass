@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react';
 import { Search, Plus, Edit, UserX, UserCheck, Filter, X } from 'lucide-react';
 import { mockProfesionales, type Profesional } from '../data/mockData';

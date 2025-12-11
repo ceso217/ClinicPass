@@ -1,6 +1,8 @@
+'use client'
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+// import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
 import { 
   LayoutDashboard,
   Users, 
@@ -13,6 +15,7 @@ import {
   ChevronRight,
   TrendingUp
 } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
 
 interface MenuItem {
   icon: React.ReactNode;
@@ -23,8 +26,11 @@ interface MenuItem {
 
 export const Sidebar: React.FC = () => {
   const { user, logout, isAdmin, isProfesional } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
+  // const navigate = useNavigate();
+  // const location = useLocation();
+  const router = useRouter(); 
+  const pathname = usePathname();
+
   const [collapsed, setCollapsed] = useState(false);
 
   const menuItems: MenuItem[] = [
@@ -72,10 +78,10 @@ export const Sidebar: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    router.push('/login');
   };
 
-  const isActive = (path: string) => location.pathname === path;
+const isActive = (path: string) => pathname === path;
 
   return (
     <div 
@@ -128,7 +134,7 @@ export const Sidebar: React.FC = () => {
           {filteredMenuItems.map((item) => (
             <button
               key={item.path}
-              onClick={() => navigate(item.path)}
+              onClick={() => router.push(item.path)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
                 isActive(item.path)
                   ? 'bg-indigo-50 text-indigo-700'
@@ -146,7 +152,7 @@ export const Sidebar: React.FC = () => {
       {/* Footer actions */}
       <div className="p-4 border-t border-gray-200 space-y-1">
         <button
-          onClick={() => navigate('/configuracion')}
+          onClick={() => router.push('/configuracion')}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition ${
             collapsed ? 'justify-center' : ''
           }`}
@@ -155,6 +161,7 @@ export const Sidebar: React.FC = () => {
           <Settings className="w-5 h-5" />
           {!collapsed && <span>Configuración</span>}
         </button>
+        <ThemeToggle></ThemeToggle>
         
         <button
           onClick={handleLogout}

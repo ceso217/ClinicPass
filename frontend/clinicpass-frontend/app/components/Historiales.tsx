@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react';
 import { Search, FileText, Calendar, User, ChevronRight, ArrowLeft, Plus, Download } from 'lucide-react';
 import {

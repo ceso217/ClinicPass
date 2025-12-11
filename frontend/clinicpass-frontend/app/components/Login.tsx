@@ -1,6 +1,8 @@
+'use client'
+
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
 import { DevBanner } from './DevBanner';
 
@@ -10,7 +12,8 @@ export const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,7 +22,7 @@ export const Login: React.FC = () => {
 
     try {
       await login(correo, password);
-      navigate('/dashboard');
+      router.push('/dashboard')
     } catch (err) {
       setError('Credenciales incorrectas. Por favor, intente nuevamente.');
     } finally {
