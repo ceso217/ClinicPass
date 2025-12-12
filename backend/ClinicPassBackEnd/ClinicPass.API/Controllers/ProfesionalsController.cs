@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ClinicPass.Data;
 using ClinicPass.DataAccessLayer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using ClinicPass.DataAccessLayer.DTOs;
+using ClinicPass.DataAccessLayer.Data;
 
 namespace ClinicPass.API.Controllers
 {
@@ -124,14 +124,14 @@ namespace ClinicPass.API.Controllers
         }
 
         // PUT api/Profesionals/5/ResetPassword
-        [HttpPut("{id}")]
+        //[HttpPut("{id}")]
 
         //TODO
 
 
-        private bool ProfesionalExists(int id)
-        {
-            return _context.Users.Any(e => e.Id == id);
-        }
+        //private bool ProfesionalExists(int id)
+        //{
+        //    return _context.Users.Any(e => e.Id == id);
+        //}
     }
 }

@@ -1,14 +1,11 @@
 ﻿using ClinicPass.DataAccessLayer.Models;
+using ClinicPass.DataAccessLayer.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 //Directivas y dependencias
 using System.Security.Cryptography;
 using System.Text;
-using ClinicPass.DataAccessLayer.Models;
-using Microsoft.AspNetCore.Authentication;
-using ClinicPass.DataAccessLayer.DTOs;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ClinicPass.BusinessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +28,7 @@ namespace ClinicPass.API.Controllers
 			_authService = authService;
 		}
 
+		//Endpoint Login
 		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginDTO request)
 		{
@@ -73,7 +71,7 @@ namespace ClinicPass.API.Controllers
 		}
 
 		[HttpPost("register")]
-		public async Task<IActionResult> Register([FromBody]RegisterDTO request)
+		public async Task<IActionResult> Register([FromBody] RegisterDTO request)
 		{
 			//validar datos vacios
 

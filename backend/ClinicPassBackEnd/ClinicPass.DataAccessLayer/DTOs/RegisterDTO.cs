@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace ClinicPass.DataAccessLayer.DTOs
 {
+
+
+	//sadfad
 	public class RegisterDTO
 	{
 		public string Dni { get; set; }

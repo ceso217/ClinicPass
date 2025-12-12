@@ -3,6 +3,7 @@ namespace ClinicPass.DataAccessLayer.Models
 {
     public class PaseDiario
     {
+        // PK compuesta
         public int IdTratamiento { get; set; }
         public Tratamiento Tratamiento { get; set; } = null!;
 
@@ -15,3 +16,6 @@ namespace ClinicPass.DataAccessLayer.Models
         public string? FrecuenciaTurno { get; set; }
     }
 }
+
+
+
