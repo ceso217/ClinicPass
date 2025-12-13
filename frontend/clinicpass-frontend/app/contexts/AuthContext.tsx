@@ -1,8 +1,10 @@
+'use client'
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { mockLogin } from '../data/mockUsers';
 
 // Variable para activar/desactivar modo mock
 const USE_MOCK_AUTH = true; // Cambiar a false cuando tengas el backend listo
+
 
 interface User {
   id: number;
@@ -22,6 +24,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isProfesional: boolean;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,6 +44,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Recuperar token y usuario del localStorage al iniciar
@@ -50,10 +54,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
-    }
+    }setLoading(false);
   }, []);
 
   const login = async (correo: string, password: string) => {
+    
     try {
       // Modo MOCK para testing
       if (USE_MOCK_AUTH) {
@@ -110,6 +115,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value: AuthContextType = {
     user,
+    loading,
     token,
     login,
     logout,

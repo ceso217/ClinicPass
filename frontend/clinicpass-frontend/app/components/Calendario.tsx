@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Clock, User, Filter } from 'lucide-react';
 import { mockTurnos, mockProfesionales, mockPacientes, type Turno } from '../data/mockData';
