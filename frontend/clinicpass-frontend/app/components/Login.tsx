@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
 import { DevBanner } from './DevBanner';
 
 export const Login: React.FC = () => {
@@ -43,7 +44,7 @@ export const Login: React.FC = () => {
         <div className="max-w-md w-full">
           {/* Logo y título */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-full mb-4">
+            {/* <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-full mb-4">
               <svg
                 className="w-8 h-8 text-white"
                 fill="none"
@@ -57,8 +58,15 @@ export const Login: React.FC = () => {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-            </div>
-            <h1 className="text-indigo-900">ClinicPass</h1>
+            </div> */}
+              <Image
+                src="/logoSinFondo_reduced_1024x1024.png" 
+                alt="ClinicPass"
+                width={300} 
+                height={80}
+                className="inline-flex items-center justify-center "
+              />
+            {/* <h1 className="text-indigo-900">ClinicPass</h1> */}
             <p className="text-gray-600 mt-2">Sistema de Gestión Clínica</p>
           </div>
 
