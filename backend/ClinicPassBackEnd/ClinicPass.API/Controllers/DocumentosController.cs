@@ -1,5 +1,6 @@
 ﻿using ClinicPass.DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
+using ClinicPass.BusinessLayer.Interfaces;
 
 [ApiController]
 [Route("api/[controller]")]
