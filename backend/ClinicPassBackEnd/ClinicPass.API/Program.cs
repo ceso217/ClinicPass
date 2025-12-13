@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // DbContext (PostgreSQL)
@@ -120,6 +121,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+//Mapear Controladores
 app.MapControllers();
 
 app.Run();

@@ -1,16 +1,13 @@
-namespace ClinicPass.DataAccessLayer.Models
+﻿
+namespace ClinicPass.BusinessLayer.DTOs
 {
-    public class PacienteTratamiento
+    public class PacienteTratamientoDTO
     {
-        
         public int IdPaciente { get; set; }
-        public Paciente Paciente { get; set; } = null!;
-
         public int IdTratamiento { get; set; }
-        public Tratamiento Tratamiento { get; set; } = null!;
+
         public DateTime FechaInicio { get; set; }
         public string Estado { get; set; } = null!;
         public DateTime? FechaFin { get; set; }
     }
 }
-

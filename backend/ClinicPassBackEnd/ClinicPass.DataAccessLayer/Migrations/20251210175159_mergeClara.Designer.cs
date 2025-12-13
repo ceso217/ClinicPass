@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ClinicPass.DataAccessLayer.Migrations
 {
     [DbContext(typeof(ClinicPassContext))]
-    [Migration("20251209043451_Initial")]
-    partial class Initial
+    [Migration("20251210175159_mergeClara")]
+    partial class mergeClara
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -82,17 +82,18 @@ namespace ClinicPass.DataAccessLayer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdFichaSeguimiento"));
 
-                    b.Property<DateTime>("Fecha")
+                    b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("FechaCreacion")
+                    b.Property<DateTime>("FechaPase")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("HistoriaClinicaIdHistorialClinico")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("HistorialClinicoId")
-                        .HasColumnType("integer");
+                    b.Property<string>("HistorialClinicoId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Observaciones")
                         .HasColumnType("text");
@@ -100,8 +101,9 @@ namespace ClinicPass.DataAccessLayer.Migrations
                     b.Property<int?>("ProfesionalId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("UsuarioId")
-                        .HasColumnType("integer");
+                    b.Property<string>("UsuarioId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("IdFichaSeguimiento");
 
@@ -110,29 +112,6 @@ namespace ClinicPass.DataAccessLayer.Migrations
                     b.HasIndex("ProfesionalId");
 
                     b.ToTable("FichasDeSeguimiento");
-                });
-
-            modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.HCTratamiento", b =>
-                {
-                    b.Property<int>("IdTratamiento")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("IdHistorialClinico")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("HistoriaClinicaIdHistorialClinico")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TratamientoIdTratamiento")
-                        .HasColumnType("integer");
-
-                    b.HasKey("IdTratamiento", "IdHistorialClinico");
-
-                    b.HasIndex("HistoriaClinicaIdHistorialClinico");
-
-                    b.HasIndex("TratamientoIdTratamiento");
-
-                    b.ToTable("HCTratamientos");
                 });
 
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.HistoriaClinica", b =>
@@ -164,6 +143,29 @@ namespace ClinicPass.DataAccessLayer.Migrations
                         .IsUnique();
 
                     b.ToTable("HistoriasClinicas");
+                });
+
+            modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.HistorialClinicoTratamiento", b =>
+                {
+                    b.Property<int>("IdTratamiento")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IdHistorialClinico")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("HistoriaClinicaIdHistorialClinico")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TratamientoIdTratamiento")
+                        .HasColumnType("integer");
+
+                    b.HasKey("IdTratamiento", "IdHistorialClinico");
+
+                    b.HasIndex("HistoriaClinicaIdHistorialClinico");
+
+                    b.HasIndex("TratamientoIdTratamiento");
+
+                    b.ToTable("HistorialClinicoTratamiento");
                 });
 
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.Paciente", b =>
@@ -239,12 +241,13 @@ namespace ClinicPass.DataAccessLayer.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Estado")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("FechaFin")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("FechaInicio")
+                    b.Property<DateTime>("FechaInicio")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PacienteIdPaciente")
@@ -293,7 +296,7 @@ namespace ClinicPass.DataAccessLayer.Migrations
 
                     b.HasIndex("TurnoIdTurno");
 
-                    b.ToTable("PasesDiarios");
+                    b.ToTable("Pases");
                 });
 
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.Profesional", b =>
@@ -434,8 +437,13 @@ namespace ClinicPass.DataAccessLayer.Migrations
                     b.Property<string>("Descripcion")
                         .HasColumnType("text");
 
-                    b.Property<int>("TipoTratamiento")
-                        .HasColumnType("integer");
+                    b.Property<string>("Motivo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TipoTratamiento")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("IdTratamiento");
 
@@ -654,7 +662,7 @@ namespace ClinicPass.DataAccessLayer.Migrations
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.Documento", b =>
                 {
                     b.HasOne("ClinicPass.DataAccessLayer.Models.FichaDeSeguimiento", "FichaSeguimiento")
-                        .WithMany("Documentos")
+                        .WithMany()
                         .HasForeignKey("FichaSeguimientoIdFichaSeguimiento")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -677,25 +685,6 @@ namespace ClinicPass.DataAccessLayer.Migrations
                     b.Navigation("Profesional");
                 });
 
-            modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.HCTratamiento", b =>
-                {
-                    b.HasOne("ClinicPass.DataAccessLayer.Models.HistoriaClinica", "HistoriaClinica")
-                        .WithMany("HCTratamientos")
-                        .HasForeignKey("HistoriaClinicaIdHistorialClinico")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ClinicPass.DataAccessLayer.Models.Tratamiento", "Tratamiento")
-                        .WithMany("HCTratamientos")
-                        .HasForeignKey("TratamientoIdTratamiento")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("HistoriaClinica");
-
-                    b.Navigation("Tratamiento");
-                });
-
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.HistoriaClinica", b =>
                 {
                     b.HasOne("ClinicPass.DataAccessLayer.Models.Paciente", "Paciente")
@@ -705,6 +694,25 @@ namespace ClinicPass.DataAccessLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("Paciente");
+                });
+
+            modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.HistorialClinicoTratamiento", b =>
+                {
+                    b.HasOne("ClinicPass.DataAccessLayer.Models.HistoriaClinica", "HistoriaClinica")
+                        .WithMany()
+                        .HasForeignKey("HistoriaClinicaIdHistorialClinico")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClinicPass.DataAccessLayer.Models.Tratamiento", "Tratamiento")
+                        .WithMany()
+                        .HasForeignKey("TratamientoIdTratamiento")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("HistoriaClinica");
+
+                    b.Navigation("Tratamiento");
                 });
 
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.PacienteCobertura", b =>
@@ -735,7 +743,7 @@ namespace ClinicPass.DataAccessLayer.Migrations
                         .IsRequired();
 
                     b.HasOne("ClinicPass.DataAccessLayer.Models.Tratamiento", "Tratamiento")
-                        .WithMany("PacienteTratamientos")
+                        .WithMany("Pacientes")
                         .HasForeignKey("TratamientoIdTratamiento")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -748,13 +756,13 @@ namespace ClinicPass.DataAccessLayer.Migrations
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.PaseDiario", b =>
                 {
                     b.HasOne("ClinicPass.DataAccessLayer.Models.FichaDeSeguimiento", "FichaDeSeguimiento")
-                        .WithMany("PasesDiarios")
+                        .WithMany()
                         .HasForeignKey("FichaDeSeguimientoIdFichaSeguimiento")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ClinicPass.DataAccessLayer.Models.Tratamiento", "Tratamiento")
-                        .WithMany()
+                        .WithMany("Pases")
                         .HasForeignKey("TratamientoIdTratamiento")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -897,18 +905,9 @@ namespace ClinicPass.DataAccessLayer.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.FichaDeSeguimiento", b =>
-                {
-                    b.Navigation("Documentos");
-
-                    b.Navigation("PasesDiarios");
-                });
-
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.HistoriaClinica", b =>
                 {
                     b.Navigation("Fichas");
-
-                    b.Navigation("HCTratamientos");
                 });
 
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.Paciente", b =>
@@ -935,9 +934,9 @@ namespace ClinicPass.DataAccessLayer.Migrations
 
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.Tratamiento", b =>
                 {
-                    b.Navigation("HCTratamientos");
+                    b.Navigation("Pacientes");
 
-                    b.Navigation("PacienteTratamientos");
+                    b.Navigation("Pases");
                 });
 
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.Turno", b =>
