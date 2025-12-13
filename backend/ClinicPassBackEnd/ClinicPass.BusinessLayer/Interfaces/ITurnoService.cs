@@ -8,7 +8,7 @@ namespace ClinicPass.BusinessLayer.Interfaces
         Task<IEnumerable<TurnoResponseDTO>> ObtenerTodosAsync();
         Task<TurnoResponseDTO> ObtenerPorIdAsync(int idTurno);
         Task<TurnoResponseDTO> CrearTurnoAsync(CrearTurnosDTO dto);
-
+        Task<IEnumerable<TurnoResponseDTO>> ObtenerPorPacienteAsync(int idPaciente);
         Task<Turno> ActualizarEstadoAsync(int idTurno, string estado);
         Task<Turno> ActualizarFechaAsync(int idTurno, DateTime nuevaFecha);
         Task<Turno> ActualizarFichaAsync(int idTurno, int? fichaId);

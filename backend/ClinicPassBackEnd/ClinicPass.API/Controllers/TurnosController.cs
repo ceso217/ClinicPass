@@ -47,7 +47,13 @@ namespace ClinicPass.API.Controllers
             return Ok(turnos);
         }
 
-        
+        [HttpGet("paciente/{idPaciente}")]
+        public async Task<IActionResult> GetPorPaciente(int idPaciente)
+        {
+            var turnos = await _turnoService.ObtenerPorPacienteAsync(idPaciente);
+            return Ok(turnos);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPorId(int id)
         {

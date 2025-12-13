@@ -18,6 +18,23 @@ namespace ClinicPass.BusinessLayer.Services
             _userManager = userManager;
         }
 
+        public async Task<IEnumerable<TurnoResponseDTO>> ObtenerPorPacienteAsync(int idPaciente)
+        {
+            return await _context.Turnos
+                .Include(t => t.Paciente)
+                .Where(t => t.IdPaciente == idPaciente)
+                .Select(t => new TurnoResponseDTO
+                {
+                    IdTurno = t.IdTurno,
+                    Fecha = t.Fecha,
+                    Estado = t.Estado,
+                    IdPaciente = t.IdPaciente,
+                    NombrePaciente = t.Paciente.NombreCompleto,
+                    IdFichaSeguimiento = t.IdFichaSeguimiento
+                })
+                .AsNoTracking()
+                .ToListAsync();
+        }
         public async Task<IEnumerable<TurnoResponseDTO>> ObtenerTodosAsync()
         {
             return await _context.Turnos
