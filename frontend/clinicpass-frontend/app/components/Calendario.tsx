@@ -2,13 +2,16 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Clock, User, Filter } from 'lucide-react';
 import { mockTurnos, mockProfesionales, mockPacientes, type Turno } from '../data/mockData';
+import { TurnoModal } from './modals/TurnoModal';
 
 export const Calendario: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [turnos] = useState<Turno[]>(mockTurnos);
+  const [turnos, setTurnos] = useState<Turno[]>(mockTurnos);
   const [filterProfesional, setFilterProfesional] = useState<number | null>(null);
   const [filterEstado, setFilterEstado] = useState<string>('');
+  const [showTurnoModal, setShowTurnoModal] = useState(false);
+  const [selectedTurno, setSelectedTurno] = useState<Turno | null>(null);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -104,6 +107,42 @@ export const Calendario: React.FC = () => {
   const handleDayClick = (day: number) => {
     setSelectedDate(new Date(year, month, day));
   };
+  
+  const handleAbrirModalTurno = () => {
+    setSelectedTurno(null);
+    setShowTurnoModal(true);
+  };
+  const handleSaveTurno = (turnoData: Partial<Turno>) => {
+    const maxId = turnos.length > 0 ? Math.max(...turnos.map(t => t.id)) : 0;
+    
+    if (turnoData.id) {
+      // Lógica de EDICIÓN (el turnoData.id viene del modal)
+      setTurnos(turnos.map(t => t.id === turnoData.id ? { ...t, ...turnoData } as Turno : t));
+    } else {
+      const nuevoTurno : Turno = {
+        id: maxId + 1, 
+        pacienteId: turnoData.pacienteId || 0,
+        pacienteNombre: turnoData.pacienteNombre || '',
+        profesionalId: turnoData.profesionalId || 0, 
+        profesionalNombre: turnoData.profesionalNombre || '',
+        fecha: turnoData.fecha || '',
+        hora: turnoData.hora || '',
+        estado: turnoData.estado || 'Programado', 
+        fichaCreada: false,
+      };
+      setTurnos([...turnos, nuevoTurno]);
+    }
+    handleCloseModalTurno();
+  }
+
+  const handleCloseModalTurno = () => {
+        setShowTurnoModal(false);
+        setSelectedTurno(null); 
+    };
+  const handleAbrirModalTurnoEditar = (turnoParaEditar: Turno | null = null) => {
+      setSelectedTurno(turnoParaEditar); // Establece el turno para edición (o null para creación)
+      setShowTurnoModal(true);
+  };
 
   const monthNames = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -121,7 +160,7 @@ export const Calendario: React.FC = () => {
             </p>
           </div>
           <button
-            onClick={() => console.log('Agregar turno')}
+            onClick={(handleAbrirModalTurno)}
             className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
@@ -285,7 +324,7 @@ export const Calendario: React.FC = () => {
                       <div
                         key={turno.id}
                         className="p-4 hover:bg-gray-50 transition cursor-pointer"
-                        onClick={() => console.log('Ver turno', turno.id)}
+                        onClick={() => handleAbrirModalTurnoEditar(turno)}
                       >
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex items-center gap-2">
@@ -310,6 +349,16 @@ export const Calendario: React.FC = () => {
           </div>
         </div>
       </div>
+
+       {/* Modal de Turno */}
+      <TurnoModal
+        isOpen={showTurnoModal}
+        onClose={handleCloseModalTurno}
+        onSave={handleSaveTurno}
+        turno={selectedTurno}
+        fechaPreseleccionada={selectedDate?.toISOString().split('T')[0]}
+      />
+
     </div>
   );
 };
