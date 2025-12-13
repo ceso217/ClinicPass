@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ClinicPass.DataAccessLayer.Models;
+﻿using ClinicPass.DataAccessLayer.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
-namespace ClinicPass.Data
+namespace ClinicPass.DataAccessLayer.Data
 {
-    public class ClinicPassContext : DbContext
-    {
+    public class ClinicPassContext : IdentityDbContext<Profesional, IdentityRole<int>, int>
+	{
         public ClinicPassContext(DbContextOptions<ClinicPassContext> options)
             : base(options)
         {
@@ -12,7 +14,7 @@ namespace ClinicPass.Data
 
         // Tablas principales
         public DbSet<Paciente> Pacientes { get; set; }
-        public DbSet<Profesional> Profesionales { get; set; }
+        //public DbSet<Profesional> Profesionales { get; set; }
         public DbSet<Turno> Turnos { get; set; }
         public DbSet<HistoriaClinica> HistoriasClinicas { get; set; }
         public DbSet<Tratamiento> Tratamientos { get; set; }
@@ -23,11 +25,12 @@ namespace ClinicPass.Data
         // Tablas intermedias
         public DbSet<PacienteCobertura> PacienteCoberturas { get; set; }
         public DbSet<PacienteTratamiento> PacienteTratamientos { get; set; }
-        public DbSet<HCTratamiento> HCTratamientos { get; set; }
         public DbSet<ProfesionalTurno> ProfesionalTurnos { get; set; }
         public DbSet<ProfesionalPaciente> ProfesionalPacientes { get; set; }
         public DbSet<TutorResponsablePaciente> TutorResponsables { get; set; }
-        public DbSet<PaseDiario> PasesDiarios { get; set; }
+        
+        public DbSet<PaseDiario> Pases { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -52,7 +55,7 @@ namespace ClinicPass.Data
                 .HasForeignKey<HistoriaClinica>(h => h.IdPaciente);
 
             // HISTORIAL - TRATAMIENTO
-            modelBuilder.Entity<HCTratamiento>()
+            modelBuilder.Entity<HistorialClinicoTratamiento>()
                 .HasKey(hc => new { hc.IdTratamiento, hc.IdHistorialClinico });
 
             // PACIENTE - TRATAMIENTO
@@ -63,9 +66,10 @@ namespace ClinicPass.Data
             modelBuilder.Entity<TutorResponsablePaciente>()
                 .HasKey(tp => new { tp.DNITutor, tp.DNIPaciente });
 
-            // PASE DIARIO (PK triple)
             modelBuilder.Entity<PaseDiario>()
                 .HasKey(p => new { p.IdTratamiento, p.IdTurno, p.IdFichaSeguimiento });
+
+
         }
     }
 }

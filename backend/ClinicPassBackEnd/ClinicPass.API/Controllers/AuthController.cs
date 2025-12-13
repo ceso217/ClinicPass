@@ -1,14 +1,13 @@
 ﻿using ClinicPass.DataAccessLayer.Models;
+using ClinicPass.DataAccessLayer.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 //Directivas y dependencias
 using System.Security.Cryptography;
 using System.Text;
-using ClinicPass.DataAccessLayer.Models;
-using Microsoft.AspNetCore.Authentication;
-using ClinicPass.DataAccessLayer.DTOs;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ClinicPass.BusinessLayer.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -20,15 +19,16 @@ namespace ClinicPass.API.Controllers
 	{
 		private readonly UserManager<Profesional> _userManager;
 		private readonly SignInManager<Profesional> _signInManager;
-		private readonly IAuthenticationService _authenticationService;
+		private readonly IAuthService _authService;
 
-		public AuthController(UserManager<Profesional> userManager, SignInManager<Profesional> signInManager, IAuthenticationService authenticationService)
+		public AuthController(UserManager<Profesional> userManager, SignInManager<Profesional> signInManager, IAuthService authService)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
-			_authenticationService = authenticationService;
+			_authService = authService;
 		}
 
+		//Endpoint Login
 		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginDTO request)
 		{
@@ -58,18 +58,65 @@ namespace ClinicPass.API.Controllers
 				return Unauthorized();
 			}
 
-			return Ok("Se registro un usuario completo : "+ result);
+
+			//Obtener roles del usuario 
+			var roles = await _userManager.GetRolesAsync(user);
+
+			//si todo es correcto genero un token JWT
+			var token = _authService.GenerateJwtToken(user.Id, user.UserName, roles);
+
+			return Ok(new { user, token });
 
 
 		}
 
-		// GET api/<ValuesController>/5
 		[HttpPost("register")]
-		public string Get(int id)
+		public async Task<IActionResult> Register([FromBody] RegisterDTO request)
 		{
-			return "value";
-		}
+			//validar datos vacios
 
+			//verificar si el usuario existe (username, email, DNI, ID)
+			var profesionalExist = await _userManager.Users.AnyAsync(x => x.Dni == request.Dni);
+
+            //si existe enviar una BadRequest
+            if (profesionalExist)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, "Ya existe un profesional con el DNI proporcionado.");
+            }
+
+            var user = new Profesional
+			{
+				UserName = request.Email,
+				Email = request.Email,
+				NombreCompleto = request.Name + " " + request.LastName,
+				PhoneNumber = request.PhoneNumber,
+				Activo = true,
+				Dni = request.Dni
+			};
+
+			var result = await _userManager.CreateAsync(user, request.Password);
+
+			if (!result.Succeeded) 
+			{
+				return BadRequest("El usuario ya existe / Ya esta registrado");
+			}
+
+			//añadir un rol por defecto al registrarse
+			await _userManager.AddToRoleAsync(user, "Profesional");
+
+			// crear DTO de respuesta con token JWT
+
+			var userCreatedDTO = new RegisterSuccessDTO
+			{
+				Dni = user.Dni,
+				Email = user.Email,
+				NombreCompleto = user.NombreCompleto,
+				PhoneNumber = user.PhoneNumber
+			};
+
+			var token = _authService.GenerateJwtToken(user.Id, user.UserName, ["Profesional"]);
+			return Ok(new { User = userCreatedDTO, Token = token });
+		}
 	}
 }
 //1.JULIÁN – Autenticación + JWT

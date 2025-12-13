@@ -10,5 +10,7 @@ namespace ClinicPass.DataAccessLayer.DTOs
 	{
 		public string Username { get; set; }
 		public string Password { get; set; }
+
 	}
 }
+//sadflads

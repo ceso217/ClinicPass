@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ClinicPass.DataAccessLayer.Models
 {
@@ -13,9 +13,13 @@ namespace ClinicPass.DataAccessLayer.Models
         public int TipoPaciente { get; set; }
         public string? AntecedentesFamiliares { get; set; }
         public string? AntecedentesPersonales { get; set; }
+
         public bool Activa { get; set; } = true;
 
-        public ICollection<HCTratamiento> HCTratamientos { get; set; } = new List<HCTratamiento>();
-        public ICollection<FichaDeSeguimiento> Fichas { get; set; } = new List<FichaDeSeguimiento>();
+        // Relación 1 Historia → N Tratamientos
+        public List<FichaDeSeguimiento> Fichas { get; set; } = new();
+
+
     }
 }
+

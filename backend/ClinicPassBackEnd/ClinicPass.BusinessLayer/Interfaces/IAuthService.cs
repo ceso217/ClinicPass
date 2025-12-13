@@ -13,4 +13,6 @@ namespace ClinicPass.BusinessLayer.Interfaces
 
 		string GenerateJwtToken(int userID, string username, IList<string> roles); 
 	}
+
+	//alkdjfñasldkf
 }
