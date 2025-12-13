@@ -1,16 +1,15 @@
-namespace ClinicPass.DataAccessLayer.Models
+using ClinicPass.DataAccessLayer.Models;
+using System.ComponentModel.DataAnnotations.Schema;
+
+public class PacienteTratamiento
 {
-    public class PacienteTratamiento
-    {
-        
-        public int IdPaciente { get; set; }
-        public Paciente Paciente { get; set; } = null!;
+    public int IdPaciente { get; set; }
+    public Paciente Paciente { get; set; } = null!;
 
-        public int IdTratamiento { get; set; }
-        public Tratamiento Tratamiento { get; set; } = null!;
-        public DateTime FechaInicio { get; set; }
-        public string Estado { get; set; } = null!;
-        public DateTime? FechaFin { get; set; }
-    }
+    public int IdTratamiento { get; set; }
+    public Tratamiento Tratamiento { get; set; } = null!;
+
+    public DateTime FechaInicio { get; set; }
+    public string Estado { get; set; } = null!;
+    public DateTime? FechaFin { get; set; }
 }
-
