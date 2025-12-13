@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 import { 
   Users, 
   Calendar, 
@@ -23,6 +24,7 @@ interface DashboardStats {
 
 export const DashboardAdmin: React.FC = () => {
   const { user } = useAuth();
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
     totalPacientes: 0,
     turnosHoy: 0,
@@ -208,25 +210,26 @@ export const DashboardAdmin: React.FC = () => {
             icon={<Users className="w-6 h-6" />}
             title="Gestionar Pacientes"
             description="Ver, agregar o editar pacientes"
-            onClick={() => console.log('Navegar a pacientes')}
+            onClick={() => router.push('/pacientes')}
+
           />
           <QuickActionCard
             icon={<Calendar className="w-6 h-6" />}
             title="Ver Calendario"
             description="Administrar turnos y citas"
-            onClick={() => console.log('Navegar a calendario')}
+            onClick={() => router.push('/calendario')}
           />
           <QuickActionCard
             icon={<UserCog className="w-6 h-6" />}
             title="Administrar Profesionales"
             description="Gestionar personal médico"
-            onClick={() => console.log('Navegar a profesionales')}
+            onClick={() => router.push('/profesionales')}
           />
           <QuickActionCard
             icon={<FileText className="w-6 h-6" />}
             title="Historiales Clínicos"
             description="Acceder a registros médicos"
-            onClick={() => console.log('Navegar a historiales')}
+            onClick={() => router.push('/historiales')}
           />
           <QuickActionCard
             icon={<AlertCircle className="w-6 h-6" />}
@@ -238,7 +241,7 @@ export const DashboardAdmin: React.FC = () => {
             icon={<TrendingUp className="w-6 h-6" />}
             title="Reportes"
             description="Generar informes y estadísticas"
-            onClick={() => console.log('Navegar a reportes')}
+            onClick={() => router.push('/reportes')}
           />
         </div>
       </div>
