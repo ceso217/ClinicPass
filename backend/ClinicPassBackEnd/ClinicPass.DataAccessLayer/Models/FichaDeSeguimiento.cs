@@ -7,26 +7,19 @@ namespace ClinicPass.DataAccessLayer.Models
         [Key]
         public int IdFichaSeguimiento { get; set; }
 
-        /*****************************************************************************************
-         * para poder probar turno correctamente(que agrege ficha de seguimiento solo si existe),*
-         * tuve que hacer que estos campos puedan ser null para poder crear una ficha de         *
-         * seguimiento sin que tire error                                                        *
-         * ***************************************************************************************
-         */
-        //public int IdUsuario { get; set; }
-        //public Profesional Profesional { get; set; } = null!;
-        public string UsuarioId{ get; set; }
-        public Profesional? Profesional { get; set; }
+        // FK Profesional
+        public int IdUsuario { get; set; }
+        public Profesional Profesional { get; set; } = null!;
 
-        //public int IdHistorialClinico { get; set; }
-        //public HistoriaClinica HistoriaClinica { get; set; } = null!;
-        
-        public string HistorialClinicoId { get; set; }
-        public HistoriaClinica? HistoriaClinica { get; set; }
+        // FK Historia Clínica
+        public int IdHistorialClinico { get; set; }
+        public HistoriaClinica HistoriaClinica { get; set; } = null!;
 
-        // Campos clínicos
         public DateTime FechaPase { get; set; }
-        public DateTime FechaCreacion { get; set; }      // cuando se cargó la ficha
-        public string? Observaciones { get; set; }  // notas del profesional
+        public DateTime FechaCreacion { get; set; }
+        public string? Observaciones { get; set; }
+
+        public ICollection<Turno> Turnos { get; set; } = new List<Turno>();
+        public ICollection<Documento> Documentos { get; set; } = new List<Documento>();
     }
 }

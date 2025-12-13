@@ -10,9 +10,6 @@ namespace ClinicPass.DataAccessLayer.Models
         public int IdTurno { get; set; }
         public Turno Turno { get; set; } = null!;
 
-        public int IdFichaSeguimiento { get; set; }
-        public FichaDeSeguimiento FichaDeSeguimiento { get; set; } = null!;
-
         public string? FrecuenciaTurno { get; set; }
     }
 }

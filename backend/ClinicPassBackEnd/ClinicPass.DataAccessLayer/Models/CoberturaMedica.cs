@@ -10,7 +10,7 @@ namespace ClinicPass.DataAccessLayer.Models
         public string? NombreCobertura { get; set; }
         public string? TipoCobertura { get; set; }
 
-        public ICollection<PacienteCobertura> PacienteCoberturas = new List<PacienteCobertura>();
+        public ICollection<PacienteCobertura> PacienteCoberturas { get; set; } 
 
     }
 }

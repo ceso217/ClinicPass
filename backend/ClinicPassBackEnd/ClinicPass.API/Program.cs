@@ -6,122 +6,129 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-
-
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// DbContext (PostgreSQL)
+// =====================================================
+// DbContext - PostgreSQL
+// =====================================================
 builder.Services.AddDbContext<ClinicPassContext>(options =>
-	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
-
-// Configuración de Identity
+// =====================================================
+// Identity (Profesional)
+// =====================================================
 builder.Services.AddIdentity<Profesional, IdentityRole<int>>(options =>
 {
-	options.Password.RequireLowercase = false;
-	options.Password.RequireUppercase = false;
-	options.Password.RequireNonAlphanumeric = false;
-	options.Password.RequireDigit = false;
-	options.Password.RequiredLength = 5;
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 5;
 })
-	.AddEntityFrameworkStores<ClinicPassContext>()
-	.AddDefaultTokenProviders();
+.AddEntityFrameworkStores<ClinicPassContext>()
+.AddDefaultTokenProviders();
 
-
+// =====================================================
+// Servicios (Business Layer)
+// =====================================================
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPacienteService, PacienteService>();
+builder.Services.AddScoped<IHistoriaClinicaService, HistoriaClinicaService>();
+builder.Services.AddScoped<IFichaDeSeguimientoService, FichaDeSeguimientoService>();
+builder.Services.AddScoped<ITratamientoService, TratamientoService>();
 builder.Services.AddScoped<ITurnoService, TurnoService>();
+//IdpacienteIdPaciente  
 
+// (cuando agreguen)
+// builder.Services.AddScoped<IProfesionalService, ProfesionalService>();
 
-// Configuración de JWT Authentication
+// =====================================================
+// JWT Authentication
+// =====================================================
 builder.Services.AddAuthentication(options =>
 {
-	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(jwtOptions =>
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
 {
-	jwtOptions.TokenValidationParameters = new TokenValidationParameters
-	{
-		ValidateIssuer = false,
-		ValidateAudience = false,
-		ValidateLifetime = true,
-		ValidateIssuerSigningKey = true, // Debe ser True para validar la firma
-		IssuerSigningKey = new SymmetricSecurityKey(
-			System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
-		),
-		ClockSkew = TimeSpan.Zero
-	};
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
+        ),
+        ClockSkew = TimeSpan.Zero
+    };
 });
 
 builder.Services.AddAuthorization();
 
-// Swagger
+// =====================================================
+// Controllers & Swagger
+// =====================================================
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
 var app = builder.Build();
 
-
-
-// Bloque de Seed de roles y usuario Admin
+// =====================================================
+// Seed de Roles y Admin
+// =====================================================
 using (var scope = app.Services.CreateScope())
 {
-	var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
-	var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Profesional>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Profesional>>();
 
-	//  Seed de Roles
-	string[] roles = new string[] { "Admin", "Profesional", "Paciente" };
-	foreach (var role in roles)
-	{
-		var roleExists = await roleManager.RoleExistsAsync(role);
-		if (!roleExists)
-		{
-			await roleManager.CreateAsync(new IdentityRole<int>(role));
-		}
-	}
+    string[] roles = { "Admin", "Profesional" };
 
-	// Creación de Usuario Admin por defecto
-	var adminName = "admin123";
-	var admin = await userManager.FindByNameAsync(adminName);
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole<int>(role));
+    }
 
-	if (admin == null)
-	{
-		var adminUser = new Profesional
-		{
-			UserName = adminName,
-			Email = "admin123@test.com",
-			NombreCompleto = "Admin User",
-			PhoneNumber = "12345678",
-			Activo = true,
-			Dni = "12345678"
-		};
-		var result = await userManager.CreateAsync(adminUser, "Admin123!");
-		if (result.Succeeded)
-		{
-			await userManager.AddToRoleAsync(adminUser, "Admin");
-		}
-	}
-} 
+    var adminUser = await userManager.FindByNameAsync("admin");
 
+    if (adminUser == null)
+    {
+        var admin = new Profesional
+        {
+            UserName = "admin",
+            Email = "admin@clinicpass.com",
+            NombreCompleto = "Administrador",
+            Dni = "00000000",
+            Activo = true
+        };
 
-// Configuración de Middleware
+        var result = await userManager.CreateAsync(admin, "admin123");
 
+        if (result.Succeeded)
+            await userManager.AddToRoleAsync(admin, "Admin");
+    }
+}
+
+// =====================================================
+// Middleware
+// =====================================================
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
-// 🟢 Añadir UseAuthentication y UseAuthorization
 app.UseAuthentication();
-
 app.UseAuthorization();
 
-//Mapear Controladores
 app.MapControllers();
 
 app.Run();

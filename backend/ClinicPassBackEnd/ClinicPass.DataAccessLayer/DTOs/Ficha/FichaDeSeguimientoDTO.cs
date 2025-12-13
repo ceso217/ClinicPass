@@ -1,13 +1,18 @@
-﻿namespace ClinicPass.BusinessLayer.DTOs
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+namespace ClinicPass.BusinessLayer.DTOs
 {
     public class FichaDeSeguimientoDTO
     {
         public int IdFichaSeguimiento { get; set; }
 
-        public string UsuarioId { get; set; }
+        public int IdUsuario { get; set; }
         public string NombreProfesional { get; set; } = null!;
 
-        public string HistorialClinicoId { get; set; }
+        public int IdHistorialClinico { get; set; }
 
         public DateTime FechaPase { get; set; }
         public DateTime FechaCreacion { get; set; }

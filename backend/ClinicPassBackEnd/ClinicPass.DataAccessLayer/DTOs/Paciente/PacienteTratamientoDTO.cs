@@ -8,6 +8,6 @@ namespace ClinicPass.BusinessLayer.DTOs
 
         public DateTime FechaInicio { get; set; }
         public string Estado { get; set; } = null!;
-        public DateTime? FechaFin { get; set; }
+        public DateTime FechaFin { get; set; }
     }
 }
