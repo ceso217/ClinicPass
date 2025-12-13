@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import { X, User, Calendar, MapPin, Phone, Mail, Users } from 'lucide-react';
 import { Paciente } from '../../data/mockData';

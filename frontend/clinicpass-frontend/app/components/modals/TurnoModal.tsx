@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, Clock, User, UserPlus, Stethoscope, AlertCircle } from 'lucide-react';
 import { mockPacientes, mockProfesionales, Turno, Paciente } from '../../data/mockData';
