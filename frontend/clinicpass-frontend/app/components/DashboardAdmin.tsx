@@ -135,6 +135,7 @@ export const DashboardAdmin: React.FC = () => {
             value={stats.profesionalesActivos}
             bgColor="bg-purple-100"
             iconColor="text-purple-600"
+            
           />
           <StatCard
             icon={<FileText className="w-6 h-6" />}
