@@ -111,6 +111,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(null);
     localStorage.removeItem('clinicpass_token');
     localStorage.removeItem('clinicpass_user');
+
+    window.location.href = '/login';
   };
 
   const value: AuthContextType = {
