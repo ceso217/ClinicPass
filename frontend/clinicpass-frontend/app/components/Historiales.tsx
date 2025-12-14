@@ -11,6 +11,7 @@ import {
 } from '../data/mockData';
 import { FichaSeguimientoModal } from './modals/FichaSeguimientoModal';
 import { TratamientoModal } from './modals/TratamientoModal';
+import { CrearHistorialModal } from './modals/HistorialModal';
 
 export const Historiales: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,8 +19,11 @@ export const Historiales: React.FC = () => {
   const [ordenFichas, setOrdenFichas] = useState<'desc' | 'asc'>('desc');
   const [tratamientos, setTratamientos] = useState(mockTratamientos);
   const [fichas, setFichas] = useState(mockFichas);
+  const [showCrearHistorialModal, setShowCrearHistorialModal] = useState(false); //Para el modal de Historial
+  const pacientesSinHistorial = mockPacientes.filter(p => !fichas.some(f => f.pacienteId === p.id)); //Para el modal de Historial
 
-    // Tratamientos
+
+  // Tratamientos
   const [showTratamientoModal, setShowTratamientoModal] = useState(false);
   const [tratamientoEdit, setTratamientoEdit] = useState<any | null>(null);
 
@@ -34,18 +38,18 @@ export const Historiales: React.FC = () => {
 
   const tratamientosPaciente = selectedPaciente
     ? tratamientos.filter(t => t.pacienteId === selectedPaciente.id)
-  : [];
+    : [];
 
 
   const fichasPaciente = selectedPaciente
-  ? fichas.filter(f => f.pacienteId === selectedPaciente.id)
-  : [];
-    // ? mockFichas.filter((f) => f.pacienteId === selectedPaciente.id).sort((a, b) => {
-    //     const dateA = new Date(a.fecha).getTime();
-    //     const dateB = new Date(b.fecha).getTime();
-    //     return ordenFichas === 'desc' ? dateB - dateA : dateA - dateB;
-    //   })
-    // : [];
+    ? fichas.filter(f => f.pacienteId === selectedPaciente.id)
+    : [];
+  // ? mockFichas.filter((f) => f.pacienteId === selectedPaciente.id).sort((a, b) => {
+  //     const dateA = new Date(a.fecha).getTime();
+  //     const dateB = new Date(b.fecha).getTime();
+  //     return ordenFichas === 'desc' ? dateB - dateA : dateA - dateB;
+  //   })
+  // : [];
 
   const handleSelectPaciente = (paciente: Paciente) => {
     setSelectedPaciente(paciente);
@@ -113,6 +117,8 @@ export const Historiales: React.FC = () => {
   };
 
 
+
+
   //*************************************************************************** */
   //TSX
   //*************************************************************************** */
@@ -134,6 +140,7 @@ export const Historiales: React.FC = () => {
               <h1 className="text-gray-900">
                 {selectedPaciente ? 'Historial Clínico' : 'Historiales Clínicos'}
               </h1>
+
               <p className="text-gray-600 mt-1">
                 {selectedPaciente
                   ? `${selectedPaciente.nombreCompleto} - DNI: ${selectedPaciente.dni}`
@@ -141,6 +148,18 @@ export const Historiales: React.FC = () => {
               </p>
             </div>
           </div>
+
+          {/*Boton Nuevo Historial*/}
+          {!selectedPaciente && (
+            <button
+              onClick={() => setShowCrearHistorialModal(true)}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              Nuevo Historial
+            </button>
+          )}
+
           {selectedPaciente && (
             <button
               onClick={() => console.log('Exportar historial')}
@@ -418,6 +437,16 @@ export const Historiales: React.FC = () => {
         onSave={handleSaveFicha}
         data={fichaEdit}
         mode={fichaEdit ? 'edit' : 'create'}
+      />
+
+      <CrearHistorialModal
+        isOpen={showCrearHistorialModal}
+        onClose={() => setShowCrearHistorialModal(false)}
+        pacientes={pacientesSinHistorial}
+        onCreate={(paciente) => {
+          setSelectedPaciente(paciente);
+          setShowCrearHistorialModal(false);
+        }}
       />
     </div>
   );
