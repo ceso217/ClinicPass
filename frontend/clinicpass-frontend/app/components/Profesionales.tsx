@@ -108,12 +108,37 @@ export const Profesionales: React.FC = () => {
   };
 
   const handleToggleActivo = (profesional: Profesional) => {
-    const updated = profesionales.map((p) =>
-      p.id === profesional.id ? { ...p, activo: !p.activo } : p
+  const updated = profesionales.map((p) =>
+    p.id === profesional.id ? { ...p, activo: !p.activo } : p
+  );
+
+  setProfesionales(updated);
+
+  let filtered = updated;
+
+  if (searchTerm) {
+    filtered = filtered.filter(
+      (p) =>
+        p.nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.dni.includes(searchTerm) ||
+        p.correo.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setProfesionales(updated);
-    handleSearch(searchTerm, filterEspecialidad, filterActivo);
-  };
+  }
+
+  if (filterEspecialidad) {
+    filtered = filtered.filter((p) =>
+      p.especialidad.toLowerCase().includes(filterEspecialidad.toLowerCase())
+    );
+  }
+
+  if (filterActivo !== '') {
+    const isActivo = filterActivo === 'true';
+    filtered = filtered.filter((p) => p.activo === isActivo);
+  }
+
+  setFilteredProfesionales(filtered);
+};
+
 
   const especialidades = Array.from(new Set(profesionales.map((p) => p.especialidad)));
   const activosCount = filteredProfesionales.filter((p) => p.activo).length;
