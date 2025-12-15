@@ -29,4 +29,8 @@
     <ProjectReference Include="..\ClinicPass.DataAccessLayer\ClinicPass.DataAccessLayer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ClinicPass.DataAccessLayer\ClinicPass.DataAccessLayer.csproj" />
+  </ItemGroup>
+
 </Project>

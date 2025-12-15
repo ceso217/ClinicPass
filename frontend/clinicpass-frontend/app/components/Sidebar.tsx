@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useAuth } from '../contexts/AuthContext';
 // import { useNavigate, useLocation } from 'react-router-dom';
 import { useRouter, usePathname } from 'next/navigation';
@@ -93,7 +94,13 @@ const isActive = (path: string) => pathname === path;
       <div className="p-6 border-b border-gray-200 flex items-center justify-between">
         {!collapsed && (
           <div>
-            <h2 className="text-indigo-900">ClinicPass</h2>
+            <Image
+              src="/images/logoSinFondo_reduced_1024x1024.png" 
+              alt="ClinicPass"
+              width={150} 
+              height={40}
+              className=""
+            />
             <p className="text-gray-600 mt-1">
               {isAdmin ? 'Administrador' : 'Profesional'}
             </p>
@@ -177,3 +184,4 @@ const isActive = (path: string) => pathname === path;
     </div>
   );
 };
+

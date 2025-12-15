@@ -10,17 +10,22 @@ using System.Threading.Tasks;
 
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using ClinicPass.DataAccessLayer.DTOs.Auth;
+using Microsoft.AspNetCore.Identity;
+using ClinicPass.DataAccessLayer.Models;
 
 namespace ClinicPass.BusinessLayer.Services
 {
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _config; //Configuraciones del servicio en appsettings
+        private readonly UserManager<Profesional> _userManager; //Administrador de usuarios
 
         //Constructor
-        public AuthService(IConfiguration config)
+        public AuthService(IConfiguration config, UserManager<Profesional> userManager)
         {
             _config = config;
+            _userManager = userManager;
         }
 
 
@@ -94,8 +99,32 @@ namespace ClinicPass.BusinessLayer.Services
             throw new NotImplementedException();
         }
 
+        // Cambiar Contraseña
+        public async Task<IdentityResult> ChangePasswordAsync(ChangePasswordDTO dto)
+        {
+            var user = await _userManager.FindByIdAsync(dto.Id);
 
+            if (user == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Usuario no encontrado." });
+            }
 
+            var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
 
+            return result;
+        }
+
+        // Reset contraseña admin
+        public async Task<IdentityResult> AdminResetPasswordAsync(ResetPasswordDTO dto)
+        {
+            var user = await _userManager.FindByIdAsync(dto.Id.ToString());
+            if (user == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Usuario no encontrado." });
+            }
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, dto.NewPassword);
+            return result;
+        }
     }
 }

@@ -8,8 +8,8 @@ using System.Security.Cryptography;
 using System.Text;
 using ClinicPass.BusinessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using ClinicPass.DataAccessLayer.DTOs.Auth;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ClinicPass.API.Controllers
 {
@@ -36,7 +36,6 @@ namespace ClinicPass.API.Controllers
 			if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
 			{
 				return BadRequest($"No puede haber credenciales vacias: {request.Username} , {request.Password}");
-
 			}
 
 
@@ -66,25 +65,21 @@ namespace ClinicPass.API.Controllers
 			var token = _authService.GenerateJwtToken(user.Id, user.UserName, roles);
 
 			return Ok(new { user, token });
-
-
 		}
 
 		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterDTO request)
 		{
-			//validar datos vacios
-
 			//verificar si el usuario existe (username, email, DNI, ID)
 			var profesionalExist = await _userManager.Users.AnyAsync(x => x.Dni == request.Dni);
 
-            //si existe enviar una BadRequest
-            if (profesionalExist)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, "Ya existe un profesional con el DNI proporcionado.");
-            }
+			//si existe enviar una BadRequest
+			if (profesionalExist)
+			{
+				return StatusCode(StatusCodes.Status409Conflict, "Ya existe un profesional con el DNI proporcionado.");
+			}
 
-            var user = new Profesional
+			var user = new Profesional
 			{
 				UserName = request.Email,
 				Email = request.Email,
@@ -96,7 +91,7 @@ namespace ClinicPass.API.Controllers
 
 			var result = await _userManager.CreateAsync(user, request.Password);
 
-			if (!result.Succeeded) 
+			if (!result.Succeeded)
 			{
 				return BadRequest("El usuario ya existe / Ya esta registrado");
 			}
@@ -117,6 +112,35 @@ namespace ClinicPass.API.Controllers
 			var token = _authService.GenerateJwtToken(user.Id, user.UserName, ["Profesional"]);
 			return Ok(new { User = userCreatedDTO, Token = token });
 		}
+
+		[Authorize]
+        [HttpPost("change-password")]
+		public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO request)
+		{
+			var result = await _authService.ChangePasswordAsync(request);
+
+			if (!result.Succeeded)
+			{
+				var errors = result.Errors.Select(e => e.Description);
+				return BadRequest(new { Errors = errors });
+			}
+
+			return Ok("Contraseña cambiada exitosamente.");
+		}
+
+		[Authorize(Roles = "Admin")]
+		[HttpPost("reset-password")]
+		public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO request)
+		{
+			var result = await _authService.AdminResetPasswordAsync(request);
+
+			if ((!result.Succeeded))
+			{
+                var errors = result.Errors.Select(e => e.Description);
+                return BadRequest(new { Errors = errors });
+            }
+			return Ok("Contraseña reseteada exitosamente.");
+        }
 	}
 }
 //1.JULIÁN – Autenticación + JWT

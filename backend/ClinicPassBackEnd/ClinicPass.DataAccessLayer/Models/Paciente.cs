@@ -13,7 +13,7 @@ namespace ClinicPass.DataAccessLayer.Models
         [Required, MaxLength(20)]
         public string Dni { get; set; } = null!;
 
-        public DateTime? FechaNacimiento { get; set; }
+        public DateTime FechaNacimiento { get; set; }
         public string? Localidad { get; set; }
         public string? Provincia { get; set; }
         public string? Calle { get; set; }

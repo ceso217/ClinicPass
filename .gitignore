@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+.vs/
+=======
 # .vs/
 # bin/
 # obj/
@@ -48,3 +51,4 @@ appsettings.json
 
 
 
+>>>>>>> 4735d67deeb0421be76d736cc51e3c60cb249b93
