@@ -43,7 +43,8 @@ builder.Services.AddCors(options =>
             policy
                 .WithOrigins("http://localhost:3000")
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
         });
 });
 
@@ -145,7 +146,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseCors("AllowNextApp");
 app.UseAuthentication();
 app.UseAuthorization();

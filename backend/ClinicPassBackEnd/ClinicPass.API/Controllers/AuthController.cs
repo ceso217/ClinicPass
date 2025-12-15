@@ -65,8 +65,6 @@ namespace ClinicPass.API.Controllers
 			var token = _authService.GenerateJwtToken(user.Id, user.UserName, roles);
 
 			return Ok(new { user, token });
-
-
 		}
 
 		[HttpPost("register")]
