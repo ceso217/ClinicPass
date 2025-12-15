@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClinicPass.DataAccessLayer.DTOs
+namespace ClinicPass.DataAccessLayer.DTOs.Auth
 {
 	public class LoginDTO
 	{

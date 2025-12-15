@@ -36,8 +36,8 @@ namespace ClinicPass.API.Controllers
             return Ok(profesionales);
         }
 
-        // GET: api/Profesionals/5
-        [HttpGet("{id}")]
+        // GET: api/Profesionals/id/5
+        [HttpGet("id/{id}")]
         public async Task<ActionResult<ProfesionalDTO>> GetProfesionalId(int id)
         {
             var profesional = await _profesionalService.GetByIdAsync(id);
@@ -50,7 +50,8 @@ namespace ClinicPass.API.Controllers
             return Ok(profesional);
         }
 
-        [HttpGet("{dni}")]
+        // GET: api/Profesionals/dni/41765123
+        [HttpGet("dni/{dni}")]
         public async Task<ActionResult<ProfesionalDTO>> GetProfesionalDni(string dni)
         {
             var profesional = await _profesionalService.GetByDniAsync(dni);
