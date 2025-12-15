@@ -1,5 +1,5 @@
 ﻿using ClinicPass.BusinessLayer.DTOs;
-using ClinicPass.BusinessLayer.Services;
+using ClinicPass.BusinessLayer.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicPass.API.Controllers
@@ -15,32 +15,37 @@ namespace ClinicPass.API.Controllers
             _service = service;
         }
 
-        // GET api/pacientes
+        // GET api/paciente
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var lista = await _service.GetAll();
-            return Ok(lista);
+            return Ok(await _service.GetAll());
         }
 
-        // GET api/pacientes/5
+        // GET api/paciente/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var paciente = await _service.GetById(id);
-            if (paciente == null)
-                return NotFound();
+            if (paciente == null) return NotFound();
 
             return Ok(paciente);
         }
 
-        // POST api/pacientes
-        /*Recibe un DTO limpio
-         Crea un pacien
-         Devuelve código 201 Created
-         Devuelve la URL del nuevo paciente:*/
+        // GET api/paciente/dni/123
+        [HttpGet("dni/{dni}")]
+        public async Task<IActionResult> GetByDni(string dni)
+        {
+            var paciente = await _service.GetByDni(dni);
+            if (paciente == null)
+                return NotFound(new { error = "Paciente no encontrado por DNI" });
+
+            return Ok(paciente);
+        }
+
+        // POST api/paciente
         [HttpPost]
-        public async Task<IActionResult> Create(PacienteCreateDTO dto)
+        public async Task<IActionResult> Create([FromBody] PacienteCreateDTO dto)
         {
             try
             {
@@ -53,15 +58,13 @@ namespace ClinicPass.API.Controllers
             }
         }
 
-
-        // PUT api
-        [HttpPut("{id}")]
+            // PUT api/paciente/5
+            [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, PacienteUpdateDTO dto)
         {
             try
             {
                 var actualizado = await _service.Update(id, dto);
-
                 if (actualizado == null)
                     return NotFound(new { error = "Paciente no encontrado" });
 
@@ -73,30 +76,14 @@ namespace ClinicPass.API.Controllers
             }
         }
 
-
-        // DELETE api
+        // DELETE api/paciente/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var eliminado = await _service.Delete(id);
-            if (!eliminado)
-                return NotFound();
+            if (!eliminado) return NotFound();
 
-            return NoContent(); //Si se elimina, 204 NoContent(respuesta oficial REST)
+            return NoContent();
         }
-
-        [HttpGet("dni/{dni}")]
-        public async Task<IActionResult> GetByDni(string dni)
-        {
-            var paciente = await _service.GetByDni(dni);
-
-            if (paciente == null)
-                return NotFound(new { error = "Paciente no encontrado por DNI" });
-
-            return Ok(paciente);
-        }
-
-
     }
 }
-

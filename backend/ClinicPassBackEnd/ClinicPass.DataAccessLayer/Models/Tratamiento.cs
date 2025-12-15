@@ -14,7 +14,7 @@ namespace ClinicPass.DataAccessLayer.Models
         // Relación N–N con Paciente a través de PacienteTratamiento
         public ICollection<PacienteTratamiento> Pacientes { get; set; } = new List<PacienteTratamiento>();
         public ICollection<PaseDiario> Pases { get; set; } = new List<PaseDiario>(); // Relación 1–N con PaseDiario
-
+        public ICollection<HistorialClinicoTratamiento> HistoriasClinicas { get; set; } = new List<HistorialClinicoTratamiento>();
     }
 }
 

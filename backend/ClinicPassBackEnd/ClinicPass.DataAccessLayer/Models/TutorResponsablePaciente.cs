@@ -5,7 +5,7 @@ namespace ClinicPass.DataAccessLayer.Models
         public int DNITutor { get; set; }
         public Tutor Tutor { get; set; } = null!;
 
-        public int DNIPaciente { get; set; }
+        public int IdPaciente { get; set; } 
         public Paciente Paciente { get; set; } = null!;
     }
 }
