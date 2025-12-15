@@ -95,7 +95,7 @@ const isActive = (path: string) => pathname === path;
         {!collapsed && (
           <div>
             <Image
-              src="/logo_reduced_1024x1024.jpg" 
+              src="/images/logoSinFondo_reduced_1024x1024.png" 
               alt="ClinicPass"
               width={150} 
               height={40}

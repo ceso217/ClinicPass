@@ -11,7 +11,7 @@ export default function PerformanceCard() {
   useEffect(() => {
     const checkApi = async () => {
       try {
-        const res = await fetch('https://tu-api.com/api/health', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL} `, {
           cache: 'no-store',
         });
 

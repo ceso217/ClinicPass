@@ -188,6 +188,7 @@ export const DashboardAdmin: React.FC = () => {
               </div>
             </div>
           </div>
+          <PerformanceCard></PerformanceCard>
         </div>
           {/* <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-md p-6 text-white">
             <TrendingUp className="w-8 h-8 mb-4" />
@@ -203,7 +204,7 @@ export const DashboardAdmin: React.FC = () => {
         </div> */}
 
         {/* Acciones rápidas */}
-        <PerformanceCard></PerformanceCard>
+        
 
         
         <h2 className="text-gray-900 mb-4">Acciones Rápidas</h2>

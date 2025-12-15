@@ -30,6 +30,23 @@ builder.Services.AddIdentity<Profesional, IdentityRole<int>>(options =>
 })
 .AddEntityFrameworkStores<ClinicPassContext>()
 .AddDefaultTokenProviders();
+// =====================================================
+// CORS
+// =====================================================
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowNextApp",
+        policy =>
+        {
+            policy
+                .WithOrigins("http://localhost:3000")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 
 // =====================================================
 // Servicios (Business Layer)
@@ -128,7 +145,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors("AllowNextApp");
 app.UseAuthentication();
 app.UseAuthorization();
 
