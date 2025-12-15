@@ -39,7 +39,8 @@ export const Login: React.FC = () => {
 
   return (
     <>
-      <DevBanner />
+      <DevBanner /> 
+
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
         <div className="max-w-md w-full">
           {/* Logo y título */}
@@ -70,7 +71,7 @@ export const Login: React.FC = () => {
             <p className="text-gray-600 mt-2">Sistema de Gestión Clínica</p>
           </div>
 
-          {/* Usuarios de prueba */}
+          Usuarios de prueba
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
             <p className="text-yellow-900 mb-3">👨‍💻 Usuarios de Prueba:</p>
             <div className="space-y-2">
