@@ -1,11 +1,24 @@
 ﻿using ClinicPass.DataAccessLayer.Data;
-using ClinicPass.DataAccessLayer.Models;
 using ClinicPass.BusinessLayer.DTOs;
+using ClinicPass.DataAccessLayer.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using ClinicPass.BusinessLayer.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace ClinicPass.BusinessLayer.Services
 {
-    public class TratamientoService
+    public class TratamientoService : ITratamientoService
     {
         private readonly ClinicPassContext _context;
 

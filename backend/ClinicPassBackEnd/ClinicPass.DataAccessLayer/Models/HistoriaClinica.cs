@@ -17,7 +17,8 @@ namespace ClinicPass.DataAccessLayer.Models
         public bool Activa { get; set; } = true;
 
         // Relación 1 Historia → N Tratamientos
-        public List<FichaDeSeguimiento> Fichas { get; set; } = new();
+        public List<FichaDeSeguimiento> Fichas { get; set; } = new List<FichaDeSeguimiento>();
+        public ICollection<HistorialClinicoTratamiento> Tratamientos { get; set; } = new List<HistorialClinicoTratamiento>();
 
 
     }

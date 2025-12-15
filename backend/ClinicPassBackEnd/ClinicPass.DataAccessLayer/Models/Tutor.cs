@@ -8,7 +8,7 @@ namespace ClinicPass.DataAccessLayer.Models
         public int DNI { get; set; }
 
         public string? Parentesco { get; set; }
-        public string? NumeroCompleto { get; set; }
+        public string? NombreCompleto { get; set; }
         public string? Telefono { get; set; }
         public string? Ocupacion { get; set; }
 
