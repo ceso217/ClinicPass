@@ -1,4 +1,3 @@
-'use client'
 import React, { useState } from 'react';
 import { Search, FileText, Calendar, User, ChevronRight, ArrowLeft, Plus, Download } from 'lucide-react';
 import {
@@ -9,27 +8,11 @@ import {
   type Tratamiento,
   type FichaSeguimiento,
 } from '../data/mockData';
-import { FichaSeguimientoModal } from './modals/FichaSeguimientoModal';
-import { TratamientoModal } from './modals/TratamientoModal';
-import { CrearHistorialModal } from './modals/HistorialModal';
 
 export const Historiales: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPaciente, setSelectedPaciente] = useState<Paciente | null>(null);
   const [ordenFichas, setOrdenFichas] = useState<'desc' | 'asc'>('desc');
-  const [tratamientos, setTratamientos] = useState(mockTratamientos);
-  const [fichas, setFichas] = useState(mockFichas);
-  const [showCrearHistorialModal, setShowCrearHistorialModal] = useState(false); //Para el modal de Historial
-  const pacientesSinHistorial = mockPacientes.filter(p => !fichas.some(f => f.pacienteId === p.id)); //Para el modal de Historial
-
-
-  // Tratamientos
-  const [showTratamientoModal, setShowTratamientoModal] = useState(false);
-  const [tratamientoEdit, setTratamientoEdit] = useState<any | null>(null);
-
-  // Fichas
-  const [showFichaModal, setShowFichaModal] = useState(false);
-  const [fichaEdit, setFichaEdit] = useState<any | null>(null);
 
   const filteredPacientes = mockPacientes.filter((p) =>
     p.nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -37,19 +20,16 @@ export const Historiales: React.FC = () => {
   );
 
   const tratamientosPaciente = selectedPaciente
-    ? tratamientos.filter(t => t.pacienteId === selectedPaciente.id)
+    ? mockTratamientos.filter((t) => t.pacienteId === selectedPaciente.id)
     : [];
-
 
   const fichasPaciente = selectedPaciente
-    ? fichas.filter(f => f.pacienteId === selectedPaciente.id)
+    ? mockFichas.filter((f) => f.pacienteId === selectedPaciente.id).sort((a, b) => {
+        const dateA = new Date(a.fecha).getTime();
+        const dateB = new Date(b.fecha).getTime();
+        return ordenFichas === 'desc' ? dateB - dateA : dateA - dateB;
+      })
     : [];
-  // ? mockFichas.filter((f) => f.pacienteId === selectedPaciente.id).sort((a, b) => {
-  //     const dateA = new Date(a.fecha).getTime();
-  //     const dateB = new Date(b.fecha).getTime();
-  //     return ordenFichas === 'desc' ? dateB - dateA : dateA - dateB;
-  //   })
-  // : [];
 
   const handleSelectPaciente = (paciente: Paciente) => {
     setSelectedPaciente(paciente);
@@ -73,55 +53,7 @@ export const Historiales: React.FC = () => {
         return 'bg-gray-100 text-gray-700';
     }
   };
-  const handleSaveTratamiento = (data: any) => {
-    if (!selectedPaciente) return;
 
-    if (tratamientoEdit) {
-      // Editar
-      setTratamientos(prev =>
-        prev.map(t =>
-          t.id === tratamientoEdit.id ? { ...t, ...data } : t
-        )
-      );
-    } else {
-      // Crear
-      const newTratamiento = {
-        id: tratamientos.length + 1,
-        pacienteId: selectedPaciente.id,
-        ...data,
-      };
-      setTratamientos(prev => [...prev, newTratamiento]);
-    }
-  };
-
-
-  const handleSaveFicha = (data: any) => {
-    if (!selectedPaciente) return;
-
-    if (fichaEdit) {
-      setFichas(prev =>
-        prev.map(f =>
-          f.id === fichaEdit.id ? { ...f, ...data } : f
-        )
-      );
-    } else {
-      const newFicha = {
-        id: fichas.length + 1,
-        pacienteId: selectedPaciente.id,
-        profesionalNombre: 'Dr. Mock',
-        ...data,
-      };
-
-      setFichas(prev => [...prev, newFicha]);
-    }
-  };
-
-
-
-
-  //*************************************************************************** */
-  //TSX
-  //*************************************************************************** */
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -140,7 +72,6 @@ export const Historiales: React.FC = () => {
               <h1 className="text-gray-900">
                 {selectedPaciente ? 'Historial Clínico' : 'Historiales Clínicos'}
               </h1>
-
               <p className="text-gray-600 mt-1">
                 {selectedPaciente
                   ? `${selectedPaciente.nombreCompleto} - DNI: ${selectedPaciente.dni}`
@@ -148,18 +79,6 @@ export const Historiales: React.FC = () => {
               </p>
             </div>
           </div>
-
-          {/*Boton Nuevo Historial*/}
-          {!selectedPaciente && (
-            <button
-              onClick={() => setShowCrearHistorialModal(true)}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              Nuevo Historial
-            </button>
-          )}
-
           {selectedPaciente && (
             <button
               onClick={() => console.log('Exportar historial')}
@@ -270,17 +189,8 @@ export const Historiales: React.FC = () => {
               <div className="bg-white rounded-xl shadow-md p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-gray-900">Tratamientos</h3>
-                  {/* <button
-                    onClick={() => console.log('Agregar tratamiento')}
-                    className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
-                  >
-                    <Plus className="w-5 h-5" />
-                  </button> */}
                   <button
-                    onClick={() => {
-                      setTratamientoEdit(null);
-                      setShowTratamientoModal(true);
-                    }}
+                    onClick={() => console.log('Agregar tratamiento')}
                     className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                   >
                     <Plus className="w-5 h-5" />
@@ -292,12 +202,8 @@ export const Historiales: React.FC = () => {
                   <div className="space-y-3">
                     {tratamientosPaciente.map((tratamiento) => (
                       <div
-                        onClick={() => {
-                          setTratamientoEdit(tratamiento);
-                          setShowTratamientoModal(true);
-                        }}
                         key={tratamiento.id}
-                        className="p-3 border border-gray-200 rounded-lg hover:border-indigo-300 transition cursor-pointer"
+                        className="p-3 border border-gray-200 rounded-lg hover:border-indigo-300 transition"
                       >
                         <div className="flex items-start justify-between mb-2">
                           <p className="text-gray-900">{tratamiento.tipo}</p>
@@ -331,19 +237,8 @@ export const Historiales: React.FC = () => {
                         <option value="desc">Más recientes primero</option>
                         <option value="asc">Más antiguas primero</option>
                       </select>
-                      {/* <button
-                        // onClick={() => console.log('Agregar ficha')}
-                        
-                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
-                      >
-                        <Plus className="w-5 h-5" />
-                        Nueva Ficha
-                      </button> */}
                       <button
-                        onClick={() => {
-                          setFichaEdit(null);
-                          setShowFichaModal(true);
-                        }}
+                        onClick={() => console.log('Agregar ficha')}
                         className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
                       >
                         <Plus className="w-5 h-5" />
@@ -423,31 +318,6 @@ export const Historiales: React.FC = () => {
           </div>
         )}
       </div>
-      <TratamientoModal
-        isOpen={showTratamientoModal}
-        onClose={() => setShowTratamientoModal(false)}
-        onSave={handleSaveTratamiento}
-        data={tratamientoEdit}
-        mode={tratamientoEdit ? 'edit' : 'create'}
-      />
-
-      <FichaSeguimientoModal
-        isOpen={showFichaModal}
-        onClose={() => setShowFichaModal(false)}
-        onSave={handleSaveFicha}
-        data={fichaEdit}
-        mode={fichaEdit ? 'edit' : 'create'}
-      />
-
-      <CrearHistorialModal
-        isOpen={showCrearHistorialModal}
-        onClose={() => setShowCrearHistorialModal(false)}
-        pacientes={pacientesSinHistorial}
-        onCreate={(paciente) => {
-          setSelectedPaciente(paciente);
-          setShowCrearHistorialModal(false);
-        }}
-      />
     </div>
   );
 };

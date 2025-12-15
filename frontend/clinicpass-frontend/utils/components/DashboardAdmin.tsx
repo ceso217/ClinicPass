@@ -1,7 +1,5 @@
-'use client'
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useRouter } from 'next/navigation';
 import { 
   Users, 
   Calendar, 
@@ -12,7 +10,6 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
-import PerformanceCard from './PerformanceCard';
 
 interface DashboardStats {
   totalPacientes: number;
@@ -25,7 +22,6 @@ interface DashboardStats {
 
 export const DashboardAdmin: React.FC = () => {
   const { user } = useAuth();
-  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
     totalPacientes: 0,
     turnosHoy: 0,
@@ -136,7 +132,6 @@ export const DashboardAdmin: React.FC = () => {
             value={stats.profesionalesActivos}
             bgColor="bg-purple-100"
             iconColor="text-purple-600"
-            
           />
           <StatCard
             icon={<FileText className="w-6 h-6" />}
@@ -191,9 +186,8 @@ export const DashboardAdmin: React.FC = () => {
               </div>
             </div>
           </div>
-          <PerformanceCard></PerformanceCard>
-        </div>
-          {/* <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-md p-6 text-white">
+
+          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-md p-6 text-white">
             <TrendingUp className="w-8 h-8 mb-4" />
             <h3 className="mb-2">Rendimiento</h3>
             <p className="mb-4 opacity-90">
@@ -204,38 +198,34 @@ export const DashboardAdmin: React.FC = () => {
               <span>Sistema operativo</span>
             </div>
           </div>
-        </div> */}
+        </div>
 
         {/* Acciones rápidas */}
-        
-
-        
         <h2 className="text-gray-900 mb-4">Acciones Rápidas</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <QuickActionCard
             icon={<Users className="w-6 h-6" />}
             title="Gestionar Pacientes"
             description="Ver, agregar o editar pacientes"
-            onClick={() => router.push('/pacientes')}
-
+            onClick={() => console.log('Navegar a pacientes')}
           />
           <QuickActionCard
             icon={<Calendar className="w-6 h-6" />}
             title="Ver Calendario"
             description="Administrar turnos y citas"
-            onClick={() => router.push('/calendario')}
+            onClick={() => console.log('Navegar a calendario')}
           />
           <QuickActionCard
             icon={<UserCog className="w-6 h-6" />}
             title="Administrar Profesionales"
             description="Gestionar personal médico"
-            onClick={() => router.push('/profesionales')}
+            onClick={() => console.log('Navegar a profesionales')}
           />
           <QuickActionCard
             icon={<FileText className="w-6 h-6" />}
             title="Historiales Clínicos"
             description="Acceder a registros médicos"
-            onClick={() => router.push('/historiales')}
+            onClick={() => console.log('Navegar a historiales')}
           />
           <QuickActionCard
             icon={<AlertCircle className="w-6 h-6" />}
@@ -247,11 +237,10 @@ export const DashboardAdmin: React.FC = () => {
             icon={<TrendingUp className="w-6 h-6" />}
             title="Reportes"
             description="Generar informes y estadísticas"
-            onClick={() => router.push('/reportes')}
+            onClick={() => console.log('Navegar a reportes')}
           />
         </div>
       </div>
     </div>
-
   );
 };

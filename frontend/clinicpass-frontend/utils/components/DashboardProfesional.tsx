@@ -1,7 +1,5 @@
-'use client'
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useRouter } from 'next/navigation';
 import { 
   Calendar, 
   Users, 
@@ -22,13 +20,9 @@ interface Turno {
 
 export const DashboardProfesional: React.FC = () => {
   const { user } = useAuth();
-  const router = useRouter();
   const [turnosHoy, setTurnosHoy] = useState<Turno[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [showTurnoModal, setShowTurnoModal] = useState(false);
-    const [selectedTurno, setSelectedTurno] = useState<Turno | null>(null);
-  
 
   useEffect(() => {
     // TODO: Reemplazar con llamada real a tu API
@@ -209,7 +203,7 @@ export const DashboardProfesional: React.FC = () => {
               </div>
               <button 
                 className="w-full border border-indigo-600 text-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-50 transition"
-                onClick={() => router.push('/calendario')}
+                onClick={() => console.log('Abrir calendario completo')}
               >
                 Ver calendario completo
               </button>
@@ -221,7 +215,7 @@ export const DashboardProfesional: React.FC = () => {
               <div className="space-y-3">
                 <button 
                   className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition text-left"
-                 onClick={() => router.push('/pacientes')}
+                  onClick={() => console.log('Mis pacientes')}
                 >
                   <Users className="w-5 h-5 text-indigo-600" />
                   <span className="text-gray-700">Mis Pacientes</span>
@@ -229,7 +223,7 @@ export const DashboardProfesional: React.FC = () => {
                 
                 <button 
                   className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition text-left"
-                  onClick={() => router.push('/historiales')}
+                  onClick={() => console.log('Historiales')}
                 >
                   <FileText className="w-5 h-5 text-indigo-600" />
                   <span className="text-gray-700">Historiales Clínicos</span>
@@ -237,7 +231,7 @@ export const DashboardProfesional: React.FC = () => {
                 
                 <button 
                   className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition text-left"
-                  onClick={() => router.push('/calendario')}
+                  onClick={() => console.log('Nuevo turno')}
                 >
                   <Calendar className="w-5 h-5 text-indigo-600" />
                   <span className="text-gray-700">Agendar Turno</span>
