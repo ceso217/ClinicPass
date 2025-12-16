@@ -11,6 +11,7 @@ namespace ClinicPass.DataAccessLayer.DTOs.Turnos
         public DateTime Fecha { get; set; }
         public string Estado { get; set; } = null!;
         public int PacienteId { get; set; }
+        public int ProfesionalId { get; set; }
         public int? FichaDeSeguimientoID { get; set; }
     }
 

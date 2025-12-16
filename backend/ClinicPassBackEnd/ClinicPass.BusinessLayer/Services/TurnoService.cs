@@ -22,6 +22,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             return await _context.Turnos
                 .Include(t => t.Paciente)
+                .Include(t => t.Profesional)
                 .Where(t => t.IdPaciente == idPaciente)
                 .Select(t => new TurnoResponseDTO
                 {
@@ -30,7 +31,9 @@ namespace ClinicPass.BusinessLayer.Services
                     Estado = t.Estado,
                     IdPaciente = t.IdPaciente,
                     NombrePaciente = t.Paciente.NombreCompleto,
-                    IdFichaSeguimiento = t.IdFichaSeguimiento
+                    IdFichaSeguimiento = t.IdFichaSeguimiento,
+                    ProfesionalId = t.ProfesionalId,
+                    NombreProfesional = t.Profesional.NombreCompleto
                 })
                 .AsNoTracking()
                 .ToListAsync();
@@ -39,6 +42,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             return await _context.Turnos
                 .Include(t => t.Paciente)
+                .Include(t => t.Profesional)
                 .Select(t => new TurnoResponseDTO
                 {
                     IdTurno = t.IdTurno,
@@ -46,7 +50,9 @@ namespace ClinicPass.BusinessLayer.Services
                     Estado = t.Estado,
                     IdPaciente = t.IdPaciente,
                     NombrePaciente = t.Paciente.NombreCompleto,
-                    IdFichaSeguimiento = t.IdFichaSeguimiento
+                    IdFichaSeguimiento = t.IdFichaSeguimiento,
+                    ProfesionalId = t.ProfesionalId,
+                    NombreProfesional = t.Profesional.NombreCompleto
                 })
                 .AsNoTracking()
                 .ToListAsync();
@@ -56,6 +62,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             var turno = await _context.Turnos
                 .Include(t => t.Paciente)
+                .Include(t => t.Profesional)
                 .FirstOrDefaultAsync(t => t.IdTurno == idTurno);
 
             if (turno == null)
@@ -68,7 +75,9 @@ namespace ClinicPass.BusinessLayer.Services
                 Estado = turno.Estado,
                 IdPaciente = turno.IdPaciente,
                 NombrePaciente = turno.Paciente.NombreCompleto,
-                IdFichaSeguimiento = turno.IdFichaSeguimiento
+                IdFichaSeguimiento = turno.IdFichaSeguimiento,
+                ProfesionalId = turno.ProfesionalId,
+                NombreProfesional = turno.Profesional.NombreCompleto
             };
         }
 
@@ -77,6 +86,11 @@ namespace ClinicPass.BusinessLayer.Services
             var paciente = await _context.Pacientes.FindAsync(dto.IdPaciente);
             if (paciente == null)
                 throw new ArgumentException("El paciente no existe.");
+
+            var profesional = await _userManager.FindByIdAsync(dto.ProfesionalId.ToString());
+
+            if (profesional == null)
+                throw new ArgumentException("El profesional no existe.");
 
             var fechaUtc = DateTime.SpecifyKind(dto.Fecha, DateTimeKind.Utc);
 
@@ -88,6 +102,7 @@ namespace ClinicPass.BusinessLayer.Services
                 Fecha = fechaUtc,
                 Estado = "Pendiente",
                 IdPaciente = dto.IdPaciente,
+                ProfesionalId = dto.ProfesionalId,
                 IdFichaSeguimiento = dto.IdFichaDeSeguimiento
             };
 
@@ -101,7 +116,9 @@ namespace ClinicPass.BusinessLayer.Services
                 Estado = turno.Estado,
                 IdPaciente = turno.IdPaciente,
                 NombrePaciente = paciente.NombreCompleto,
-                IdFichaSeguimiento = turno.IdFichaSeguimiento
+                IdFichaSeguimiento = turno.IdFichaSeguimiento,
+                ProfesionalId = turno.ProfesionalId,
+                NombreProfesional = profesional.NombreCompleto
             };
         }
 
@@ -132,7 +149,7 @@ namespace ClinicPass.BusinessLayer.Services
             return turno;
         }
 
-        public async Task<Turno> ActualizarCompletoAsync(int idTurno, ActualizarTurnoCompletoDTO dto)
+        public async Task<TurnoResponseDTO> ActualizarCompletoAsync(int idTurno, ActualizarTurnoCompletoDTO dto)
         {
             var turno = await ObtenerTurnoAsync(idTurno);
 
@@ -140,9 +157,20 @@ namespace ClinicPass.BusinessLayer.Services
             turno.Estado = dto.Estado;
             turno.IdPaciente = dto.PacienteId;
             turno.IdFichaSeguimiento = dto.FichaDeSeguimientoID;
+            turno.ProfesionalId = dto.ProfesionalId;
 
             await _context.SaveChangesAsync();
-            return turno;
+
+            var turnoResponse = new TurnoResponseDTO
+            {
+                IdTurno = turno.IdTurno,
+                Fecha = turno.Fecha,
+                Estado = turno.Estado,
+                IdPaciente = turno.IdPaciente,
+                IdFichaSeguimiento = turno.IdFichaSeguimiento,
+                ProfesionalId = turno.ProfesionalId
+            };
+            return turnoResponse;
         }
 
         public async Task EliminarAsync(int idTurno)
