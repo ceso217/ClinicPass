@@ -49,7 +49,7 @@ namespace ClinicPass.DataAccessLayer.Data
             // =========================
 
             modelBuilder.Entity<Profesional>()
-                .ToTable(t => t.HasCheckConstraint("CHK_Profesional_Dni_Numeric", "Dni NOT LIKE '%[^0-9]%'"));
+                .ToTable(t => t.HasCheckConstraint("CHK_Profesional_Dni_Numeric", "LEN(Dni)BETWEEN7AND8 AND Dni NOT LIKE '%[^0-9]%'"));
 
             // =========================
             // PACIENTE
@@ -65,7 +65,7 @@ namespace ClinicPass.DataAccessLayer.Data
                 .HasForeignKey(t => t.IdPaciente);
 
             modelBuilder.Entity<Paciente>()
-                .ToTable(t => t.HasCheckConstraint("CHK_Paciente_Dni_Numeric","Dni NOT LIKE '%[^0-9]%'"));
+                .ToTable(t => t.HasCheckConstraint("CHK_Paciente_Dni_Numeric", "LEN(Dni)BETWEEN7AND8 AND Dni NOT LIKE '%[^0-9]%'"));
 
             // =========================
             // HISTORIA CLÍNICA
