@@ -75,10 +75,13 @@ namespace ClinicPass.API.Controllers
             }
 			var successResponse = new SuccessMessageDTO
 			{
-				Message = $"Se actualizó el profesional {id}: {profesionalUpdated.NombreCompleto}."
+				Message = $"Se actualizó el usuario {id}: {profesionalUpdated.NombreCompleto}."
 			};
 			return Ok(successResponse);
         }
+
+
+
 
         // POST: api/Profesionals
         // Ya existe endpoint para crear profesional en AuthController/Register

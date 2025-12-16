@@ -49,8 +49,10 @@ export const Profesionales: React.FC = () => {
     }, [fetchProfesionales]);
 
   // Filtrar profesionales
-  const handleSearch = (term: string, especialidad: string, activo: string) => {
-    let filtered = profesionales;
+  const handleSearch = (term: string, especialidad: string, activo: string, listToFilter?: Profesional[]) => {
+
+    // Si se pasa una lista (listToFilter), úsala. Si no, usa el estado 'profesionales' actual.
+    let filtered = listToFilter ?? profesionales; // Utiliza Nullish Coalescing (??) para la lista
 
     if (term) {
       filtered = filtered.filter(
@@ -142,11 +144,11 @@ export const Profesionales: React.FC = () => {
             
             // 4. Actualizar el estado local (usamos el payload para la actualización)
             const updatedList = profesionales.map((p) =>
-                p.id === selectedProfesional.id ? { ...p, ...updatePayload } as Profesional : p
+                p.id === selectedProfesional!.id ? { ...p, ...updatePayload } as Profesional : p
             );
             setProfesionales(updatedList);
             // Reaplicar filtros
-            handleSearch(searchTerm, filterEspecialidad, filterActivo);
+            handleSearch(searchTerm, filterEspecialidad, filterActivo, updatedList);
     } else {
       // --- MODO REGISTRO ---
             // 5. Validación de registro (Contraseña)
@@ -190,7 +192,7 @@ export const Profesionales: React.FC = () => {
             const updatedList = [...profesionales, nuevoProfesional];
             setProfesionales(updatedList);
             // Reaplicar filtros
-            handleSearch(searchTerm, filterEspecialidad, filterActivo);
+            handleSearch(searchTerm, filterEspecialidad, filterActivo, updatedList);
         }
         alert("Cambios Guardados Correctamente");
         handleCloseModal();
@@ -220,7 +222,7 @@ const handleToggleActivo = async (profesional: Profesional) => {
         );
         setProfesionales(updatedList);
         // Reaplicar filtros para reflejar el cambio en la tabla
-        handleSearch(searchTerm, filterEspecialidad, filterActivo); 
+        handleSearch(searchTerm, filterEspecialidad, filterActivo, updatedList); 
         
     } catch (error) {
         console.error("Error al cambiar estado:", error);
@@ -468,7 +470,7 @@ const handleToggleActivo = async (profesional: Profesional) => {
                                 </select>
                             </div>
 
-                            {/* Opcional: Para edición, mostrar un botón que active el input de contraseña */}
+                            {/* Opcional: Para edición, mostrar un botón que active el input de contraseña
                             {selectedProfesional && !showPasswordFields && (
                                 <div className="md:col-span-2 mt-4">
                                     <button
@@ -483,7 +485,7 @@ const handleToggleActivo = async (profesional: Profesional) => {
                                 </div>
                             )}
 
-                            {/* Contraseñas: Abierto en Crear O si showPasswordFields está activo */}
+                            Contraseñas: Abierto en Crear O si showPasswordFields está activo
                             {(!selectedProfesional || showPasswordFields) && (
                                 <>
                                     {selectedProfesional && ( // Mensaje opcional para el modo Edición
@@ -528,7 +530,7 @@ const handleToggleActivo = async (profesional: Profesional) => {
                                         </div>
                                     )}
                                 </>
-                            )}
+                            )} */}
                         </div>
                     </div>
                     {/* FOOTER DEL MODAL */}
