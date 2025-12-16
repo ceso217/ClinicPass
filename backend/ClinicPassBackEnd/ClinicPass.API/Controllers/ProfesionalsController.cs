@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using ClinicPass.DataAccessLayer.DTOs;
 using ClinicPass.DataAccessLayer.Data;
 using ClinicPass.BusinessLayer.Interfaces;
+using NuGet.Protocol;
 
 namespace ClinicPass.API.Controllers
 {
@@ -31,7 +32,7 @@ namespace ClinicPass.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProfesionalDTO>>> GetAllProfesionals()
         {
-            var profesionales = _profesionalService.GetAllAsync();
+            var profesionales = await _profesionalService.GetAllAsync();
 
             return Ok(profesionales);
         }
@@ -72,8 +73,15 @@ namespace ClinicPass.API.Controllers
             {
                 return BadRequest("No se pudo actualizar el profesional.");
             }
-            return Ok($"Se actualizo el usuario {id} : {profesionalUpdated.NombreCompleto}");
+			var successResponse = new SuccessMessageDTO
+			{
+				Message = $"Se actualizó el usuario {id}: {profesionalUpdated.NombreCompleto}."
+			};
+			return Ok(successResponse);
         }
+
+
+
 
         // POST: api/Profesionals
         // Ya existe endpoint para crear profesional en AuthController/Register
