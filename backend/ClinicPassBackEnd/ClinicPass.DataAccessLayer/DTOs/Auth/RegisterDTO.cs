@@ -8,14 +8,19 @@ namespace ClinicPass.DataAccessLayer.DTOs.Auth
 {
 	public class RegisterDTO
 	{
-		public string Dni { get; set; }
-		public string Name { get; set; }
-		public string LastName { get; set; }
 		public string Email { get; set; } = ""; 
 		public string Password { get; set; }= "";
 		public string RepeatPassword { get; set; }
 
+		// Datos personales
+		public string Dni { get; set; } = "";
+		public string Name { get; set; } = "";
+		public string LastName { get; set; } = "";
+		public string PhoneNumber { get; set; } = "";
 
-		public string PhoneNumber {  get; set; }
+		// Datos profesionales
+		public string Especialidad { get; set; } = "";
+		public bool Activo { get; set; } = true;
+		public string Rol { get; set; } = "Profesional";
 	}
 }
