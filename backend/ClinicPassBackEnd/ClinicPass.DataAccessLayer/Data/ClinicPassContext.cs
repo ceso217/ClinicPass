@@ -31,7 +31,7 @@ namespace ClinicPass.DataAccessLayer.Data
         // =========================
         public DbSet<PacienteCobertura> PacienteCoberturas { get; set; }
         public DbSet<PacienteTratamiento> PacienteTratamientos { get; set; }
-        public DbSet<ProfesionalTurno> ProfesionalTurnos { get; set; }
+        //public DbSet<ProfesionalTurno> ProfesionalTurnos { get; set; }
         public DbSet<ProfesionalPaciente> ProfesionalPacientes { get; set; }
         public DbSet<TutorResponsablePaciente> TutorResponsables { get; set; }
         public DbSet<PaseDiario> Pases { get; set; }
@@ -105,10 +105,10 @@ namespace ClinicPass.DataAccessLayer.Data
             // =========================
             // TURNO
             // =========================
-            modelBuilder.Entity<Turno>()
-                .HasMany(t => t.ProfesionalTurnos)
-                .WithOne(pt => pt.Turno)
-                .HasForeignKey(pt => pt.IdTurno);
+            //modelBuilder.Entity<Turno>()
+            //    .HasMany(t => t.ProfesionalTurnos)
+            //    .WithOne(pt => pt.Turno)
+            //    .HasForeignKey(pt => pt.IdTurno);
 
             modelBuilder.Entity<Turno>()
                 .HasMany(t => t.Pases)
@@ -165,18 +165,18 @@ namespace ClinicPass.DataAccessLayer.Data
                 .HasForeignKey(pt => pt.IdTratamiento);
 
             // -------- ProfesionalTurno --------
-            modelBuilder.Entity<ProfesionalTurno>()
-                .HasKey(pt => new { pt.IdUsuario, pt.IdTurno });
+            //modelBuilder.Entity<ProfesionalTurno>()
+            //    .HasKey(pt => new { pt.IdUsuario, pt.IdTurno });
 
-            modelBuilder.Entity<ProfesionalTurno>()
-                .HasOne(pt => pt.Profesional)
-                .WithMany(p => p.ProfesionalTurnos)
-                .HasForeignKey(pt => pt.IdUsuario);
+            //modelBuilder.Entity<ProfesionalTurno>()
+            //    .HasOne(pt => pt.Profesional)
+            //    .WithMany(p => p.ProfesionalTurnos)
+            //    .HasForeignKey(pt => pt.IdUsuario);
 
-            modelBuilder.Entity<ProfesionalTurno>()
-                .HasOne(pt => pt.Turno)
-                .WithMany(t => t.ProfesionalTurnos)
-                .HasForeignKey(pt => pt.IdTurno);
+            //modelBuilder.Entity<ProfesionalTurno>()
+            //    .HasOne(pt => pt.Turno)
+            //    .WithMany(t => t.ProfesionalTurnos)
+            //    .HasForeignKey(pt => pt.IdTurno);
 
             // -------- ProfesionalPaciente --------
             modelBuilder.Entity<ProfesionalPaciente>()
