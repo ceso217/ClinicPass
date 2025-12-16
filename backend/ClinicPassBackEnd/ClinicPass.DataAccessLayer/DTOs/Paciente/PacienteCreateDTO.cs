@@ -8,7 +8,8 @@ namespace ClinicPass.BusinessLayer.DTOs
         public string NombreCompleto { get; set; }
 
         [Required(ErrorMessage = "El DNI es obligatorio")]
-        [MaxLength(20)]
+        [MaxLength(8),MinLength(7)]
+        [RegularExpression("^[0-9]+$", ErrorMessage = "El DNI debe contener solo números")]
         public string Dni { get; set; }
 
         public DateTime FechaNacimiento { get; set; }
