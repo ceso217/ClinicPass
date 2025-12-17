@@ -41,12 +41,13 @@ namespace ClinicPass.BusinessLayer.Services
             return historia == null ? null : MapToDTO(historia);
         }
 
-        public async Task<HistoriaClinicaDTO> CreateAsync(int idPaciente, int tipoPaciente)
+        public async Task<HistoriaClinicaDTO> CreateAsync(HistoriaClinicaCreateDTO dto)
         {
             var historia = new HistoriaClinica
             {
-                IdPaciente = idPaciente,
-                TipoPaciente = tipoPaciente,
+                IdPaciente = dto.IdPaciente,
+                AntecedentesFamiliares = dto.AntecedentesFamiliares,
+                AntecedentesPersonales = dto.AntecedentesPersonales,
                 Activa = true
             };
 
@@ -63,13 +64,13 @@ namespace ClinicPass.BusinessLayer.Services
             return MapToDTO(historia);
         }
 
+
         private HistoriaClinicaDTO MapToDTO(HistoriaClinica h)
         {
             return new HistoriaClinicaDTO
             {
                 IdHistorialClinico = h.IdHistorialClinico,
                 IdPaciente = h.IdPaciente,
-                TipoPaciente = h.TipoPaciente,
                 AntecedentesFamiliares = h.AntecedentesFamiliares,
                 AntecedentesPersonales = h.AntecedentesPersonales,
                 Activa = h.Activa,
@@ -103,7 +104,6 @@ namespace ClinicPass.BusinessLayer.Services
             var historia = await _context.HistoriasClinicas.FindAsync(idHistorial);
             if (historia == null) return false;
 
-            historia.TipoPaciente = dto.TipoPaciente;
             historia.AntecedentesFamiliares = dto.AntecedentesFamiliares;
             historia.AntecedentesPersonales = dto.AntecedentesPersonales;
             historia.Activa = dto.Activa;
@@ -132,41 +132,6 @@ namespace ClinicPass.BusinessLayer.Services
             return true;
         }
 
-        public async Task<bool> AgregarTratamientoAsync(int idHistorial, AgregarTratamientoaHistoriaDTO dto)
-        {
-            var historia = await _context.HistoriasClinicas.FindAsync(idHistorial);
-            if (historia == null) return false;
-
-            var nuevo = new PacienteTratamiento
-            {
-                IdPaciente = historia.IdPaciente,
-                IdTratamiento = dto.IdTratamiento,
-                FechaInicio = dto.FechaInicio,
-                Estado = dto.Estado,
-                FechaFin = dto.FechaFin
-            };
-
-            _context.PacienteTratamientos.Add(nuevo);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-        public async Task<bool> QuitarTratamientoAsync(int idHistorial, int idTratamiento)
-        {
-            var historia = await _context.HistoriasClinicas.FindAsync(idHistorial);
-            if (historia == null)
-                return false;
-
-            var relacion = await _context.PacienteTratamientos
-                .FirstOrDefaultAsync(pt =>
-                    pt.IdPaciente == historia.IdPaciente &&
-                    pt.IdTratamiento == idTratamiento);
-
-            if (relacion == null)
-                return false;
-
-            _context.PacienteTratamientos.Remove(relacion);
-            await _context.SaveChangesAsync();
-            return true;
-        }
+       
     }
 }

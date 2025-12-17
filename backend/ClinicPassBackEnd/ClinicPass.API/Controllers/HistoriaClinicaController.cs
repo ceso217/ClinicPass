@@ -51,7 +51,7 @@ namespace ClinicPass.API.Controllers
         {
             try
             {
-                var historia = await _service.CreateAsync(dto.IdPaciente, dto.TipoPaciente);
+                var historia = await _service.CreateAsync(dto);
                 return Ok(historia);
             }
             catch (Exception ex)
@@ -99,32 +99,8 @@ namespace ClinicPass.API.Controllers
             return Ok("Historia clínica activada.");
         }
 
-        // =========================
-        // POST api/historiaclinica/5/tratamientos
-        // =========================
-        [HttpPost("{id}/tratamientos")]
-        public async Task<IActionResult> AgregarTratamiento(
-            int id,
-            [FromBody] AgregarTratamientoaHistoriaDTO dto)
-        {
-            var ok = await _service.AgregarTratamientoAsync(id, dto);
-            if (!ok)
-                return NotFound("Historia clínica o tratamiento no encontrado.");
+        
 
-            return Ok("Tratamiento agregado a la historia clínica.");
-        }
-
-        // =========================
-        // DELETE api/historiaclinica/5/tratamientos/7
-        // =========================
-        [HttpDelete("{id}/tratamientos/{idTratamiento}")]
-        public async Task<IActionResult> QuitarTratamiento(int id, int idTratamiento)
-        {
-            var ok = await _service.QuitarTratamientoAsync(id, idTratamiento);
-            if (!ok)
-                return NotFound();
-
-            return Ok("Tratamiento quitado de la historia clínica.");
-        }
+        
     }
 }

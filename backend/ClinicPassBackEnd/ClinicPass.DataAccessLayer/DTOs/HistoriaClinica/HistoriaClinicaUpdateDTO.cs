@@ -8,7 +8,6 @@ namespace ClinicPass.BusinessLayer.DTOs
 {
     public class HistoriaClinicaUpdateDTO
     {
-        public int TipoPaciente { get; set; }
         public string? AntecedentesFamiliares { get; set; }
         public string? AntecedentesPersonales { get; set; }
         public bool Activa { get; set; }
