@@ -25,45 +25,35 @@ namespace ClinicPass.API.Controllers
             Programado
         }
 
-        public enum FiltroFecha
-        {
-            Hoy,
-            UltimaSemana,
-            UltimoMes,
-            UltimoTrimestre,
-            UltimoAno,
-            Personalizado
-        }
-
-        // función para obtener la fecha de inicio según el filtro
-        public async Task<FiltroFechaDTO> FiltroDeFecha(FiltroFecha filtro, FiltroFechaDTO? filtroFechaDTO = null)
+        // función para obtener la fecha de incio y de fin según el filtro
+        public async Task<FiltroFechaDTO> FiltroDeFecha(FiltroFechaDTO? filtro = null)
         {
             DateTime fechaInicio = DateTime.UtcNow.Date;
             DateTime fechaFin = fechaInicio.AddDays(1); // Mañana a las 00:00
-            if (filtro == FiltroFecha.UltimaSemana)
+            if (filtro.TipoFiltro == FiltroFecha.UltimaSemana)
             {
                 fechaInicio = fechaInicio.AddDays(-7);
             }
-            else if (filtro == FiltroFecha.UltimoMes)
+            else if (filtro.TipoFiltro == FiltroFecha.UltimoMes)
             {
                 fechaInicio = fechaInicio.AddDays(-30);
             }
-            else if (filtro == FiltroFecha.UltimoTrimestre)
+            else if (filtro.TipoFiltro == FiltroFecha.UltimoTrimestre)
             {
                 fechaInicio = fechaInicio.AddDays(-90);
             }
-            else if (filtro == FiltroFecha.UltimoAno)
+            else if (filtro.TipoFiltro == FiltroFecha.UltimoAno)
             {
                 fechaInicio = fechaInicio.AddDays(-365);
             }
-            else if(filtro == FiltroFecha.Personalizado )
+            else if(filtro.TipoFiltro == FiltroFecha.Personalizado )
             {
-                if (filtroFechaDTO == null)
+                if (filtro == null)
                 {
                     throw new ArgumentException("Para un filtro personalizado, las fechas son obligatorias.");
                 }
-                fechaInicio = DateTime.SpecifyKind(filtroFechaDTO.FechaInicio, DateTimeKind.Utc);
-                fechaFin = DateTime.SpecifyKind(filtroFechaDTO.FechaFin, DateTimeKind.Utc);
+                fechaInicio = DateTime.SpecifyKind(filtro.FechaInicio, DateTimeKind.Utc);
+                fechaFin = DateTime.SpecifyKind(filtro.FechaFin, DateTimeKind.Utc);
             }
             
             return new FiltroFechaDTO
@@ -73,7 +63,20 @@ namespace ClinicPass.API.Controllers
             };
         }
 
-        public async Task<IEnumerable<EstadoTurnosDTO>> TurnosProgramadosCompletados(FiltroFecha filtro)
+        // Obtener el total de turnos según el filtro de fecha
+        public async Task<int> TotalTurnosPorFiltro(FiltroFecha filtro, FiltroFechaDTO? filtroFecha)
+        {
+            var fechasFiltro = await FiltroDeFecha(filtroFecha);
+
+            var totalTurnos = await _db.Turnos
+                    .Where(t => t.Fecha >= fechasFiltro.FechaInicio && t.Fecha < fechasFiltro.FechaFin)
+                    .CountAsync();
+
+            return totalTurnos;
+        }
+
+        // Obtener turnos de estado programado y completado según el filtro de fecha (sin personalizada)
+        public async Task<IEnumerable<EstadoTurnosDTO>> TurnosProgramadosCompletados(FiltroFechaDTO filtro)
         {
             var estadosValidos = new[] {
                 EstadoTurno.Programado.ToString(),
@@ -88,21 +91,42 @@ namespace ClinicPass.API.Controllers
                 .Select(t => new EstadoTurnosDTO
                 {
                     TurnoId = t.IdTurno,
-                    Fecha = t.Fecha,
                     Estado = t.Estado
                 })
                 .ToListAsync();
         }
-
-        public async Task<int> TotalTurnosPorFiltro(FiltroFecha filtro, DateTime? fechaInicioPersonalizada, FiltroFechaDTO? fechasPersonalizadas)
+        
+        // Obtener el total de turnos por el estado según el filtro de fecha
+        public async Task<IEnumerable<EstadoTurnosDTO>> TotalTurnosEstado(FiltroFechaDTO filtro)
         {
-            var fechasFiltro = await FiltroDeFecha(filtro, fechasPersonalizadas);
+            var fechasFiltro = await FiltroDeFecha(filtro);
 
-            var totalTurnos = await _db.Turnos
-                    .Where(t => t.Fecha >= fechasFiltro.FechaInicio && t.Fecha < fechasFiltro.FechaFin)
-                    .CountAsync();
+            return await _db.Turnos
+                .Where(t => t.Fecha >= fechasFiltro.FechaInicio && t.Fecha < fechasFiltro.FechaFin)
+                .GroupBy(t => t.Estado)
+                .Select(grupo => new EstadoTurnosDTO
+                {
+                    Estado = grupo.Key,
+                    CantidadTurnos = grupo.Count()
+                })
+                .ToListAsync();
+        }
 
-            return totalTurnos;
+        // Obetener el total de turnos por especialidad del profesional según el filtro de fecha
+        public async Task<IEnumerable<TurnosEspecialidadDTO>> TotalTurnosEspecialidad(FiltroFechaDTO filtro)
+        {
+            var fechasFiltro = await FiltroDeFecha(filtro);
+
+            return await _db.Turnos
+                .Include(t => t.Profesional)
+                .Where(t => t.Fecha >= fechasFiltro.FechaInicio && t.Fecha < fechasFiltro.FechaFin)
+                .GroupBy(t => t.Profesional.Especialidad)
+                .Select(grupo => new TurnosEspecialidadDTO
+                {
+                    Especialidad = grupo.Key ?? "Sin especialidad",
+                    CantidadTurnos = grupo.Count()
+                })
+                .ToListAsync();
         }
     }
 }

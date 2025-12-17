@@ -6,10 +6,17 @@ using System.Threading.Tasks;
 
 namespace ClinicPass.DataAccessLayer.DTOs.Reportes
 {
+    public enum EstadoTurno
+    {
+        Pendiente,
+        Completado,
+        Cancelado,
+        Programado
+    }
+
     public class EstadoTurnosDTO
     {
-        public int TurnoId { get; set; }
-        public DateTime Fecha { get; set; }
         public string Estado { get; set; } = null!;
+        public int CantidadTurnos { get; set; }
     }
 }
