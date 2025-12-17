@@ -30,7 +30,7 @@ namespace ClinicPass.DataAccessLayer.Data
         // TABLAS INTERMEDIAS (N–N)
         // =========================
         public DbSet<PacienteCobertura> PacienteCoberturas { get; set; }
-        public DbSet<PacienteTratamiento> PacienteTratamientos { get; set; }
+        
         //public DbSet<ProfesionalTurno> ProfesionalTurnos { get; set; }
         public DbSet<ProfesionalPaciente> ProfesionalPacientes { get; set; }
         public DbSet<TutorResponsablePaciente> TutorResponsables { get; set; }
@@ -118,20 +118,17 @@ namespace ClinicPass.DataAccessLayer.Data
             // =========================
             // TRATAMIENTO
             // =========================
-            modelBuilder.Entity<Tratamiento>()
-                .HasMany(t => t.Pacientes)
-                .WithOne(pt => pt.Tratamiento)
-                .HasForeignKey(pt => pt.IdTratamiento);
+         
 
-            modelBuilder.Entity<Tratamiento>()
-                .HasMany(t => t.Pases)
-                .WithOne(p => p.Tratamiento)
-                .HasForeignKey(p => p.IdTratamiento);
+            //modelBuilder.Entity<Tratamiento>()
+            //    .HasMany(t => t.Pases)
+            //    .WithOne(p => p.Tratamiento)
+            //    .HasForeignKey(p => p.IdTratamiento);
 
-            modelBuilder.Entity<Tratamiento>()
-                .HasMany(t => t.HistoriasClinicas)
-                .WithOne(hct => hct.Tratamiento)
-                .HasForeignKey(hct => hct.IdTratamiento);
+            //modelBuilder.Entity<Tratamiento>()
+            //    .HasMany(t => t.HistoriasClinicas)
+            //    .WithOne(hct => hct.Tratamiento)
+            //    .HasForeignKey(hct => hct.IdTratamiento);
             // =========================
             // TABLAS INTERMEDIAS (PK COMPUESTAS + RELACIONES)
             // =========================
@@ -151,18 +148,18 @@ namespace ClinicPass.DataAccessLayer.Data
                 .HasForeignKey(pc => pc.IdCobertura);
 
             // -------- PacienteTratamiento --------
-            modelBuilder.Entity<PacienteTratamiento>()
-                .HasKey(pt => new { pt.IdPaciente, pt.IdTratamiento });
+            //modelBuilder.Entity<PacienteTratamiento>()
+            //    .HasKey(pt => new { pt.IdPaciente, pt.IdTratamiento });
 
-            modelBuilder.Entity<PacienteTratamiento>()
-                .HasOne(pt => pt.Paciente)
-                .WithMany(p => p.PacienteTratamientos)
-                .HasForeignKey(pt => pt.IdPaciente);
+            //modelBuilder.Entity<PacienteTratamiento>()
+            //    .HasOne(pt => pt.Paciente)
+            //    .WithMany(p => p.PacienteTratamientos)
+            //    .HasForeignKey(pt => pt.IdPaciente);
 
-            modelBuilder.Entity<PacienteTratamiento>()
-                .HasOne(pt => pt.Tratamiento)
-                .WithMany(t => t.Pacientes)
-                .HasForeignKey(pt => pt.IdTratamiento);
+            //modelBuilder.Entity<PacienteTratamiento>()
+            //    .HasOne(pt => pt.Tratamiento)
+            //    .WithMany(t => t.Pacientes)
+            //    .HasForeignKey(pt => pt.IdTratamiento);
 
             // -------- ProfesionalTurno --------
             //modelBuilder.Entity<ProfesionalTurno>()
@@ -210,10 +207,10 @@ namespace ClinicPass.DataAccessLayer.Data
             modelBuilder.Entity<PaseDiario>()
                 .HasKey(p => new { p.IdTratamiento, p.IdTurno });
 
-            modelBuilder.Entity<PaseDiario>()
-                .HasOne(p => p.Tratamiento)
-                .WithMany(t => t.Pases)
-                .HasForeignKey(p => p.IdTratamiento);
+            //modelBuilder.Entity<PaseDiario>()
+            //    .HasOne(p => p.Tratamiento)
+            //    .WithMany(t => t.Pases)
+            //    .HasForeignKey(p => p.IdTratamiento);
 
             modelBuilder.Entity<PaseDiario>()
                 .HasOne(p => p.Turno)
@@ -224,10 +221,10 @@ namespace ClinicPass.DataAccessLayer.Data
             modelBuilder.Entity<HistorialClinicoTratamiento>()
                 .HasKey(hct => new { hct.IdTratamiento, hct.IdHistorialClinico });
 
-            modelBuilder.Entity<HistorialClinicoTratamiento>()
-                .HasOne(hct => hct.Tratamiento)
-                .WithMany(t => t.HistoriasClinicas)
-                .HasForeignKey(hct => hct.IdTratamiento);
+            //modelBuilder.Entity<HistorialClinicoTratamiento>()
+            //    .HasOne(hct => hct.Tratamiento)
+            //    .WithMany(t => t.HistoriasClinicas)
+            //    .HasForeignKey(hct => hct.IdTratamiento);
 
             modelBuilder.Entity<HistorialClinicoTratamiento>()
                 .HasOne(hct => hct.HistoriaClinica)

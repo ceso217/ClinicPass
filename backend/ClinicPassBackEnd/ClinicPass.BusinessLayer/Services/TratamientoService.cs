@@ -1,20 +1,20 @@
-﻿using ClinicPass.DataAccessLayer.Data;
-using ClinicPass.BusinessLayer.DTOs;
-using ClinicPass.DataAccessLayer.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
+﻿using ClinicPass.BusinessLayer.DTOs;
 using ClinicPass.BusinessLayer.Interfaces;
+using ClinicPass.DataAccessLayer.Data;
+using ClinicPass.DataAccessLayer.DTOs.Tratamiento;
+using ClinicPass.DataAccessLayer.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace ClinicPass.BusinessLayer.Services
 {
@@ -26,85 +26,75 @@ namespace ClinicPass.BusinessLayer.Services
         {
             _context = context;
         }
-        // CREAR TRATAMIENTO Y ASOCIARLO AL PACIENTE
-        public async Task<TratamientoPacienteDTO?> CrearTratamientoAsync(TratamientoCreateDTO dto)
-        {
-            // Validar que el paciente exista
-            var paciente = await _context.Pacientes.FindAsync(dto.IdPaciente);
-            if (paciente == null)
-                return null;
 
-            //Crear tratamiento base
+        public async Task<TratamientoDTO> CrearAsync(TratamientoCreateDTO dto)
+        {
             var tratamiento = new Tratamiento
             {
-                TipoTratamiento = dto.TipoTratamiento,
-                Motivo = dto.Motivo,
-                Descripcion = dto.Descripcion
+                Nombre = dto.Nombre,
+                Descripcion = dto.Descripcion,
+                Activo = true
             };
 
             _context.Tratamientos.Add(tratamiento);
             await _context.SaveChangesAsync();
 
-            //crea la relacion entre paciente y tratamiento
-            var rel = new PacienteTratamiento
-            {
-                IdPaciente = dto.IdPaciente,
-                IdTratamiento = tratamiento.IdTratamiento,
-                FechaInicio = dto.FechaInicio,
-                Estado = "Activo"
-            };
-
-            _context.PacienteTratamientos.Add(rel);
-            await _context.SaveChangesAsync();
-
-            // devuelve
-            return new TratamientoPacienteDTO
+            return new TratamientoDTO
             {
                 IdTratamiento = tratamiento.IdTratamiento,
-                TipoTratamiento = tratamiento.TipoTratamiento,
-                Motivo = tratamiento.Motivo,
+                Nombre = tratamiento.Nombre,
                 Descripcion = tratamiento.Descripcion,
-                FechaInicio = rel.FechaInicio,
-                Estado = rel.Estado,
-                FechaFin = rel.FechaFin
+                Activo = tratamiento.Activo
             };
         }
 
-        //traer tratamientos por paciente
-        public async Task<List<TratamientoPacienteDTO>> GetByPacienteAsync(int idPaciente)
+        public async Task<List<TratamientoDTO>> GetAllAsync(bool incluirInactivos = false)
         {
-            return await _context.PacienteTratamientos
-                .Where(pt => pt.IdPaciente == idPaciente)
-                .Include(pt => pt.Tratamiento)
-                .Select(pt => new TratamientoPacienteDTO
+            var query = _context.Tratamientos.AsQueryable();
+
+            if (!incluirInactivos)
+                query = query.Where(t => t.Activo);
+
+            return await query
+                .Select(t => new TratamientoDTO
                 {
-                    IdTratamiento = pt.IdTratamiento,
-                    TipoTratamiento = pt.Tratamiento.TipoTratamiento,
-                    Motivo = pt.Tratamiento.Motivo,
-                    Descripcion = pt.Tratamiento.Descripcion,
-                    FechaInicio = pt.FechaInicio,
-                    Estado = pt.Estado,
-                    FechaFin = pt.FechaFin
+                    IdTratamiento = t.IdTratamiento,
+                    Nombre = t.Nombre,
+                    Descripcion = t.Descripcion,
+                    Activo = t.Activo
                 })
                 .ToListAsync();
         }
 
-        //fin
-        public async Task<bool> FinalizarTratamientoAsync(int idPaciente, int idTratamiento)
+        public async Task<bool> UpdateAsync(int id, TratamientoUpdateDTO dto)
         {
-            var rel = await _context.PacienteTratamientos
-                .FirstOrDefaultAsync(pt => pt.IdPaciente == idPaciente && pt.IdTratamiento == idTratamiento);
-
-            if (rel == null)
+            var tratamiento = await _context.Tratamientos.FindAsync(id);
+            if (tratamiento == null)
                 return false;
 
-            rel.Estado = "Finalizado";
-            rel.FechaFin = DateTime.UtcNow;
+            if (!string.IsNullOrWhiteSpace(dto.Nombre))
+                tratamiento.Nombre = dto.Nombre;
+
+            if (dto.Descripcion != null)
+                tratamiento.Descripcion = dto.Descripcion;
 
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> DesactivarAsync(int id)
+        {
+            var tratamiento = await _context.Tratamientos.FindAsync(id);
+            if (tratamiento == null)
+                return false;
+
+            tratamiento.Activo = false;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
+    
 }
+
 
 

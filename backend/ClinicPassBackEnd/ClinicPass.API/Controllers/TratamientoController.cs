@@ -1,12 +1,13 @@
 ﻿using ClinicPass.BusinessLayer.DTOs;
 using ClinicPass.BusinessLayer.Interfaces;
 using ClinicPass.BusinessLayer.Services;
+using ClinicPass.DataAccessLayer.DTOs.Tratamiento;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicPass.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/tratamientos")]
     public class TratamientosController : ControllerBase
     {
         private readonly ITratamientoService _service;
@@ -19,30 +20,35 @@ namespace ClinicPass.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Crear([FromBody] TratamientoCreateDTO dto)
         {
-            var result = await _service.CrearTratamientoAsync(dto);
-
-            if (result == null)
-                return NotFound("El paciente no existe.");
-
-            return Ok(result);
+            return Ok(await _service.CrearAsync(dto));
         }
 
-        [HttpGet("paciente/{idPaciente}")]
-        public async Task<IActionResult> GetByPaciente(int idPaciente)
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromQuery] bool incluirInactivos = false)
         {
-            return Ok(await _service.GetByPacienteAsync(idPaciente));
+            return Ok(await _service.GetAllAsync(incluirInactivos));
         }
 
-        [HttpPut("finalizar/{idPaciente}/{idTratamiento}")]
-        public async Task<IActionResult> Finalizar(int idPaciente, int idTratamiento)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] TratamientoUpdateDTO dto)
         {
-            var ok = await _service.FinalizarTratamientoAsync(idPaciente, idTratamiento);
-
+            var ok = await _service.UpdateAsync(id, dto);
             if (!ok)
-                return NotFound("Tratamiento no encontrado para este paciente.");
+                return NotFound();
 
-            return Ok("Tratamiento finalizado.");
+            return Ok("Tratamiento actualizado");
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Desactivar(int id)
+        {
+            var ok = await _service.DesactivarAsync(id);
+            if (!ok)
+                return NotFound();
+
+            return Ok("Tratamiento desactivado");
         }
     }
+
 }
 

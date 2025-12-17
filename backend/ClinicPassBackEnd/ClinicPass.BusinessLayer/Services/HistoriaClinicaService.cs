@@ -19,8 +19,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             var historia = await _context.HistoriasClinicas
                 .Include(h => h.Paciente)
-                    .ThenInclude(p => p.PacienteTratamientos)
-                        .ThenInclude(pt => pt.Tratamiento)
+                
                 .Include(h => h.Fichas)
                     .ThenInclude(f => f.Profesional)
                 .FirstOrDefaultAsync(h => h.IdHistorialClinico == id);
@@ -32,8 +31,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             var historia = await _context.HistoriasClinicas
                 .Include(h => h.Paciente)
-                    .ThenInclude(p => p.PacienteTratamientos)
-                        .ThenInclude(pt => pt.Tratamiento)
+                    
                 .Include(h => h.Fichas)
                     .ThenInclude(f => f.Profesional)
                 .FirstOrDefaultAsync(h => h.IdPaciente == idPaciente);
@@ -55,11 +53,9 @@ namespace ClinicPass.BusinessLayer.Services
             await _context.SaveChangesAsync();
 
             await _context.Entry(historia).Reference(h => h.Paciente).LoadAsync();
-            await _context.Entry(historia.Paciente)
-                .Collection(p => p.PacienteTratamientos)
-                .Query()
-                .Include(pt => pt.Tratamiento)
-                .LoadAsync();
+            
+                
+               
 
             return MapToDTO(historia);
         }
@@ -75,17 +71,7 @@ namespace ClinicPass.BusinessLayer.Services
                 AntecedentesPersonales = h.AntecedentesPersonales,
                 Activa = h.Activa,
 
-                Tratamientos = h.Paciente.PacienteTratamientos.Select(pt =>
-                    new TratamientoPacienteDTO
-                    {
-                        IdTratamiento = pt.IdTratamiento,
-                        TipoTratamiento = pt.Tratamiento.TipoTratamiento,
-                        Motivo = pt.Tratamiento.Motivo,
-                        Descripcion = pt.Tratamiento.Descripcion,
-                        FechaInicio = pt.FechaInicio,
-                        Estado = pt.Estado,
-                        FechaFin = pt.FechaFin
-                    }).ToList(),
+                
 
                 Fichas = h.Fichas.Select(f => new FichaDeSeguimientoDTO
                 {
