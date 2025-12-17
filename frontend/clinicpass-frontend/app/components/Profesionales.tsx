@@ -59,7 +59,8 @@ export const Profesionales: React.FC = () => {
         (p) =>
           p.nombreCompleto?.toLowerCase().includes(term.toLowerCase()) ||
           p.dni?.includes(term) ||
-          p.email?.toLowerCase().includes(term.toLowerCase())
+          p.email?.toLowerCase().includes(term.toLowerCase()) ||
+          p.phoneNumber?.includes(term)
       );
     }
 
@@ -149,13 +150,34 @@ export const Profesionales: React.FC = () => {
             setProfesionales(updatedList);
             // Reaplicar filtros
             handleSearch(searchTerm, filterEspecialidad, filterActivo, updatedList);
-    } else {
-      // --- MODO REGISTRO ---
-            // 5. Validación de registro (Contraseña)
+        } else {
+            // --- MODO REGISTRO ---
+
+                    // --- MODO REGISTRO ---
+
+            // 5. Validación de contraseñas
             if (!formData.password || !formData.repeatPassword || formData.password !== formData.repeatPassword) {
                 alert('Las contraseñas no coinciden o están vacías.');
                 return;
             }
+
+            // --- CORRECCIÓN DE NOMBRE Y APELLIDO ---
+            
+            // 1. Asegurar que sea string (evitar undefined)
+            const nombreLimpio = formData.nombreCompleto?.trim() || "";
+            
+            // 2. Buscar el espacio
+            const espacioIndex = nombreLimpio.indexOf(" ");
+
+            // 3. Validar que exista el espacio
+            if (espacioIndex === -1) {
+                alert("Por favor, ingrese el Nombre y el Apellido separados por un espacio (Ej: 'Juan Perez').");
+                return; 
+            }
+
+            // 4. Cortar el string usando el índice encontrado (Sin el '?')
+            const namePayload = nombreLimpio.substring(0, espacioIndex);
+            const lastNamePayload = nombreLimpio.substring(espacioIndex + 1);
 
             // 6. Mapear formData a RegisterPayload
             const payload: RegisterPayload = {
@@ -163,15 +185,16 @@ export const Profesionales: React.FC = () => {
                 password: formData.password,
                 repeatPassword: formData.repeatPassword,
                 dni: formData.dni || '',
-                // Nota: La API requiere 'name' y 'lastName', debemos dividirlos
-                name: formData.nombreCompleto?.split(' ')[0] || '',
-                lastName: formData.nombreCompleto?.split(' ').slice(1).join(' ') || '',
+                
+                // --- AQUÍ ESTABA EL OTRO ERROR: USAR LAS VARIABLES NUEVAS ---
+                name: namePayload,          // Usar la variable calculada arriba
+                lastName: lastNamePayload,  // Usar la variable calculada arriba
+                
                 phoneNumber: formData.phoneNumber || '',
                 especialidad: formData.especialidad || '',
                 activo: formData.activo ?? true,
                 rol: formData.rol || 'Profesional',
             };
-
             // 7. Llamada a la API de registro
             const response = await registerProfesional(payload);
             console.log(response);
