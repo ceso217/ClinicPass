@@ -115,6 +115,9 @@ namespace ClinicPass.DataAccessLayer.Data
                 .WithOne(p => p.Turno)
                 .HasForeignKey(p => p.IdTurno);
 
+            modelBuilder.Entity<Turno>()
+                .ToTable(t => t.HasCheckConstraint("CHK_Turno_Fecha_FutureDate", "\"Fecha\">NOW()"));
+
             // =========================
             // TRATAMIENTO
             // =========================

@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace ClinicPass.DataAccessLayer.DTOs.Turnos
 {
-    public class CrearTurnosDTO
+    public class ActualizarTurnoDTO
     {
         public DateTime Fecha { get; set; }
-        public int IdPaciente { get; set; }
+        public string Estado { get; set; } = null!;
+        public int PacienteId { get; set; }
         public int ProfesionalId { get; set; }
-        public int? IdFichaDeSeguimiento { get; set; }
+        public int? FichaDeSeguimientoID { get; set; }
     }
+
 }

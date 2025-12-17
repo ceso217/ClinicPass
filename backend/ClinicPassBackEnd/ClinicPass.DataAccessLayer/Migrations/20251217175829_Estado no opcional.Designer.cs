@@ -3,6 +3,7 @@ using System;
 using ClinicPass.DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ClinicPass.DataAccessLayer.Migrations
 {
     [DbContext(typeof(ClinicPassContext))]
-    partial class ClinicPassContextModelSnapshot : ModelSnapshot
+    [Migration("20251217175829_Estado no opcional")]
+    partial class Estadonoopcional
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,6 +82,9 @@ namespace ClinicPass.DataAccessLayer.Migrations
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime>("FechaPase")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("IdHistorialClinico")
                         .HasColumnType("integer");
 
@@ -88,16 +94,11 @@ namespace ClinicPass.DataAccessLayer.Migrations
                     b.Property<string>("Observaciones")
                         .HasColumnType("text");
 
-                    b.Property<int?>("TratamientoId")
-                        .HasColumnType("integer");
-
                     b.HasKey("IdFichaSeguimiento");
 
                     b.HasIndex("IdHistorialClinico");
 
                     b.HasIndex("IdUsuario");
-
-                    b.HasIndex("TratamientoId");
 
                     b.ToTable("FichasDeSeguimiento");
                 });
@@ -120,6 +121,9 @@ namespace ClinicPass.DataAccessLayer.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("IdPaciente")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TipoPaciente")
                         .HasColumnType("integer");
 
                     b.HasKey("IdHistorialClinico");
@@ -607,15 +611,9 @@ namespace ClinicPass.DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ClinicPass.DataAccessLayer.Models.Tratamiento", "Tratamiento")
-                        .WithMany()
-                        .HasForeignKey("TratamientoId");
-
                     b.Navigation("HistoriaClinica");
 
                     b.Navigation("Profesional");
-
-                    b.Navigation("Tratamiento");
                 });
 
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.HistoriaClinica", b =>
