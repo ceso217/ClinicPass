@@ -1,6 +1,7 @@
 ﻿using ClinicPass.BusinessLayer.DTOs;
 using ClinicPass.BusinessLayer.Interfaces;
 using ClinicPass.DataAccessLayer.Data;
+using ClinicPass.DataAccessLayer.DTOs.Ficha;
 using ClinicPass.DataAccessLayer.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -114,5 +115,34 @@ namespace ClinicPass.BusinessLayer.Services
                 })
                 .ToListAsync();
         }
+        // =========================
+        // PUT FICHA
+        // =========================
+        public async Task<bool> UpdateAsync(int idFicha, FichaDeSeguimientoUpdateDTO dto)
+        {
+            var ficha = await _context.FichasDeSeguimiento
+                .FirstOrDefaultAsync(f => f.IdFichaSeguimiento == idFicha);
+
+            if (ficha == null)
+                return false;
+
+            if (dto.IdUsuario.HasValue)
+                ficha.IdUsuario = dto.IdUsuario.Value;
+
+            if (dto.IdHistorialClinico.HasValue)
+                ficha.IdHistorialClinico = dto.IdHistorialClinico.Value;
+
+            if (dto.TratamientoId.HasValue)
+                ficha.TratamientoId = dto.TratamientoId;
+            else if (dto.TratamientoId == null)
+                ficha.TratamientoId = null; 
+
+            if (dto.Observaciones != null)
+                ficha.Observaciones = dto.Observaciones;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }
