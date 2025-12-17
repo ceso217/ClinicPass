@@ -123,7 +123,7 @@ using (var scope = app.Services.CreateScope())
     {
         var admin = new Profesional
         {
-            UserName = "admin",
+            UserName = "admin@clinicpass.com",
             Email = "admin@clinicpass.com",
             NombreCompleto = "Administrador",
             Dni = "00000000",
