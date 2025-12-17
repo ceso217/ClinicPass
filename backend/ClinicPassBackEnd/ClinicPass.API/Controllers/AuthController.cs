@@ -133,8 +133,11 @@ namespace ClinicPass.API.Controllers
 				var errors = result.Errors.Select(e => e.Description);
 				return BadRequest(new { Errors = errors });
 			}
-
-			return Ok("Contraseña cambiada exitosamente.");
+			var successResponse = new SuccessMessageDTO
+			{
+				Message = $"Contraseña cambiada exitosamente."
+			};
+			return Ok(successResponse);
 		}
 
 		[Authorize(Roles = "Admin")]

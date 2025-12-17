@@ -148,6 +148,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     window.location.href = "/login";
   };
 
+  
+
   const value: AuthContextType = {
     user,
     loading,

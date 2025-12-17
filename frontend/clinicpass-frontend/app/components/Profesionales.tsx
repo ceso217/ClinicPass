@@ -471,6 +471,7 @@ const handleToggleActivo = async (profesional: Profesional) => {
                             </div>
 
                             {/* Opcional: Para edición, mostrar un botón que active el input de contraseña
+                            */}
                             {selectedProfesional && !showPasswordFields && (
                                 <div className="md:col-span-2 mt-4">
                                     <button
@@ -485,7 +486,7 @@ const handleToggleActivo = async (profesional: Profesional) => {
                                 </div>
                             )}
 
-                            Contraseñas: Abierto en Crear O si showPasswordFields está activo
+                            {/* Contraseñas: Abierto en Crear O si showPasswordFields está activo */}
                             {(!selectedProfesional || showPasswordFields) && (
                                 <>
                                     {selectedProfesional && ( // Mensaje opcional para el modo Edición
@@ -495,7 +496,7 @@ const handleToggleActivo = async (profesional: Profesional) => {
                                     )}
                                     
                                     <div>
-                                        <label className="block text-gray-700 mb-2">Contraseña*</label>
+                                        <label className="block text-gray-700 mb-2">Nueva Contraseña*</label>
                                         <input
                                             type="password"
                                             value={formData?.password || ''}
@@ -530,7 +531,7 @@ const handleToggleActivo = async (profesional: Profesional) => {
                                         </div>
                                     )}
                                 </>
-                            )} */}
+                            )} 
                         </div>
                     </div>
                     {/* FOOTER DEL MODAL */}
