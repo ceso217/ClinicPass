@@ -3,6 +3,7 @@ using System;
 using ClinicPass.DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ClinicPass.DataAccessLayer.Migrations
 {
     [DbContext(typeof(ClinicPassContext))]
-    partial class ClinicPassContextModelSnapshot : ModelSnapshot
+    [Migration("20251217182244_CrearHistorialClinicoTratamiento")]
+    partial class CrearHistorialClinicoTratamiento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -373,7 +376,6 @@ namespace ClinicPass.DataAccessLayer.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdTurno"));
 
                     b.Property<string>("Estado")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Fecha")
@@ -396,10 +398,7 @@ namespace ClinicPass.DataAccessLayer.Migrations
 
                     b.HasIndex("ProfesionalId");
 
-                    b.ToTable("Turnos", t =>
-                        {
-                            t.HasCheckConstraint("CHK_Turno_Fecha_FutureDate", "\"Fecha\">NOW()");
-                        });
+                    b.ToTable("Turnos");
                 });
 
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.Tutor", b =>

@@ -3,6 +3,7 @@ using System;
 using ClinicPass.DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ClinicPass.DataAccessLayer.Migrations
 {
     [DbContext(typeof(ClinicPassContext))]
-    partial class ClinicPassContextModelSnapshot : ModelSnapshot
+    [Migration("20251217153942_RefactorTratamientoSimple")]
+    partial class RefactorTratamientoSimple
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,22 +141,14 @@ namespace ClinicPass.DataAccessLayer.Migrations
                     b.Property<int>("IdHistorialClinico")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("Activo")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("FechaFin")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("FechaInicio")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Motivo")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("TratamientoIdTratamiento")
+                        .HasColumnType("integer");
 
                     b.HasKey("IdTratamiento", "IdHistorialClinico");
 
                     b.HasIndex("IdHistorialClinico");
+
+                    b.HasIndex("TratamientoIdTratamiento");
 
                     b.ToTable("HistorialClinicoTratamientos");
                 });
@@ -373,7 +368,6 @@ namespace ClinicPass.DataAccessLayer.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdTurno"));
 
                     b.Property<string>("Estado")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Fecha")
@@ -396,10 +390,7 @@ namespace ClinicPass.DataAccessLayer.Migrations
 
                     b.HasIndex("ProfesionalId");
 
-                    b.ToTable("Turnos", t =>
-                        {
-                            t.HasCheckConstraint("CHK_Turno_Fecha_FutureDate", "\"Fecha\">NOW()");
-                        });
+                    b.ToTable("Turnos");
                 });
 
             modelBuilder.Entity("ClinicPass.DataAccessLayer.Models.Tutor", b =>
@@ -631,7 +622,7 @@ namespace ClinicPass.DataAccessLayer.Migrations
 
                     b.HasOne("ClinicPass.DataAccessLayer.Models.Tratamiento", "Tratamiento")
                         .WithMany("Historiales")
-                        .HasForeignKey("IdTratamiento")
+                        .HasForeignKey("TratamientoIdTratamiento")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
