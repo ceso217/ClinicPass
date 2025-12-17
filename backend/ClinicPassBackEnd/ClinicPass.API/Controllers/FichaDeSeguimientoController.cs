@@ -1,5 +1,6 @@
 ﻿using ClinicPass.BusinessLayer.DTOs;
 using ClinicPass.BusinessLayer.Interfaces;
+using ClinicPass.DataAccessLayer.DTOs.Ficha;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicPass.API.Controllers
@@ -32,5 +33,15 @@ namespace ClinicPass.API.Controllers
         {
             return Ok(await _service.GetByPacienteAsync(idPaciente));
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] FichaDeSeguimientoUpdateDTO dto)
+        {
+            var ok = await _service.UpdateAsync(id, dto);
+            if (!ok) return NotFound();
+
+            return NoContent();
+        }
+
     }
 }
