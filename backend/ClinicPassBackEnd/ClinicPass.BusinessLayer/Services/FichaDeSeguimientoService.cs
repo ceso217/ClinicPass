@@ -37,11 +37,22 @@ namespace ClinicPass.BusinessLayer.Services
             if (profesional == null)
                 throw new Exception("Profesional inexistente.");
 
+            if (dto.TratamientoId.HasValue)
+            {
+                var existe = await _context.Tratamientos
+                    .AnyAsync(t => t.IdTratamiento == dto.TratamientoId.Value);
+
+                if (!existe)
+                    throw new Exception("Tratamiento inexistente.");
+            }
+
+
             var ficha = new FichaDeSeguimiento
             {
                 IdUsuario = dto.IdUsuario,               // ✅ int
                 IdHistorialClinico = dto.IdHistorialClinico,
-                FechaPase = dto.FechaPase,
+                //FechaPase = dto.FechaPase,
+                TratamientoId= dto.TratamientoId,
                 FechaCreacion = DateTime.UtcNow,
                 Observaciones = dto.Observaciones
             };
@@ -55,7 +66,7 @@ namespace ClinicPass.BusinessLayer.Services
                 IdUsuario = ficha.IdUsuario,
                 NombreProfesional = profesional.NombreCompleto,
                 IdHistorialClinico = ficha.IdHistorialClinico,
-                FechaPase = ficha.FechaPase,
+                //FechaPase = ficha.FechaPase,
                 FechaCreacion = ficha.FechaCreacion,
                 Observaciones = ficha.Observaciones
             };
@@ -75,7 +86,7 @@ namespace ClinicPass.BusinessLayer.Services
                     IdUsuario = f.IdUsuario,
                     NombreProfesional = f.Profesional.NombreCompleto,
                     IdHistorialClinico = f.IdHistorialClinico,
-                    FechaPase = f.FechaPase,
+                    //FechaPase = f.FechaPase,
                     FechaCreacion = f.FechaCreacion,
                     Observaciones = f.Observaciones
                 })
@@ -97,7 +108,7 @@ namespace ClinicPass.BusinessLayer.Services
                     IdUsuario = f.IdUsuario,
                     NombreProfesional = f.Profesional.NombreCompleto,
                     IdHistorialClinico = f.IdHistorialClinico,
-                    FechaPase = f.FechaPase,
+                    //FechaPase = f.FechaPase,
                     FechaCreacion = f.FechaCreacion,
                     Observaciones = f.Observaciones
                 })

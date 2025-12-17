@@ -92,7 +92,7 @@ namespace ClinicPass.BusinessLayer.Services
                     IdUsuario = f.IdUsuario,
                     NombreProfesional = f.Profesional.NombreCompleto,
                     IdHistorialClinico = f.IdHistorialClinico,
-                    FechaPase = f.FechaPase,
+                    //FechaPase = f.FechaPase,
                     FechaCreacion = f.FechaCreacion,
                     Observaciones = f.Observaciones
                 }).ToList()
