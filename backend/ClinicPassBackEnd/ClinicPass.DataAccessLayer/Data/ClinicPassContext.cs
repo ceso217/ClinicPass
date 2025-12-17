@@ -221,10 +221,10 @@ namespace ClinicPass.DataAccessLayer.Data
             modelBuilder.Entity<HistorialClinicoTratamiento>()
                 .HasKey(hct => new { hct.IdTratamiento, hct.IdHistorialClinico });
 
-            //modelBuilder.Entity<HistorialClinicoTratamiento>()
-            //    .HasOne(hct => hct.Tratamiento)
-            //    .WithMany(t => t.HistoriasClinicas)
-            //    .HasForeignKey(hct => hct.IdTratamiento);
+            modelBuilder.Entity<HistorialClinicoTratamiento>()
+                .HasOne(hct => hct.Tratamiento)
+                .WithMany(t => t.Historiales)
+                .HasForeignKey(hct => hct.IdTratamiento);
 
             modelBuilder.Entity<HistorialClinicoTratamiento>()
                 .HasOne(hct => hct.HistoriaClinica)
