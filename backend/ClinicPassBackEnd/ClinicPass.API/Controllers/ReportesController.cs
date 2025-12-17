@@ -17,14 +17,6 @@ namespace ClinicPass.API.Controllers
             _db = db;
         }
 
-        enum EstadoTurno
-        {
-            Pendiente,
-            Completado,
-            Cancelado,
-            Programado
-        }
-
         // función para obtener la fecha de incio y de fin según el filtro
         public async Task<FiltroFechaDTO> FiltroDeFecha(FiltroFechaDTO? filtro = null)
         {
@@ -46,7 +38,7 @@ namespace ClinicPass.API.Controllers
             {
                 fechaInicio = fechaInicio.AddDays(-365);
             }
-            else if(filtro.TipoFiltro == FiltroFecha.Personalizado )
+            else if (filtro.TipoFiltro == FiltroFecha.Personalizado)
             {
                 if (filtro == null)
                 {
@@ -55,13 +47,17 @@ namespace ClinicPass.API.Controllers
                 fechaInicio = DateTime.SpecifyKind(filtro.FechaInicio, DateTimeKind.Utc);
                 fechaFin = DateTime.SpecifyKind(filtro.FechaFin, DateTimeKind.Utc);
             }
-            
+
             return new FiltroFechaDTO
             {
                 FechaInicio = fechaInicio,
                 FechaFin = fechaFin
             };
         }
+
+        // =======================
+        // TURNOS
+        // =======================
 
         // Obtener el total de turnos según el filtro de fecha
         public async Task<int> TotalTurnosPorFiltro(FiltroFecha filtro, FiltroFechaDTO? filtroFecha)
@@ -88,14 +84,15 @@ namespace ClinicPass.API.Controllers
             return await _db.Turnos
                 .Where(t => t.Fecha >= fechasFiltro.FechaInicio && t.Fecha < fechasFiltro.FechaFin)
                 .Where(t => estadosValidos.Contains(t.Estado))
-                .Select(t => new EstadoTurnosDTO
+                .GroupBy(t => t.Estado)
+                .Select(grupo => new EstadoTurnosDTO
                 {
-                    TurnoId = t.IdTurno,
-                    Estado = t.Estado
+                    Estado = grupo.Key,
+                    CantidadTurnos = grupo.Count()
                 })
                 .ToListAsync();
         }
-        
+
         // Obtener el total de turnos por el estado según el filtro de fecha
         public async Task<IEnumerable<EstadoTurnosDTO>> TotalTurnosEstado(FiltroFechaDTO filtro)
         {
@@ -113,7 +110,7 @@ namespace ClinicPass.API.Controllers
         }
 
         // Obetener el total de turnos por especialidad del profesional según el filtro de fecha
-        public async Task<IEnumerable<TurnosEspecialidadDTO>> TotalTurnosEspecialidad(FiltroFechaDTO filtro)
+        public async Task<IEnumerable<TotalEspecialidadDTO>> TotalTurnosEspecialidad(FiltroFechaDTO filtro)
         {
             var fechasFiltro = await FiltroDeFecha(filtro);
 
@@ -121,10 +118,37 @@ namespace ClinicPass.API.Controllers
                 .Include(t => t.Profesional)
                 .Where(t => t.Fecha >= fechasFiltro.FechaInicio && t.Fecha < fechasFiltro.FechaFin)
                 .GroupBy(t => t.Profesional.Especialidad)
-                .Select(grupo => new TurnosEspecialidadDTO
+                .Select(grupo => new TotalEspecialidadDTO
                 {
                     Especialidad = grupo.Key ?? "Sin especialidad",
-                    CantidadTurnos = grupo.Count()
+                    Total = grupo.Count()
+                })
+                .ToListAsync();
+        }
+
+        // =======================
+        // PROFESIONALES
+        // =======================
+
+        // Obtener el total de profesionales activos
+        public async Task<int> TotalProfesionalesActivos()
+        {
+            var totalProfesionales = await _db.Profesionales
+                    .Where(p => p.Activo)
+                    .CountAsync();
+            return totalProfesionales;
+        }
+
+        // Obtener el total de profesionales por especialidad
+        public async Task<IEnumerable<TotalEspecialidadDTO>> TotalProfesionalesPorEspecialidad()
+        {
+            return await _db.Profesionales
+                .Where(p => p.Activo)
+                .GroupBy(p => p.Especialidad)
+                .Select(grupo => new TotalEspecialidadDTO
+                {
+                    Especialidad = grupo.Key ?? "Sin especialidad",
+                    Total = grupo.Count()
                 })
                 .ToListAsync();
         }
