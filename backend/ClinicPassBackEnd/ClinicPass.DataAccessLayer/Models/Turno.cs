@@ -8,7 +8,7 @@ namespace ClinicPass.DataAccessLayer.Models
         public int IdTurno { get; set; }
 
         public DateTime Fecha { get; set; }
-        public string? Estado { get; set; }
+        public string Estado { get; set; }
 
         // FK correcta
         public int IdPaciente { get; set; }
