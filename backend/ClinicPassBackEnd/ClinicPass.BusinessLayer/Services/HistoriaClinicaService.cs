@@ -19,8 +19,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             var historia = await _context.HistoriasClinicas
                 .Include(h => h.Paciente)
-                    .ThenInclude(p => p.PacienteTratamientos)
-                        .ThenInclude(pt => pt.Tratamiento)
+                
                 .Include(h => h.Fichas)
                     .ThenInclude(f => f.Profesional)
                 .FirstOrDefaultAsync(h => h.IdHistorialClinico == id);
@@ -32,8 +31,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             var historia = await _context.HistoriasClinicas
                 .Include(h => h.Paciente)
-                    .ThenInclude(p => p.PacienteTratamientos)
-                        .ThenInclude(pt => pt.Tratamiento)
+                    
                 .Include(h => h.Fichas)
                     .ThenInclude(f => f.Profesional)
                 .FirstOrDefaultAsync(h => h.IdPaciente == idPaciente);
@@ -41,12 +39,13 @@ namespace ClinicPass.BusinessLayer.Services
             return historia == null ? null : MapToDTO(historia);
         }
 
-        public async Task<HistoriaClinicaDTO> CreateAsync(int idPaciente, int tipoPaciente)
+        public async Task<HistoriaClinicaDTO> CreateAsync(HistoriaClinicaCreateDTO dto)
         {
             var historia = new HistoriaClinica
             {
-                IdPaciente = idPaciente,
-                TipoPaciente = tipoPaciente,
+                IdPaciente = dto.IdPaciente,
+                AntecedentesFamiliares = dto.AntecedentesFamiliares,
+                AntecedentesPersonales = dto.AntecedentesPersonales,
                 Activa = true
             };
 
@@ -54,14 +53,13 @@ namespace ClinicPass.BusinessLayer.Services
             await _context.SaveChangesAsync();
 
             await _context.Entry(historia).Reference(h => h.Paciente).LoadAsync();
-            await _context.Entry(historia.Paciente)
-                .Collection(p => p.PacienteTratamientos)
-                .Query()
-                .Include(pt => pt.Tratamiento)
-                .LoadAsync();
+            
+                
+               
 
             return MapToDTO(historia);
         }
+
 
         private HistoriaClinicaDTO MapToDTO(HistoriaClinica h)
         {
@@ -69,22 +67,11 @@ namespace ClinicPass.BusinessLayer.Services
             {
                 IdHistorialClinico = h.IdHistorialClinico,
                 IdPaciente = h.IdPaciente,
-                TipoPaciente = h.TipoPaciente,
                 AntecedentesFamiliares = h.AntecedentesFamiliares,
                 AntecedentesPersonales = h.AntecedentesPersonales,
                 Activa = h.Activa,
 
-                Tratamientos = h.Paciente.PacienteTratamientos.Select(pt =>
-                    new TratamientoPacienteDTO
-                    {
-                        IdTratamiento = pt.IdTratamiento,
-                        TipoTratamiento = pt.Tratamiento.TipoTratamiento,
-                        Motivo = pt.Tratamiento.Motivo,
-                        Descripcion = pt.Tratamiento.Descripcion,
-                        FechaInicio = pt.FechaInicio,
-                        Estado = pt.Estado,
-                        FechaFin = pt.FechaFin
-                    }).ToList(),
+                
 
                 Fichas = h.Fichas.Select(f => new FichaDeSeguimientoDTO
                 {
@@ -92,7 +79,7 @@ namespace ClinicPass.BusinessLayer.Services
                     IdUsuario = f.IdUsuario,
                     NombreProfesional = f.Profesional.NombreCompleto,
                     IdHistorialClinico = f.IdHistorialClinico,
-                    FechaPase = f.FechaPase,
+                    //FechaPase = f.FechaPase,
                     FechaCreacion = f.FechaCreacion,
                     Observaciones = f.Observaciones
                 }).ToList()
@@ -103,7 +90,6 @@ namespace ClinicPass.BusinessLayer.Services
             var historia = await _context.HistoriasClinicas.FindAsync(idHistorial);
             if (historia == null) return false;
 
-            historia.TipoPaciente = dto.TipoPaciente;
             historia.AntecedentesFamiliares = dto.AntecedentesFamiliares;
             historia.AntecedentesPersonales = dto.AntecedentesPersonales;
             historia.Activa = dto.Activa;
@@ -132,41 +118,6 @@ namespace ClinicPass.BusinessLayer.Services
             return true;
         }
 
-        public async Task<bool> AgregarTratamientoAsync(int idHistorial, AgregarTratamientoaHistoriaDTO dto)
-        {
-            var historia = await _context.HistoriasClinicas.FindAsync(idHistorial);
-            if (historia == null) return false;
-
-            var nuevo = new PacienteTratamiento
-            {
-                IdPaciente = historia.IdPaciente,
-                IdTratamiento = dto.IdTratamiento,
-                FechaInicio = dto.FechaInicio,
-                Estado = dto.Estado,
-                FechaFin = dto.FechaFin
-            };
-
-            _context.PacienteTratamientos.Add(nuevo);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-        public async Task<bool> QuitarTratamientoAsync(int idHistorial, int idTratamiento)
-        {
-            var historia = await _context.HistoriasClinicas.FindAsync(idHistorial);
-            if (historia == null)
-                return false;
-
-            var relacion = await _context.PacienteTratamientos
-                .FirstOrDefaultAsync(pt =>
-                    pt.IdPaciente == historia.IdPaciente &&
-                    pt.IdTratamiento == idTratamiento);
-
-            if (relacion == null)
-                return false;
-
-            _context.PacienteTratamientos.Remove(relacion);
-            await _context.SaveChangesAsync();
-            return true;
-        }
+       
     }
 }

@@ -4,6 +4,7 @@ using ClinicPass.DataAccessLayer.DTOs.Turnos;
 using ClinicPass.DataAccessLayer.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace ClinicPass.BusinessLayer.Services
 {
@@ -22,6 +23,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             return await _context.Turnos
                 .Include(t => t.Paciente)
+                .Include(t => t.Profesional)
                 .Where(t => t.IdPaciente == idPaciente)
                 .Select(t => new TurnoResponseDTO
                 {
@@ -30,7 +32,9 @@ namespace ClinicPass.BusinessLayer.Services
                     Estado = t.Estado,
                     IdPaciente = t.IdPaciente,
                     NombrePaciente = t.Paciente.NombreCompleto,
-                    IdFichaSeguimiento = t.IdFichaSeguimiento
+                    IdFichaSeguimiento = t.IdFichaSeguimiento,
+                    ProfesionalId = t.ProfesionalId,
+                    NombreProfesional = t.Profesional.NombreCompleto
                 })
                 .AsNoTracking()
                 .ToListAsync();
@@ -39,6 +43,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             return await _context.Turnos
                 .Include(t => t.Paciente)
+                .Include(t => t.Profesional)
                 .Select(t => new TurnoResponseDTO
                 {
                     IdTurno = t.IdTurno,
@@ -46,7 +51,9 @@ namespace ClinicPass.BusinessLayer.Services
                     Estado = t.Estado,
                     IdPaciente = t.IdPaciente,
                     NombrePaciente = t.Paciente.NombreCompleto,
-                    IdFichaSeguimiento = t.IdFichaSeguimiento
+                    IdFichaSeguimiento = t.IdFichaSeguimiento,
+                    ProfesionalId = t.ProfesionalId,
+                    NombreProfesional = t.Profesional.NombreCompleto
                 })
                 .AsNoTracking()
                 .ToListAsync();
@@ -56,6 +63,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             var turno = await _context.Turnos
                 .Include(t => t.Paciente)
+                .Include(t => t.Profesional)
                 .FirstOrDefaultAsync(t => t.IdTurno == idTurno);
 
             if (turno == null)
@@ -68,26 +76,77 @@ namespace ClinicPass.BusinessLayer.Services
                 Estado = turno.Estado,
                 IdPaciente = turno.IdPaciente,
                 NombrePaciente = turno.Paciente.NombreCompleto,
-                IdFichaSeguimiento = turno.IdFichaSeguimiento
+                IdFichaSeguimiento = turno.IdFichaSeguimiento,
+                ProfesionalId = turno.ProfesionalId,
+                NombreProfesional = turno.Profesional.NombreCompleto
             };
         }
 
-        public async Task<TurnoResponseDTO> CrearTurnoAsync(CrearTurnosDTO dto)
+        public async Task<ComprobacionTurnosDTO> comprobarConflictosTurno(int pacienteId, int profesionalId, DateTime fecha)
         {
-            var paciente = await _context.Pacientes.FindAsync(dto.IdPaciente);
+            var inicioNuevoTurno = DateTime.SpecifyKind(fecha, DateTimeKind.Utc);
+            const int duracionMinutos = 30;
+            var finNuevoTurno = inicioNuevoTurno.AddMinutes(duracionMinutos);
+
+            if (inicioNuevoTurno < DateTime.UtcNow)
+                throw new ArgumentException("La fecha no puede ser anterior a la fecha actual.");
+            var paciente = await _context.Pacientes.FindAsync(pacienteId);
+
             if (paciente == null)
                 throw new ArgumentException("El paciente no existe.");
 
-            var fechaUtc = DateTime.SpecifyKind(dto.Fecha, DateTimeKind.Utc);
+            var profesional = await _userManager.FindByIdAsync(profesionalId.ToString());
 
-            if (await _context.Turnos.AnyAsync(t => t.Fecha == fechaUtc))
-                throw new InvalidOperationException("Ya existe un turno en esa fecha.");
+            if (profesional == null)
+                throw new ArgumentException("El profesional no existe.");
+
+
+            var turnosConflictoProfesional = await _context.Turnos
+                .Where(t => t.ProfesionalId == profesionalId)
+                .Where(t =>
+                    t.Fecha < finNuevoTurno &&
+                    t.Fecha.AddMinutes(duracionMinutos) > inicioNuevoTurno
+                )
+                .AnyAsync();
+
+            if (turnosConflictoProfesional)
+            {
+                throw new InvalidOperationException("El profesional ya tiene ocupado con un turno ese horario.");
+            }
+
+            var turnosConflictoPaciente = await _context.Turnos
+                .Where(t => t.IdPaciente == pacienteId)
+                .Where(t =>
+                    t.Fecha < finNuevoTurno &&
+                    t.Fecha.AddMinutes(duracionMinutos) > inicioNuevoTurno
+                )
+                .AnyAsync();
+
+            if (turnosConflictoPaciente)
+            {
+                throw new InvalidOperationException("El paciente ya tiene otro turno a ese horario.");
+            }
+
+            var dto = new ComprobacionTurnosDTO
+            {
+                Fecha = inicioNuevoTurno,
+                Profesional = profesional,
+                Paciente = paciente,
+            };
+
+            return dto;
+        }
+
+        public async Task<TurnoResponseDTO> CrearTurnoAsync(TurnoDTO dto)
+        {
+            var comprobacion = await comprobarConflictosTurno(dto.PacienteId, dto.ProfesionalId, dto.Fecha);
 
             var turno = new Turno
             {
-                Fecha = fechaUtc,
+                Fecha = comprobacion.Fecha,
                 Estado = "Pendiente",
-                IdPaciente = dto.IdPaciente,
+                IdPaciente = dto.PacienteId,
+                ProfesionalId = dto.ProfesionalId,
                 IdFichaSeguimiento = dto.IdFichaDeSeguimiento
             };
 
@@ -100,8 +159,10 @@ namespace ClinicPass.BusinessLayer.Services
                 Fecha = turno.Fecha,
                 Estado = turno.Estado,
                 IdPaciente = turno.IdPaciente,
-                NombrePaciente = paciente.NombreCompleto,
-                IdFichaSeguimiento = turno.IdFichaSeguimiento
+                NombrePaciente = comprobacion.Paciente.NombreCompleto,
+                IdFichaSeguimiento = turno.IdFichaSeguimiento,
+                ProfesionalId = turno.ProfesionalId,
+                NombreProfesional = comprobacion.Profesional.NombreCompleto
             };
         }
 
@@ -113,13 +174,12 @@ namespace ClinicPass.BusinessLayer.Services
             return turno;
         }
 
-        public async Task<Turno> ActualizarFechaAsync(int idTurno, DateTime nuevaFecha)
+        public async Task<Turno> ActualizarFechaAsync(int idTurno, ActualizarTurnoDTO dto)
         {
-            if (nuevaFecha < DateTime.UtcNow)
-                throw new ArgumentException("La fecha no puede ser anterior.");
+            var comprobacion = await comprobarConflictosTurno(dto.PacienteId, dto.ProfesionalId, dto.Fecha);
 
             var turno = await ObtenerTurnoAsync(idTurno);
-            turno.Fecha = DateTime.SpecifyKind(nuevaFecha, DateTimeKind.Utc);
+            turno.Fecha = DateTime.SpecifyKind(comprobacion.Fecha, DateTimeKind.Utc);
             await _context.SaveChangesAsync();
             return turno;
         }
@@ -132,17 +192,32 @@ namespace ClinicPass.BusinessLayer.Services
             return turno;
         }
 
-        public async Task<Turno> ActualizarCompletoAsync(int idTurno, ActualizarTurnoCompletoDTO dto)
+        public async Task<TurnoResponseDTO> ActualizarCompletoAsync(int idTurno, ActualizarTurnoDTO dto)
         {
+            var comprobacion = await comprobarConflictosTurno(dto.PacienteId, dto.ProfesionalId, dto.Fecha);
+
             var turno = await ObtenerTurnoAsync(idTurno);
 
-            turno.Fecha = DateTime.SpecifyKind(dto.Fecha, DateTimeKind.Utc);
+            turno.Fecha = comprobacion.Fecha;
             turno.Estado = dto.Estado;
             turno.IdPaciente = dto.PacienteId;
             turno.IdFichaSeguimiento = dto.FichaDeSeguimientoID;
+            turno.ProfesionalId = dto.ProfesionalId;
 
             await _context.SaveChangesAsync();
-            return turno;
+
+            var turnoResponse = new TurnoResponseDTO
+            {
+                IdTurno = turno.IdTurno,
+                Fecha = turno.Fecha,
+                Estado = turno.Estado,
+                IdPaciente = turno.IdPaciente,
+                NombrePaciente = comprobacion.Paciente.NombreCompleto,
+                IdFichaSeguimiento = turno.IdFichaSeguimiento,
+                ProfesionalId = turno.ProfesionalId,
+                NombreProfesional = comprobacion.Profesional.NombreCompleto
+            };
+            return turnoResponse;
         }
 
         public async Task EliminarAsync(int idTurno)

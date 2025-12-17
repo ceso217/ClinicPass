@@ -9,8 +9,9 @@ namespace ClinicPass.BusinessLayer.DTOs
     public class HistoriaClinicaCreateDTO
     {
         public int IdPaciente { get; set; }
-        public int TipoPaciente { get; set; }
-      
+        public string? AntecedentesFamiliares { get; set; }
+        public string? AntecedentesPersonales { get; set; }
+
     }
 }
 

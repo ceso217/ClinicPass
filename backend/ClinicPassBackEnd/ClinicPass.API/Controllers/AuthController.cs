@@ -70,49 +70,58 @@ namespace ClinicPass.API.Controllers
 		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterDTO request)
 		{
-			//verificar si el usuario existe (username, email, DNI, ID)
-			var profesionalExist = await _userManager.Users.AnyAsync(x => x.Dni == request.Dni);
-
-			//si existe enviar una BadRequest
-			if (profesionalExist)
+			if (request.Password != request.RepeatPassword)
 			{
-				return StatusCode(StatusCodes.Status409Conflict, "Ya existe un profesional con el DNI proporcionado.");
+				return BadRequest("Las contraseñas no coinciden");
+			}
+
+			var exists = await _userManager.Users.AnyAsync(x =>
+				x.Dni == request.Dni || x.Email == request.Email);
+
+			if (exists)
+			{
+				return Conflict("Ya existe un profesional con el DNI o email proporcionado.");
 			}
 
 			var user = new Profesional
 			{
 				UserName = request.Email,
 				Email = request.Email,
-				NombreCompleto = request.Name + " " + request.LastName,
+				NombreCompleto = $"{request.Name} {request.LastName}",
 				PhoneNumber = request.PhoneNumber,
-				Activo = true,
-				Dni = request.Dni
+				Dni = request.Dni,
+				Especialidad = request.Especialidad,
+				Activo = request.Activo
 			};
 
 			var result = await _userManager.CreateAsync(user, request.Password);
 
 			if (!result.Succeeded)
 			{
-				return BadRequest("El usuario ya existe / Ya esta registrado");
+				return BadRequest(result.Errors);
 			}
 
-			//añadir un rol por defecto al registrarse
-			await _userManager.AddToRoleAsync(user, "Profesional");
+			await _userManager.AddToRoleAsync(user, request.Rol);
 
-			// crear DTO de respuesta con token JWT
+			var token = _authService.GenerateJwtToken(
+				user.Id,
+				user.UserName,
+				new[] { request.Rol }
+			);
 
-			var userCreatedDTO = new RegisterSuccessDTO
+			return Ok(new
 			{
-				Dni = user.Dni,
-				Email = user.Email,
-				NombreCompleto = user.NombreCompleto,
-				PhoneNumber = user.PhoneNumber
-			};
-
-			var token = _authService.GenerateJwtToken(user.Id, user.UserName, ["Profesional"]);
-			return Ok(new { User = userCreatedDTO, Token = token });
+				user.Id,
+				user.NombreCompleto,
+				user.Email,
+				user.Dni,
+				user.Especialidad,
+				user.Activo,
+				Token = token
+			});
 		}
 
+		
 		[Authorize]
         [HttpPost("change-password")]
 		public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO request)
@@ -124,8 +133,11 @@ namespace ClinicPass.API.Controllers
 				var errors = result.Errors.Select(e => e.Description);
 				return BadRequest(new { Errors = errors });
 			}
-
-			return Ok("Contraseña cambiada exitosamente.");
+			var successResponse = new SuccessMessageDTO
+			{
+				Message = $"Contraseña cambiada exitosamente."
+			};
+			return Ok(successResponse);
 		}
 
 		[Authorize(Roles = "Admin")]

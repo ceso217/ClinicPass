@@ -14,8 +14,10 @@ namespace ClinicPass.BusinessLayer.DTOs
 
         public int IdHistorialClinico { get; set; }
 
-        public DateTime FechaPase { get; set; }
+        public int? TratamientoId { get; set; }
+
         public DateTime FechaCreacion { get; set; }
         public string? Observaciones { get; set; }
+
     }
 }

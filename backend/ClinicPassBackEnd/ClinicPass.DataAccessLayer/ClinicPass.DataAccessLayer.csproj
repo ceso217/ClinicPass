@@ -23,8 +23,4 @@
 	  
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTOs\Ficha\" />
-  </ItemGroup>
-
 </Project>

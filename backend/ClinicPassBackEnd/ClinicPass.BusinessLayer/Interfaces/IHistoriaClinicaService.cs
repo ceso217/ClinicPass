@@ -6,13 +6,11 @@ namespace ClinicPass.BusinessLayer.Services
     {
         Task<HistoriaClinicaDTO?> GetByIdAsync(int id);
         Task<HistoriaClinicaDTO?> GetHistoriaClinicaAsync(int idPaciente);
-        Task<HistoriaClinicaDTO> CreateAsync(int idPaciente, int tipoPaciente);
+        Task<HistoriaClinicaDTO> CreateAsync(HistoriaClinicaCreateDTO dto);
         Task<bool> UpdateAsync(int idHistorial, HistoriaClinicaUpdateDTO dto);
         Task<bool> DesactivarAsync(int idHistorial);
         Task<bool> ActivarAsync(int idHistorial);
 
-        Task<bool> AgregarTratamientoAsync(int idHistorial, AgregarTratamientoaHistoriaDTO dto);
-        Task<bool> QuitarTratamientoAsync(int idHistorial, int idTratamiento);
     }
 
 }

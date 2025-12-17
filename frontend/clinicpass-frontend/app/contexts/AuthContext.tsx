@@ -1,10 +1,31 @@
-'use client'
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { mockLogin } from '../data/mockUsers';
+"use client";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { mockLogin } from "../data/mockUsers";
+import { jwtDecode } from "jwt-decode";
 
 // Variable para activar/desactivar modo mock
 const USE_MOCK_AUTH = true; // Cambiar a false cuando tengas el backend listo
 
+
+interface TokenPayload {
+  role: string; // Por ejemplo, el ID del rol
+  sub: string; // Subject (generalmente el ID del usuario)
+  // ... cualquier otro campo que envíe el backend
+}
+const decodeToken = (token: string): TokenPayload | null => {//Decodificador del token
+  try {
+    return jwtDecode<TokenPayload>(token);
+  } catch (error) {
+    console.error("Error decodificando el token:", error);
+    return null;
+  }
+}; 
 
 interface User {
   id: number;
@@ -44,6 +65,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [decodedPayload, setDecodedPayload] = useState<TokenPayload | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,7 +76,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
-    }setLoading(false);
+
+      // Decodificar el token al inicio
+      setDecodedPayload(decodeToken(storedToken));
+    }
+    setLoading(false);
   }, []);
 
   const login = async (correo: string, password: string) => {
@@ -82,13 +108,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Modo PRODUCCIÓN - API real
       // TODO: Reemplazar con la URL de tu API .NET
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ correo, password }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/Auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Credenciales incorrectas');
@@ -99,8 +128,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Guardar token y usuario
       setToken(data.token);
       setUser(data.user);
-      localStorage.setItem('clinicpass_token', data.token);
-      localStorage.setItem('clinicpass_user', JSON.stringify(data.user));
+      // Decodificar y guardar el payload aquí
+      setDecodedPayload(decodeToken(data.token));
+
+      localStorage.setItem("clinicpass_token", data.token);
+      localStorage.setItem("clinicpass_user", JSON.stringify(data.user));
+      console.log("rol: "+ decodedPayload?.role)
     } catch (error) {
       throw error;
     }
@@ -109,11 +142,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('clinicpass_token');
-    localStorage.removeItem('clinicpass_user');
+    setDecodedPayload(null); // Limpiar el payload al cerrar sesión
+    localStorage.removeItem("clinicpass_token");
+    localStorage.removeItem("clinicpass_user");
 
     window.location.href = '/login';
   };
+
+  
 
   const value: AuthContextType = {
     user,
@@ -122,8 +158,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     isAuthenticated: !!token && !!user,
-    isAdmin: user?.rol === 1,
-    isProfesional: user?.rol === 2,
+    isAdmin: decodedPayload?.role === "Admin",
+    isProfesional: decodedPayload?.role === "Profesional",
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

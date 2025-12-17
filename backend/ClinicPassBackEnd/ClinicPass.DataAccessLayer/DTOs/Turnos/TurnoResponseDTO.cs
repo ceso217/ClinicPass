@@ -8,6 +8,8 @@
 
         public int IdPaciente { get; set; }
         public string NombrePaciente { get; set; } = null!;
+        public int ProfesionalId { get; set; }
+        public string NombreProfesional { get; set; } = null!;
 
         public int? IdFichaSeguimiento { get; set; }
     }

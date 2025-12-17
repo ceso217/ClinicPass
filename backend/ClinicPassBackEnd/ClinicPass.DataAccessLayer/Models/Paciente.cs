@@ -23,7 +23,6 @@ namespace ClinicPass.DataAccessLayer.Models
 
         public ICollection<Turno> Turnos { get; set; } = new List<Turno>();
         public ICollection<PacienteCobertura> PacienteCoberturas { get; set; } = new List<PacienteCobertura>();
-        public ICollection<PacienteTratamiento> PacienteTratamientos { get; set; } = new List<PacienteTratamiento>();
         public ICollection<TutorResponsablePaciente> TutoresResponsables { get; set; } = new List<TutorResponsablePaciente>();
         public ICollection<ProfesionalPaciente> ProfesionalesVinculados { get; set; } = new List<ProfesionalPaciente>();
     }

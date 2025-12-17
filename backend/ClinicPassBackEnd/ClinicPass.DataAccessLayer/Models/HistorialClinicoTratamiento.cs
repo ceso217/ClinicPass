@@ -1,4 +1,6 @@
-﻿namespace ClinicPass.DataAccessLayer.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ClinicPass.DataAccessLayer.Models
 {
     public class HistorialClinicoTratamiento
     {
@@ -7,6 +9,13 @@
 
         public int IdHistorialClinico { get; set; }
         public HistoriaClinica HistoriaClinica { get; set; } = null!;
+
+        public string Motivo { get; set; } = null!;
+
+        public DateTime FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+
+        public bool Activo { get; set; } = true;
     }
 }
 

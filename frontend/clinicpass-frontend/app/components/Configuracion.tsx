@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import {
   User,
@@ -14,6 +14,9 @@ import {
   CheckCircle,
   Building,
 } from "lucide-react";
+import { changePassword, ChangePasswordPayload } from "../hooks/authFetch";
+import { GreenNotification } from "./GreenNotification";
+import { RedNotification } from "./RedNotification";
 
 export const Configuracion: React.FC = () => {
   const { user } = useAuth();
@@ -21,6 +24,12 @@ export const Configuracion: React.FC = () => {
     "perfil" | "seguridad" | "notificaciones" | "apariencia"
   >("perfil");
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    setSuccessMessage("");
+    setErrorMessage("");
+  }, [activeTab]);
 
   // Estado del perfil
   const [perfilData, setPerfilData] = useState({
@@ -59,26 +68,81 @@ export const Configuracion: React.FC = () => {
     compacto: false,
   });
 
-  const handleSavePerfil = () => {
+  const handleSavePerfil = async () => {
     // Aquí iría la llamada a la API
     setSuccessMessage("Perfil actualizado correctamente");
     setTimeout(() => setSuccessMessage(""), 3000);
   };
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
+    setSuccessMessage("");
+    setErrorMessage("");
     if (passwordData.nueva !== passwordData.confirmar) {
-      alert("Las contraseñas no coinciden");
+      setErrorMessage("Las contraseñas no coinciden");
       return;
     }
     if (passwordData.nueva.length < 6) {
-      alert("La contraseña debe tener al menos 6 caracteres");
+      setErrorMessage("La contraseña debe tener al menos 6 caracteres");
       return;
     }
     // Aquí iría la llamada a la API
     setSuccessMessage("Contraseña actualizada correctamente");
     setPasswordData({ actual: "", nueva: "", confirmar: "" });
-    setTimeout(() => setSuccessMessage(""), 3000);
-  };
+
+    //obtenerDatos Usuario: 
+    const userString = localStorage.getItem('clinicpass_user');
+    if (!userString) {
+        alert("Error: No se encontró información de usuario (ID) en la sesión.");
+        return;
+    }
+    
+    let userId: string;
+    try {
+        const user = JSON.parse(userString);
+        // Asume que el ID se llama 'id' (camelCase) o 'Id' (PascalCase)
+        userId = user.id || user.Id; 
+        if (!userId) throw new Error("ID de usuario no encontrado en el objeto de sesión.");
+    } catch (e) {
+        console.error("Error de parseo o ID de usuario faltante:", e);
+        alert("Error de sesión. Por favor, vuelva a iniciar sesión.");
+        return;
+    }
+    var stringId = String(userId);
+    // --- 3. PREPARAR PAYLOAD (Debe coincidir con el DTO del backend) ---
+    const payload = {
+        // Asegúrate de que el backend espera PascalCase: Id, CurrentPassword...
+        Id: stringId,
+        currentPassword: passwordData.actual,
+        newPassword: passwordData.nueva,
+        confirmNewPassword: passwordData.confirmar,
+    };
+
+    // --- 4. LLAMADA ASÍNCRONA A LA API ---
+    try {
+        // La función de la API debe ser llamada con 'await'
+        const response = await changePassword(payload); 
+        
+        // Si el backend devuelve un mensaje de éxito en JSON (ej: { message: "..." })
+        setSuccessMessage(response.message || "Contraseña actualizada correctamente.");
+        setErrorMessage('');
+        // Limpiar campos y cerrar modal/notificar éxito
+        setPasswordData({ actual: "", nueva: "", confirmar: "" });
+        
+    } catch (error) {
+        // Manejar errores de la API (ej: contraseña actual incorrecta, token expirado)
+        let errorMessage = "Ocurrió un error al intentar cambiar la contraseña.";
+        setErrorMessage(errorMessage);
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+        
+        // Puedes usar una notificación más visible que 'alert'
+        alert(`Error al actualizar: ${errorMessage}`);
+        
+        console.error("Error al cambiar la contraseña:", error);
+    }
+};
+
 
   const handleSaveNotificaciones = () => {
     // Aquí iría la llamada a la API
@@ -112,10 +176,11 @@ export const Configuracion: React.FC = () => {
       <div className="p-8">
         {/* Mensaje de éxito */}
         {successMessage && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            <p className="text-green-800">{successMessage}</p>
-          </div>
+          <GreenNotification mensaje={successMessage}></GreenNotification>
+        )}
+        {/* Mensaje de error */}
+        {errorMessage && (
+          <RedNotification mensaje={errorMessage}></RedNotification>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -259,10 +324,10 @@ export const Configuracion: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="flex justify-end pt-4">
+                    <div className="flex justify-end pt-4 cursor-pointer">
                       <button
                         onClick={handleSavePerfil}
-                        className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
+                        className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 "
                       >
                         <Save className="w-5 h-5" />
                         Guardar Cambios
@@ -387,9 +452,9 @@ export const Configuracion: React.FC = () => {
                     </div>
 
                     <div className="pt-4">
-                      <button
+                      <button 
                         onClick={handleChangePassword}
-                        className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
+                        className="bg-indigo-600 text-white px-6 py-2 rounded-lg cursor-pointer hover:bg-indigo-700 transition flex items-center gap-2"
                       >
                         <Save className="w-5 h-5" />
                         Actualizar Contraseña

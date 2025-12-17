@@ -57,6 +57,7 @@ builder.Services.AddScoped<IPacienteService, PacienteService>();
 builder.Services.AddScoped<IHistoriaClinicaService, HistoriaClinicaService>();
 builder.Services.AddScoped<IFichaDeSeguimientoService, FichaDeSeguimientoService>();
 builder.Services.AddScoped<ITratamientoService, TratamientoService>();
+builder.Services.AddScoped<IHistorialClinicoTratamientoService, HistorialClinicoTratamientoService>();
 builder.Services.AddScoped<ITurnoService, TurnoService>();
 builder.Services.AddScoped<ITutorService, TutorService>();
 builder.Services.AddScoped<ICoberturaService, CoberturaService>();
@@ -123,7 +124,7 @@ using (var scope = app.Services.CreateScope())
     {
         var admin = new Profesional
         {
-            UserName = "admin",
+            UserName = "admin@clinicpass.com",
             Email = "admin@clinicpass.com",
             NombreCompleto = "Administrador",
             Dni = "00000000",
