@@ -47,7 +47,13 @@ namespace ClinicPass.API.Controllers
             return Ok(turnos);
         }
 
-        
+        [HttpGet("paciente/{idPaciente}")]
+        public async Task<IActionResult> GetPorPaciente(int idPaciente)
+        {
+            var turnos = await _turnoService.ObtenerPorPacienteAsync(idPaciente);
+            return Ok(turnos);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPorId(int id)
         {
@@ -68,7 +74,7 @@ namespace ClinicPass.API.Controllers
         //{
         //}
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CrearTurnosDTO dto)
+        public async Task<IActionResult> Post([FromBody] TurnoDTO dto)
         {
             try
             {
@@ -96,9 +102,9 @@ namespace ClinicPass.API.Controllers
         }
 
         [HttpPut("{idTurno}/fecha")]
-        public async Task<IActionResult> ActualizarFecha(int idTurno, [FromBody] ActualizarFechaTurnoDTO dto)
+        public async Task<IActionResult> ActualizarFecha(int idTurno, [FromBody] ActualizarTurnoDTO dto)
         {
-            var turno = await _turnoService.ActualizarFechaAsync(idTurno, dto.Fecha);
+            var turno = await _turnoService.ActualizarFechaAsync(idTurno, dto);
             return Ok(turno);
         }
 
@@ -110,7 +116,7 @@ namespace ClinicPass.API.Controllers
         }
 
         [HttpPut("{idTurno}")]
-        public async Task<IActionResult> ActualizarCompleto(int idTurno, [FromBody] ActualizarTurnoCompletoDTO dto)
+        public async Task<IActionResult> ActualizarCompleto(int idTurno, [FromBody] ActualizarTurnoDTO dto)
         {
             var turno = await _turnoService.ActualizarCompletoAsync(idTurno, dto);
             return Ok(turno);

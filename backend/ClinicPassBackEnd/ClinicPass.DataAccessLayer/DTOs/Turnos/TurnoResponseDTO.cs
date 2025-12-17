@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ClinicPass.DataAccessLayer.DTOs.Turnos
+﻿namespace ClinicPass.DataAccessLayer.DTOs.Turnos
 {
     public class TurnoResponseDTO
     {
@@ -12,9 +6,11 @@ namespace ClinicPass.DataAccessLayer.DTOs.Turnos
         public DateTime Fecha { get; set; }
         public string? Estado { get; set; }
 
-        public int PacienteId { get; set; }
+        public int IdPaciente { get; set; }
         public string NombrePaciente { get; set; } = null!;
+        public int ProfesionalId { get; set; }
+        public string NombreProfesional { get; set; } = null!;
 
-        public int? FichaDeSeguimientoID { get; set; }
+        public int? IdFichaSeguimiento { get; set; }
     }
 }

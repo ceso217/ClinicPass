@@ -8,8 +8,8 @@ using System.Security.Cryptography;
 using System.Text;
 using ClinicPass.BusinessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using ClinicPass.DataAccessLayer.DTOs.Auth;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ClinicPass.API.Controllers
 {
@@ -36,7 +36,6 @@ namespace ClinicPass.API.Controllers
 			if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
 			{
 				return BadRequest($"No puede haber credenciales vacias: {request.Username} , {request.Password}");
-
 			}
 
 
@@ -66,57 +65,94 @@ namespace ClinicPass.API.Controllers
 			var token = _authService.GenerateJwtToken(user.Id, user.UserName, roles);
 
 			return Ok(new { user, token });
-
-
 		}
 
 		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterDTO request)
 		{
-			//validar datos vacios
+			if (request.Password != request.RepeatPassword)
+			{
+				return BadRequest("Las contraseñas no coinciden");
+			}
 
-			//verificar si el usuario existe (username, email, DNI, ID)
-			var profesionalExist = await _userManager.Users.AnyAsync(x => x.Dni == request.Dni);
+			var exists = await _userManager.Users.AnyAsync(x =>
+				x.Dni == request.Dni || x.Email == request.Email);
 
-            //si existe enviar una BadRequest
-            if (profesionalExist)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, "Ya existe un profesional con el DNI proporcionado.");
-            }
+			if (exists)
+			{
+				return Conflict("Ya existe un profesional con el DNI o email proporcionado.");
+			}
 
-            var user = new Profesional
+			var user = new Profesional
 			{
 				UserName = request.Email,
 				Email = request.Email,
-				NombreCompleto = request.Name + " " + request.LastName,
+				NombreCompleto = $"{request.Name} {request.LastName}",
 				PhoneNumber = request.PhoneNumber,
-				Activo = true,
-				Dni = request.Dni
+				Dni = request.Dni,
+				Especialidad = request.Especialidad,
+				Activo = request.Activo
 			};
 
 			var result = await _userManager.CreateAsync(user, request.Password);
 
-			if (!result.Succeeded) 
+			if (!result.Succeeded)
 			{
-				return BadRequest("El usuario ya existe / Ya esta registrado");
+				return BadRequest(result.Errors);
 			}
 
-			//añadir un rol por defecto al registrarse
-			await _userManager.AddToRoleAsync(user, "Profesional");
+			await _userManager.AddToRoleAsync(user, request.Rol);
 
-			// crear DTO de respuesta con token JWT
+			var token = _authService.GenerateJwtToken(
+				user.Id,
+				user.UserName,
+				new[] { request.Rol }
+			);
 
-			var userCreatedDTO = new RegisterSuccessDTO
+			return Ok(new
 			{
-				Dni = user.Dni,
-				Email = user.Email,
-				NombreCompleto = user.NombreCompleto,
-				PhoneNumber = user.PhoneNumber
-			};
-
-			var token = _authService.GenerateJwtToken(user.Id, user.UserName, ["Profesional"]);
-			return Ok(new { User = userCreatedDTO, Token = token });
+				user.Id,
+				user.NombreCompleto,
+				user.Email,
+				user.Dni,
+				user.Especialidad,
+				user.Activo,
+				Token = token
+			});
 		}
+
+		
+		[Authorize]
+        [HttpPost("change-password")]
+		public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO request)
+		{
+			var result = await _authService.ChangePasswordAsync(request);
+
+			if (!result.Succeeded)
+			{
+				var errors = result.Errors.Select(e => e.Description);
+				return BadRequest(new { Errors = errors });
+			}
+			var successResponse = new SuccessMessageDTO
+			{
+				Message = $"Contraseña cambiada exitosamente."
+			};
+			return Ok(successResponse);
+		}
+
+		[Authorize(Roles = "Admin")]
+		[HttpPost("reset-password")]
+		public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO request)
+		{
+			var result = await _authService.AdminResetPasswordAsync(request);
+
+			if ((!result.Succeeded))
+			{
+                var errors = result.Errors.Select(e => e.Description);
+                return BadRequest(new { Errors = errors });
+            }
+			return Ok("Contraseña reseteada exitosamente.");
+        }
 	}
 }
 //1.JULIÁN – Autenticación + JWT

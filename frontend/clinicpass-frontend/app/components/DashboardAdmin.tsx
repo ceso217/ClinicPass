@@ -12,6 +12,7 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
+import PerformanceCard from './PerformanceCard';
 
 interface DashboardStats {
   totalPacientes: number;
@@ -190,8 +191,9 @@ export const DashboardAdmin: React.FC = () => {
               </div>
             </div>
           </div>
-
-          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-md p-6 text-white">
+          <PerformanceCard></PerformanceCard>
+        </div>
+          {/* <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-md p-6 text-white">
             <TrendingUp className="w-8 h-8 mb-4" />
             <h3 className="mb-2">Rendimiento</h3>
             <p className="mb-4 opacity-90">
@@ -202,9 +204,12 @@ export const DashboardAdmin: React.FC = () => {
               <span>Sistema operativo</span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Acciones rápidas */}
+        
+
+        
         <h2 className="text-gray-900 mb-4">Acciones Rápidas</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <QuickActionCard
@@ -247,5 +252,6 @@ export const DashboardAdmin: React.FC = () => {
         </div>
       </div>
     </div>
+
   );
 };

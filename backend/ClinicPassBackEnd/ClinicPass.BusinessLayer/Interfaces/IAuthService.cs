@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ClinicPass.DataAccessLayer.DTOs.Auth;
+using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,8 +13,11 @@ namespace ClinicPass.BusinessLayer.Interfaces
 		string HashPassword(string plainPassword); //siempre se le pasa un texto plano y devuelve un hash
 		bool VerifyPassword(string plainPassword, string hashedPassword); //se verifica que el hasheo y el password plano sean iguales
 
-		string GenerateJwtToken(int userID, string username, IList<string> roles); 
-	}
+		string GenerateJwtToken(int userID, string username, IList<string> roles);
 
-	//alkdjfñasldkf
+		Task<IdentityResult> ChangePasswordAsync(ChangePasswordDTO dto);
+
+        Task<IdentityResult> AdminResetPasswordAsync(ResetPasswordDTO dto);
+
+    }
 }

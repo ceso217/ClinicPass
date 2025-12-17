@@ -20,7 +20,8 @@ namespace ClinicPass.DataAccessLayer.Models
         //public string? Telefono { get; set; }
         //public string? Correo { get; set; }
 
-        public ICollection<ProfesionalTurno> ProfesionalTurnos { get; set; } = new List<ProfesionalTurno>();
+        // profesional - turno es ahora relación uno a uno
+        //public ICollection<ProfesionalTurno> ProfesionalTurnos { get; set; } = new List<ProfesionalTurno>();
         public ICollection<ProfesionalPaciente> ProfesionalPacientes { get; set; } = new List<ProfesionalPaciente>();
     }
 }

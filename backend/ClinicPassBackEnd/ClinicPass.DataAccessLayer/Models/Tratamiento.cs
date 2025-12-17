@@ -7,14 +7,12 @@ namespace ClinicPass.DataAccessLayer.Models
         [Key]
         public int IdTratamiento { get; set; }
 
-        public string TipoTratamiento { get; set; } = null!;
-        public string Motivo { get; set; } = null!;
+        public string Nombre { get; set; } = null!;
         public string? Descripcion { get; set; }
+        public bool Activo { get; set; } = true;
 
         // Relación N–N con Paciente a través de PacienteTratamiento
-        public ICollection<PacienteTratamiento> Pacientes { get; set; } = new List<PacienteTratamiento>();
-        public ICollection<PaseDiario> Pases { get; set; } = new List<PaseDiario>(); // Relación 1–N con PaseDiario
-
+        public ICollection<HistorialClinicoTratamiento> Historiales { get; set; } = new List<HistorialClinicoTratamiento>();
     }
 }
 

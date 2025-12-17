@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using ClinicPass.DataAccessLayer.DTOs;
 using ClinicPass.DataAccessLayer.Data;
+using ClinicPass.BusinessLayer.Interfaces;
+using NuGet.Protocol;
 
 namespace ClinicPass.API.Controllers
 {
@@ -19,62 +21,67 @@ namespace ClinicPass.API.Controllers
     public class ProfesionalsController : ControllerBase
     {
         //Contexto y Administrador de usuarios
-        private readonly ClinicPassContext _context;
-        private readonly UserManager<Profesional> _userManager;
+        private readonly IProfesionalService _profesionalService;
 
-        public ProfesionalsController(ClinicPassContext context, UserManager<Profesional> userManager)
+        public ProfesionalsController(IProfesionalService profesionalService)
         {
-            _context = context;
-            _userManager = userManager;
+            _profesionalService = profesionalService;
         }
 
         // GET: api/Profesionals
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Profesional>>> GetAllProfesionals()
+        public async Task<ActionResult<IEnumerable<ProfesionalDTO>>> GetAllProfesionals()
         {
-            var profesionales = _userManager.Users.ToList();
+            var profesionales = await _profesionalService.GetAllAsync();
 
             return Ok(profesionales);
         }
 
-        // GET: api/Profesionals/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Profesional>> GetProfesional(int id)
+        // GET: api/Profesionals/id/5
+        [HttpGet("id/{id}")]
+        public async Task<ActionResult<ProfesionalDTO>> GetProfesionalId(int id)
         {
-            var profesional = await _userManager.FindByIdAsync(id.ToString());
+            var profesional = await _profesionalService.GetByIdAsync(id);
 
             if (profesional == null)
             {
                 return NotFound();
             }
 
-            return Ok(profesional);// se devuelve un solo profesional
+            return Ok(profesional);
+        }
+
+        // GET: api/Profesionals/dni/41765123
+        [HttpGet("dni/{dni}")]
+        public async Task<ActionResult<ProfesionalDTO>> GetProfesionalDni(string dni)
+        {
+            var profesional = await _profesionalService.GetByDniAsync(dni);
+            if (profesional == null)
+            {
+                return NotFound();
+            }
+            return Ok(profesional);
         }
 
         // PUT: api/Profesionals/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProfesional(int id,[FromBody] Profesional profesionalUpdated)
+        public async Task<IActionResult> UpdateProfesional(int id,[FromBody] ProfesionalDTO profesionalUpdated)
         {
-            if (id != profesionalUpdated.Id)
+            var updated = await _profesionalService.UpdateAsync(id, profesionalUpdated);
+
+            if (!updated)
             {
-                return BadRequest();
+                return BadRequest("No se pudo actualizar el profesional.");
             }
-            var profesional = await _userManager.FindByIdAsync(id.ToString());
-
-
-            profesional.NombreCompleto = profesionalUpdated.NombreCompleto;
-            profesional.Dni = profesionalUpdated.Dni;
-            profesional.PhoneNumber = profesionalUpdated?.PhoneNumber;
-            profesional.Especialidad = profesionalUpdated.Especialidad;
-            profesional.Activo = profesionalUpdated.Activo;
-
-            var result = await _userManager.UpdateAsync(profesional);
-
-            if (!result.Succeeded) return BadRequest(result.Errors);
-
-            return Ok($"Se actualizo el usuario {id} : {profesional}");
+			var successResponse = new SuccessMessageDTO
+			{
+				Message = $"Se actualizó el usuario {id}: {profesionalUpdated.NombreCompleto}."
+			};
+			return Ok(successResponse);
         }
+
+
+
 
         // POST: api/Profesionals
         // Ya existe endpoint para crear profesional en AuthController/Register
@@ -108,30 +115,15 @@ namespace ClinicPass.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProfesional(int id)
         {
-            var profesional = await _userManager.FindByIdAsync(id.ToString());
-            if (profesional == null)
+            var result = await _profesionalService.DeleteAsync(id);
+            if (!result)
             {
                 return NotFound();
             }
-
-            var result = await _userManager.DeleteAsync(profesional);
-            if (!result.Succeeded)
-            {
-                return BadRequest(result.Errors);
-            }
-
             return Ok($"Profesional {id} correctamente eliminado.");
         }
 
         // PUT api/Profesionals/5/ResetPassword
         //[HttpPut("{id}")]
-
-        //TODO
-
-
-        //private bool ProfesionalExists(int id)
-        //{
-        //    return _context.Users.Any(e => e.Id == id);
-        //}
     }
 }

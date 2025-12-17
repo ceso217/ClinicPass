@@ -22,8 +22,13 @@ interface MenuItem {
   icon: React.ReactNode;
   label: string;
   path: string;
-  roles: number[]; // 1 = Admin, 2 = Profesional
+  roles: string[]; // 1 = Admin, 2 = Profesional
 }
+const getRoleString = (role: number | undefined): string | null => {
+  if (role === 1) return "Admin";
+  if (role === 2) return "Profesional";
+  return null; // Si el rol no es 1 ni 2, o es undefined
+};
 
 export const Sidebar: React.FC = () => {
   const { user, logout, isAdmin, isProfesional } = useAuth();
@@ -31,6 +36,8 @@ export const Sidebar: React.FC = () => {
   // const location = useLocation();
   const router = useRouter(); 
   const pathname = usePathname();
+  // Obtenemos el rol del usuario como una cadena (ej: "Admin") o null
+  const userRoleString = getRoleString(isAdmin ? 1: 2);
 
   const [collapsed, setCollapsed] = useState(false);
 
@@ -39,44 +46,46 @@ export const Sidebar: React.FC = () => {
       icon: <LayoutDashboard className="w-5 h-5" />,
       label: 'Dashboard',
       path: '/dashboard',
-      roles: [1, 2],
+      roles: ["Admin", "Profesional"],
     },
     {
       icon: <Users className="w-5 h-5" />,
       label: 'Pacientes',
       path: '/pacientes',
-      roles: [1, 2],
+      roles: ["Admin", "Profesional"],
     },
     {
       icon: <Calendar className="w-5 h-5" />,
       label: 'Calendario',
       path: '/calendario',
-      roles: [1, 2],
+      roles: ["Admin", "Profesional"],
     },
     {
       icon: <FileText className="w-5 h-5" />,
       label: 'Historiales',
       path: '/historiales',
-      roles: [1, 2],
+      roles: ["Admin", "Profesional"],
     },
     {
       icon: <UserCog className="w-5 h-5" />,
       label: 'Profesionales',
       path: '/profesionales',
-      roles: [1], // Solo Admin
+      roles: ["Admin"], // Solo Admin
     },
     {
       icon: <TrendingUp className="w-5 h-5" />,
       label: 'Reportes',
       path: '/reportes',
-      roles: [1], // Solo Admin
+      roles: ["Admin"], // Solo Admin
     },
   ];
 
   const filteredMenuItems = menuItems.filter(item => 
-    item.roles.includes(user?.rol || 0)
-  );
-
+// Solo filtra si userRoleString existe (es decir, el usuario está logueado y tiene un rol válido)
+    userRoleString 
+      ? item.roles.includes(userRoleString)
+      : false // Oculta todos los ítems si no hay un rol válido  );
+  )
   const handleLogout = () => {
     logout();
     router.push('/login');
@@ -95,7 +104,8 @@ const isActive = (path: string) => pathname === path;
         {!collapsed && (
           <div>
             <Image
-              src="/logo_reduced_1024x1024.jpg" 
+              loading="eager"
+              src="/images/logoSinFondo_reduced_1024x1024.png" 
               alt="ClinicPass"
               width={150} 
               height={40}

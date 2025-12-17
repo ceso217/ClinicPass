@@ -1,39 +1,50 @@
-'use client'
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { 
-  User, 
-  Lock, 
-  Bell, 
-  Palette, 
+"use client";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import {
+  User,
+  Lock,
+  Bell,
+  Palette,
   Save,
   Mail,
   Phone,
   Eye,
   EyeOff,
   CheckCircle,
-  Building
-} from 'lucide-react';
+  Building,
+} from "lucide-react";
+import { changePassword, ChangePasswordPayload } from "../hooks/authFetch";
+import { GreenNotification } from "./GreenNotification";
+import { RedNotification } from "./RedNotification";
 
 export const Configuracion: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'perfil' | 'seguridad' | 'notificaciones' | 'apariencia'>('perfil');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [activeTab, setActiveTab] = useState<
+    "perfil" | "seguridad" | "notificaciones" | "apariencia"
+  >("perfil");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    setSuccessMessage("");
+    setErrorMessage("");
+  }, [activeTab]);
 
   // Estado del perfil
   const [perfilData, setPerfilData] = useState({
-    nombreCompleto: user?.nombreCompleto || '',
-    correo: user?.correo || '',
-    telefono: user?.telefono || '',
-    especialidad: user?.especialidad || '',
-    dni: user?.dni || '',
+    nombreCompleto: user?.nombreCompleto || "",
+    correo: user?.correo || "",
+    telefono: user?.telefono || "",
+    especialidad: user?.especialidad || "",
+    dni: user?.dni || "",
   });
 
   // Estado de contraseña
   const [passwordData, setPasswordData] = useState({
-    actual: '',
-    nueva: '',
-    confirmar: '',
+    actual: "",
+    nueva: "",
+    confirmar: "",
   });
   const [showPasswords, setShowPasswords] = useState({
     actual: false,
@@ -52,49 +63,104 @@ export const Configuracion: React.FC = () => {
 
   // Estado de apariencia
   const [apariencia, setApariencia] = useState({
-    tema: 'claro',
-    idioma: 'es',
+    tema: "claro",
+    idioma: "es",
     compacto: false,
   });
 
-  const handleSavePerfil = () => {
+  const handleSavePerfil = async () => {
     // Aquí iría la llamada a la API
-    setSuccessMessage('Perfil actualizado correctamente');
-    setTimeout(() => setSuccessMessage(''), 3000);
+    setSuccessMessage("Perfil actualizado correctamente");
+    setTimeout(() => setSuccessMessage(""), 3000);
   };
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
+    setSuccessMessage("");
+    setErrorMessage("");
     if (passwordData.nueva !== passwordData.confirmar) {
-      alert('Las contraseñas no coinciden');
+      setErrorMessage("Las contraseñas no coinciden");
       return;
     }
     if (passwordData.nueva.length < 6) {
-      alert('La contraseña debe tener al menos 6 caracteres');
+      setErrorMessage("La contraseña debe tener al menos 6 caracteres");
       return;
     }
     // Aquí iría la llamada a la API
-    setSuccessMessage('Contraseña actualizada correctamente');
-    setPasswordData({ actual: '', nueva: '', confirmar: '' });
-    setTimeout(() => setSuccessMessage(''), 3000);
-  };
+    setSuccessMessage("Contraseña actualizada correctamente");
+    setPasswordData({ actual: "", nueva: "", confirmar: "" });
+
+    //obtenerDatos Usuario: 
+    const userString = localStorage.getItem('clinicpass_user');
+    if (!userString) {
+        alert("Error: No se encontró información de usuario (ID) en la sesión.");
+        return;
+    }
+    
+    let userId: string;
+    try {
+        const user = JSON.parse(userString);
+        // Asume que el ID se llama 'id' (camelCase) o 'Id' (PascalCase)
+        userId = user.id || user.Id; 
+        if (!userId) throw new Error("ID de usuario no encontrado en el objeto de sesión.");
+    } catch (e) {
+        console.error("Error de parseo o ID de usuario faltante:", e);
+        alert("Error de sesión. Por favor, vuelva a iniciar sesión.");
+        return;
+    }
+    var stringId = String(userId);
+    // --- 3. PREPARAR PAYLOAD (Debe coincidir con el DTO del backend) ---
+    const payload = {
+        // Asegúrate de que el backend espera PascalCase: Id, CurrentPassword...
+        Id: stringId,
+        currentPassword: passwordData.actual,
+        newPassword: passwordData.nueva,
+        confirmNewPassword: passwordData.confirmar,
+    };
+
+    // --- 4. LLAMADA ASÍNCRONA A LA API ---
+    try {
+        // La función de la API debe ser llamada con 'await'
+        const response = await changePassword(payload); 
+        
+        // Si el backend devuelve un mensaje de éxito en JSON (ej: { message: "..." })
+        setSuccessMessage(response.message || "Contraseña actualizada correctamente.");
+        setErrorMessage('');
+        // Limpiar campos y cerrar modal/notificar éxito
+        setPasswordData({ actual: "", nueva: "", confirmar: "" });
+        
+    } catch (error) {
+        // Manejar errores de la API (ej: contraseña actual incorrecta, token expirado)
+        let errorMessage = "Ocurrió un error al intentar cambiar la contraseña.";
+        setErrorMessage(errorMessage);
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+        
+        // Puedes usar una notificación más visible que 'alert'
+        alert(`Error al actualizar: ${errorMessage}`);
+        
+        console.error("Error al cambiar la contraseña:", error);
+    }
+};
+
 
   const handleSaveNotificaciones = () => {
     // Aquí iría la llamada a la API
-    setSuccessMessage('Preferencias de notificaciones guardadas');
-    setTimeout(() => setSuccessMessage(''), 3000);
+    setSuccessMessage("Preferencias de notificaciones guardadas");
+    setTimeout(() => setSuccessMessage(""), 3000);
   };
 
   const handleSaveApariencia = () => {
     // Aquí iría la llamada a la API
-    setSuccessMessage('Preferencias de apariencia guardadas');
-    setTimeout(() => setSuccessMessage(''), 3000);
+    setSuccessMessage("Preferencias de apariencia guardadas");
+    setTimeout(() => setSuccessMessage(""), 3000);
   };
 
   const tabs = [
-    { id: 'perfil', label: 'Mi Perfil', icon: User },
-    { id: 'seguridad', label: 'Seguridad', icon: Lock },
-    { id: 'notificaciones', label: 'Notificaciones', icon: Bell },
-    { id: 'apariencia', label: 'Apariencia', icon: Palette },
+    { id: "perfil", label: "Mi Perfil", icon: User },
+    { id: "seguridad", label: "Seguridad", icon: Lock },
+    { id: "notificaciones", label: "Notificaciones", icon: Bell },
+    { id: "apariencia", label: "Apariencia", icon: Palette },
   ] as const;
 
   return (
@@ -102,16 +168,19 @@ export const Configuracion: React.FC = () => {
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-8 py-6">
         <h1 className="text-gray-900">Configuración</h1>
-        <p className="text-gray-600 mt-1">Administra tu cuenta y preferencias</p>
+        <p className="text-gray-600 mt-1">
+          Administra tu cuenta y preferencias
+        </p>
       </div>
 
       <div className="p-8">
         {/* Mensaje de éxito */}
         {successMessage && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            <p className="text-green-800">{successMessage}</p>
-          </div>
+          <GreenNotification mensaje={successMessage}></GreenNotification>
+        )}
+        {/* Mensaje de error */}
+        {errorMessage && (
+          <RedNotification mensaje={errorMessage}></RedNotification>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -127,8 +196,8 @@ export const Configuracion: React.FC = () => {
                       onClick={() => setActiveTab(tab.id)}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
                         activeTab === tab.id
-                          ? 'bg-indigo-50 text-indigo-700'
-                          : 'text-gray-700 hover:bg-gray-50'
+                          ? "bg-indigo-50 text-indigo-700"
+                          : "text-gray-700 hover:bg-gray-50"
                       }`}
                     >
                       <Icon className="w-5 h-5" />
@@ -144,7 +213,7 @@ export const Configuracion: React.FC = () => {
           <div className="lg:col-span-3">
             <div className="bg-white rounded-xl shadow-md">
               {/* Tab: Mi Perfil */}
-              {activeTab === 'perfil' && (
+              {activeTab === "perfil" && (
                 <div className="p-6">
                   <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-200">
                     <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center">
@@ -152,7 +221,9 @@ export const Configuracion: React.FC = () => {
                     </div>
                     <div>
                       <h2 className="text-gray-900">{user?.nombreCompleto}</h2>
-                      <p className="text-gray-600">{user?.rol === 1 ? 'Administrador' : 'Profesional'}</p>
+                      <p className="text-gray-600">
+                        {user?.rol === 1 ? "Administrador" : "Profesional"}
+                      </p>
                     </div>
                   </div>
 
@@ -161,13 +232,20 @@ export const Configuracion: React.FC = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-gray-700 mb-2">Nombre Completo</label>
+                        <label className="block text-gray-700 mb-2">
+                          Nombre Completo
+                        </label>
                         <div className="relative">
                           <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                           <input
                             type="text"
                             value={perfilData.nombreCompleto}
-                            onChange={(e) => setPerfilData({ ...perfilData, nombreCompleto: e.target.value })}
+                            onChange={(e) =>
+                              setPerfilData({
+                                ...perfilData,
+                                nombreCompleto: e.target.value,
+                              })
+                            }
                             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                           />
                         </div>
@@ -187,26 +265,40 @@ export const Configuracion: React.FC = () => {
                       </div>
 
                       <div>
-                        <label className="block text-gray-700 mb-2">Correo Electrónico</label>
+                        <label className="block text-gray-700 mb-2">
+                          Correo Electrónico
+                        </label>
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                           <input
                             type="email"
                             value={perfilData.correo}
-                            onChange={(e) => setPerfilData({ ...perfilData, correo: e.target.value })}
+                            onChange={(e) =>
+                              setPerfilData({
+                                ...perfilData,
+                                correo: e.target.value,
+                              })
+                            }
                             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-gray-700 mb-2">Teléfono</label>
+                        <label className="block text-gray-700 mb-2">
+                          Teléfono
+                        </label>
                         <div className="relative">
                           <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                           <input
                             type="tel"
                             value={perfilData.telefono}
-                            onChange={(e) => setPerfilData({ ...perfilData, telefono: e.target.value })}
+                            onChange={(e) =>
+                              setPerfilData({
+                                ...perfilData,
+                                telefono: e.target.value,
+                              })
+                            }
                             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                           />
                         </div>
@@ -214,21 +306,28 @@ export const Configuracion: React.FC = () => {
 
                       {user?.rol === 2 && (
                         <div className="md:col-span-2">
-                          <label className="block text-gray-700 mb-2">Especialidad</label>
+                          <label className="block text-gray-700 mb-2">
+                            Especialidad
+                          </label>
                           <input
                             type="text"
                             value={perfilData.especialidad}
-                            onChange={(e) => setPerfilData({ ...perfilData, especialidad: e.target.value })}
+                            onChange={(e) =>
+                              setPerfilData({
+                                ...perfilData,
+                                especialidad: e.target.value,
+                              })
+                            }
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                           />
                         </div>
                       )}
                     </div>
 
-                    <div className="flex justify-end pt-4">
+                    <div className="flex justify-end pt-4 cursor-pointer">
                       <button
                         onClick={handleSavePerfil}
-                        className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
+                        className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 "
                       >
                         <Save className="w-5 h-5" />
                         Guardar Cambios
@@ -239,75 +338,123 @@ export const Configuracion: React.FC = () => {
               )}
 
               {/* Tab: Seguridad */}
-              {activeTab === 'seguridad' && (
+              {activeTab === "seguridad" && (
                 <div className="p-6">
                   <h2 className="text-gray-900 mb-6">Cambiar Contraseña</h2>
-                  
+
                   <div className="space-y-4 max-w-md">
                     <div>
-                      <label className="block text-gray-700 mb-2">Contraseña Actual</label>
+                      <label className="block text-gray-700 mb-2">
+                        Contraseña Actual
+                      </label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                         <input
-                          type={showPasswords.actual ? 'text' : 'password'}
+                          type={showPasswords.actual ? "text" : "password"}
                           value={passwordData.actual}
-                          onChange={(e) => setPasswordData({ ...passwordData, actual: e.target.value })}
+                          onChange={(e) =>
+                            setPasswordData({
+                              ...passwordData,
+                              actual: e.target.value,
+                            })
+                          }
                           className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                         />
                         <button
                           type="button"
-                          onClick={() => setShowPasswords({ ...showPasswords, actual: !showPasswords.actual })}
+                          onClick={() =>
+                            setShowPasswords({
+                              ...showPasswords,
+                              actual: !showPasswords.actual,
+                            })
+                          }
                           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         >
-                          {showPasswords.actual ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          {showPasswords.actual ? (
+                            <EyeOff className="w-5 h-5" />
+                          ) : (
+                            <Eye className="w-5 h-5" />
+                          )}
                         </button>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-gray-700 mb-2">Nueva Contraseña</label>
+                      <label className="block text-gray-700 mb-2">
+                        Nueva Contraseña
+                      </label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                         <input
-                          type={showPasswords.nueva ? 'text' : 'password'}
+                          type={showPasswords.nueva ? "text" : "password"}
                           value={passwordData.nueva}
-                          onChange={(e) => setPasswordData({ ...passwordData, nueva: e.target.value })}
+                          onChange={(e) =>
+                            setPasswordData({
+                              ...passwordData,
+                              nueva: e.target.value,
+                            })
+                          }
                           className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                         />
                         <button
                           type="button"
-                          onClick={() => setShowPasswords({ ...showPasswords, nueva: !showPasswords.nueva })}
+                          onClick={() =>
+                            setShowPasswords({
+                              ...showPasswords,
+                              nueva: !showPasswords.nueva,
+                            })
+                          }
                           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         >
-                          {showPasswords.nueva ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          {showPasswords.nueva ? (
+                            <EyeOff className="w-5 h-5" />
+                          ) : (
+                            <Eye className="w-5 h-5" />
+                          )}
                         </button>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-gray-700 mb-2">Confirmar Nueva Contraseña</label>
+                      <label className="block text-gray-700 mb-2">
+                        Confirmar Nueva Contraseña
+                      </label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                         <input
-                          type={showPasswords.confirmar ? 'text' : 'password'}
+                          type={showPasswords.confirmar ? "text" : "password"}
                           value={passwordData.confirmar}
-                          onChange={(e) => setPasswordData({ ...passwordData, confirmar: e.target.value })}
+                          onChange={(e) =>
+                            setPasswordData({
+                              ...passwordData,
+                              confirmar: e.target.value,
+                            })
+                          }
                           className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                         />
                         <button
                           type="button"
-                          onClick={() => setShowPasswords({ ...showPasswords, confirmar: !showPasswords.confirmar })}
+                          onClick={() =>
+                            setShowPasswords({
+                              ...showPasswords,
+                              confirmar: !showPasswords.confirmar,
+                            })
+                          }
                           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         >
-                          {showPasswords.confirmar ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          {showPasswords.confirmar ? (
+                            <EyeOff className="w-5 h-5" />
+                          ) : (
+                            <Eye className="w-5 h-5" />
+                          )}
                         </button>
                       </div>
                     </div>
 
                     <div className="pt-4">
-                      <button
+                      <button 
                         onClick={handleChangePassword}
-                        className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
+                        className="bg-indigo-600 text-white px-6 py-2 rounded-lg cursor-pointer hover:bg-indigo-700 transition flex items-center gap-2"
                       >
                         <Save className="w-5 h-5" />
                         Actualizar Contraseña
@@ -315,7 +462,9 @@ export const Configuracion: React.FC = () => {
                     </div>
 
                     <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <h3 className="text-blue-900 mb-2">Recomendaciones de Seguridad</h3>
+                      <h3 className="text-blue-900 mb-2">
+                        Recomendaciones de Seguridad
+                      </h3>
                       <ul className="text-blue-800 space-y-1 list-disc list-inside">
                         <li>Usa al menos 8 caracteres</li>
                         <li>Combina letras mayúsculas y minúsculas</li>
@@ -328,23 +477,36 @@ export const Configuracion: React.FC = () => {
               )}
 
               {/* Tab: Notificaciones */}
-              {activeTab === 'notificaciones' && (
+              {activeTab === "notificaciones" && (
                 <div className="p-6">
-                  <h2 className="text-gray-900 mb-6">Preferencias de Notificaciones</h2>
+                  <h2 className="text-gray-900 mb-6">
+                    Preferencias de Notificaciones
+                  </h2>
 
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-gray-900 mb-4">Notificaciones por Email</h3>
+                      <h3 className="text-gray-900 mb-4">
+                        Notificaciones por Email
+                      </h3>
                       <div className="space-y-3">
                         <label className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                           <div>
-                            <p className="text-gray-900">Recordatorios de Turnos</p>
-                            <p className="text-gray-600">Recibe emails sobre próximos turnos</p>
+                            <p className="text-gray-900">
+                              Recordatorios de Turnos
+                            </p>
+                            <p className="text-gray-600">
+                              Recibe emails sobre próximos turnos
+                            </p>
                           </div>
                           <input
                             type="checkbox"
                             checked={notificaciones.emailTurnos}
-                            onChange={(e) => setNotificaciones({ ...notificaciones, emailTurnos: e.target.checked })}
+                            onChange={(e) =>
+                              setNotificaciones({
+                                ...notificaciones,
+                                emailTurnos: e.target.checked,
+                              })
+                            }
                             className="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
                           />
                         </label>
@@ -352,25 +514,41 @@ export const Configuracion: React.FC = () => {
                         <label className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                           <div>
                             <p className="text-gray-900">Fichas Pendientes</p>
-                            <p className="text-gray-600">Alertas de fichas de seguimiento sin completar</p>
+                            <p className="text-gray-600">
+                              Alertas de fichas de seguimiento sin completar
+                            </p>
                           </div>
                           <input
                             type="checkbox"
                             checked={notificaciones.emailFichas}
-                            onChange={(e) => setNotificaciones({ ...notificaciones, emailFichas: e.target.checked })}
+                            onChange={(e) =>
+                              setNotificaciones({
+                                ...notificaciones,
+                                emailFichas: e.target.checked,
+                              })
+                            }
                             className="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
                           />
                         </label>
 
                         <label className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                           <div>
-                            <p className="text-gray-900">Actualizaciones del Sistema</p>
-                            <p className="text-gray-600">Novedades y mejoras de ClinicPass</p>
+                            <p className="text-gray-900">
+                              Actualizaciones del Sistema
+                            </p>
+                            <p className="text-gray-600">
+                              Novedades y mejoras de ClinicPass
+                            </p>
                           </div>
                           <input
                             type="checkbox"
                             checked={notificaciones.emailSistema}
-                            onChange={(e) => setNotificaciones({ ...notificaciones, emailSistema: e.target.checked })}
+                            onChange={(e) =>
+                              setNotificaciones({
+                                ...notificaciones,
+                                emailSistema: e.target.checked,
+                              })
+                            }
                             className="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
                           />
                         </label>
@@ -378,17 +556,26 @@ export const Configuracion: React.FC = () => {
                     </div>
 
                     <div>
-                      <h3 className="text-gray-900 mb-4">Notificaciones Push</h3>
+                      <h3 className="text-gray-900 mb-4">
+                        Notificaciones Push
+                      </h3>
                       <div className="space-y-3">
                         <label className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                           <div>
                             <p className="text-gray-900">Turnos Confirmados</p>
-                            <p className="text-gray-600">Notificación cuando se confirma un turno</p>
+                            <p className="text-gray-600">
+                              Notificación cuando se confirma un turno
+                            </p>
                           </div>
                           <input
                             type="checkbox"
                             checked={notificaciones.pushTurnos}
-                            onChange={(e) => setNotificaciones({ ...notificaciones, pushTurnos: e.target.checked })}
+                            onChange={(e) =>
+                              setNotificaciones({
+                                ...notificaciones,
+                                pushTurnos: e.target.checked,
+                              })
+                            }
                             className="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
                           />
                         </label>
@@ -396,12 +583,19 @@ export const Configuracion: React.FC = () => {
                         <label className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                           <div>
                             <p className="text-gray-900">Recordatorios</p>
-                            <p className="text-gray-600">Recordatorios 30 minutos antes del turno</p>
+                            <p className="text-gray-600">
+                              Recordatorios 30 minutos antes del turno
+                            </p>
                           </div>
                           <input
                             type="checkbox"
                             checked={notificaciones.pushRecordatorios}
-                            onChange={(e) => setNotificaciones({ ...notificaciones, pushRecordatorios: e.target.checked })}
+                            onChange={(e) =>
+                              setNotificaciones({
+                                ...notificaciones,
+                                pushRecordatorios: e.target.checked,
+                              })
+                            }
                             className="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
                           />
                         </label>
@@ -422,20 +616,26 @@ export const Configuracion: React.FC = () => {
               )}
 
               {/* Tab: Apariencia */}
-              {activeTab === 'apariencia' && (
+              {activeTab === "apariencia" && (
                 <div className="p-6">
-                  <h2 className="text-gray-900 mb-6">Preferencias de Apariencia</h2>
+                  <h2 className="text-gray-900 mb-6">
+                    Preferencias de Apariencia
+                  </h2>
 
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-gray-700 mb-3">Tema de Color</label>
+                      <label className="block text-gray-700 mb-3">
+                        Tema de Color
+                      </label>
                       <div className="grid grid-cols-2 gap-4">
                         <button
-                          onClick={() => setApariencia({ ...apariencia, tema: 'claro' })}
+                          onClick={() =>
+                            setApariencia({ ...apariencia, tema: "claro" })
+                          }
                           className={`p-4 border-2 rounded-lg transition ${
-                            apariencia.tema === 'claro'
-                              ? 'border-indigo-600 bg-indigo-50'
-                              : 'border-gray-200 hover:border-gray-300'
+                            apariencia.tema === "claro"
+                              ? "border-indigo-600 bg-indigo-50"
+                              : "border-gray-200 hover:border-gray-300"
                           }`}
                         >
                           <div className="w-full h-20 bg-white rounded-lg border border-gray-200 mb-3"></div>
@@ -443,11 +643,13 @@ export const Configuracion: React.FC = () => {
                         </button>
 
                         <button
-                          onClick={() => setApariencia({ ...apariencia, tema: 'oscuro' })}
+                          onClick={() =>
+                            setApariencia({ ...apariencia, tema: "oscuro" })
+                          }
                           className={`p-4 border-2 rounded-lg transition ${
-                            apariencia.tema === 'oscuro'
-                              ? 'border-indigo-600 bg-indigo-50'
-                              : 'border-gray-200 hover:border-gray-300'
+                            apariencia.tema === "oscuro"
+                              ? "border-indigo-600 bg-indigo-50"
+                              : "border-gray-200 hover:border-gray-300"
                           }`}
                         >
                           <div className="w-full h-20 bg-gray-800 rounded-lg border border-gray-700 mb-3"></div>
@@ -460,7 +662,12 @@ export const Configuracion: React.FC = () => {
                       <label className="block text-gray-700 mb-3">Idioma</label>
                       <select
                         value={apariencia.idioma}
-                        onChange={(e) => setApariencia({ ...apariencia, idioma: e.target.value })}
+                        onChange={(e) =>
+                          setApariencia({
+                            ...apariencia,
+                            idioma: e.target.value,
+                          })
+                        }
                         className="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                       >
                         <option value="es">Español</option>
@@ -473,12 +680,19 @@ export const Configuracion: React.FC = () => {
                       <label className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer max-w-xl">
                         <div>
                           <p className="text-gray-900">Modo Compacto</p>
-                          <p className="text-gray-600">Reduce el espaciado entre elementos</p>
+                          <p className="text-gray-600">
+                            Reduce el espaciado entre elementos
+                          </p>
                         </div>
                         <input
                           type="checkbox"
                           checked={apariencia.compacto}
-                          onChange={(e) => setApariencia({ ...apariencia, compacto: e.target.checked })}
+                          onChange={(e) =>
+                            setApariencia({
+                              ...apariencia,
+                              compacto: e.target.checked,
+                            })
+                          }
                           className="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
                         />
                       </label>
