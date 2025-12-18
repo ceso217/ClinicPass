@@ -58,6 +58,7 @@ builder.Services.AddScoped<IHistoriaClinicaService, HistoriaClinicaService>();
 builder.Services.AddScoped<IFichaDeSeguimientoService, FichaDeSeguimientoService>();
 builder.Services.AddScoped<ITratamientoService, TratamientoService>();
 builder.Services.AddScoped<IHistorialClinicoTratamientoService, HistorialClinicoTratamientoService>();
+builder.Services.AddScoped<ICalendarioService, CalendarioService>();
 builder.Services.AddScoped<ITurnoService, TurnoService>();
 builder.Services.AddScoped<ITutorService, TutorService>();
 builder.Services.AddScoped<ICoberturaService, CoberturaService>();
