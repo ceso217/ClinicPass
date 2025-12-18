@@ -65,7 +65,7 @@ namespace ClinicPass.API.Controllers
 
         // PUT: api/Profesionals/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProfesional(int id,[FromBody] ProfesionalDTO profesionalUpdated)
+        public async Task<IActionResult> UpdateProfesional(int id, [FromBody] ProfesionalDTO profesionalUpdated)
         {
             var updated = await _profesionalService.UpdateAsync(id, profesionalUpdated);
 
@@ -73,15 +73,12 @@ namespace ClinicPass.API.Controllers
             {
                 return BadRequest("No se pudo actualizar el profesional.");
             }
-			var successResponse = new SuccessMessageDTO
-			{
-				Message = $"Se actualizó el usuario {id}: {profesionalUpdated.NombreCompleto}."
-			};
-			return Ok(successResponse);
+            var successResponse = new SuccessMessageDTO
+            {
+                Message = $"Se actualizó el usuario {id}: {profesionalUpdated.NombreCompleto}."
+            };
+            return Ok(successResponse);
         }
-
-
-
 
         // POST: api/Profesionals
         // Ya existe endpoint para crear profesional en AuthController/Register
@@ -123,7 +120,16 @@ namespace ClinicPass.API.Controllers
             return Ok($"Profesional {id} correctamente eliminado.");
         }
 
-        // PUT api/Profesionals/5/ResetPassword
-        //[HttpPut("{id}")]
+        // Patch: api/Profesionals/deactivate-activate/5
+        [HttpPatch("deactivate-activate/{id}")]
+        public async Task<IActionResult> DeactivateActivateProfesional(int id)
+        {
+            var result = await _profesionalService.ToggleActivoAsync(id);
+            if(!result)
+            {
+                return NotFound();
+            }
+            return Ok();
+        }
     }
 }

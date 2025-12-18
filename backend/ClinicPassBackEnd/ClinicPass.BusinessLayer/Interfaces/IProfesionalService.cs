@@ -13,6 +13,7 @@ namespace ClinicPass.BusinessLayer.Interfaces
         Task<ProfesionalDTO?> GetByIdAsync(int id);
         Task<ProfesionalDTO?> GetByDniAsync(string dni);
         Task<bool> UpdateAsync(int id, ProfesionalDTO profesionalDTO);
+        Task<bool> ToggleActivoAsync(int id);
         Task<bool> DeleteAsync(int id);
     }
 }
