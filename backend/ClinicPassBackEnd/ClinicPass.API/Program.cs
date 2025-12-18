@@ -132,10 +132,23 @@ using (var scope = app.Services.CreateScope())
             Activo = true
         };
 
+        var profesional = new Profesional
+        {
+            UserName = "cababa@gmail.com",
+            Email = "cababa@gmail.com",
+            NombreCompleto = "Camilo Baroni Baez",
+            Especialidad = "Cardiologia",
+            Dni = "11111111",
+            Activo = true
+        };
+
         var result = await userManager.CreateAsync(admin, "admin123");
+        var result2 = await userManager.CreateAsync(profesional, "cababa123");
 
         if (result.Succeeded)
             await userManager.AddToRoleAsync(admin, "Admin");
+        if (result2.Succeeded)
+            await userManager.AddToRoleAsync(profesional,"Profesional");
     }
 }
 

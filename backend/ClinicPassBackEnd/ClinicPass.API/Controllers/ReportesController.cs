@@ -107,6 +107,27 @@ namespace ClinicPass.API.Controllers
                 .ToListAsync();
         }
 
+        // Obetener turnos de hoy de un profesional, completados y pendientes
+        [HttpGet("turnos/profesional/{idProfesional}/hoy")]
+        public async Task<IEnumerable<TurnosHoyProfesionalDTO>> TurnosHoyProfesional(int idProfesional)
+        {
+            var fechaInicio = DateTime.UtcNow.Date;
+            var fechaFin = fechaInicio.AddDays(1); // Mañana a las 00:00
+            return await _db.Turnos
+                .Where(t => t.ProfesionalId == idProfesional)
+                .Where(t => t.Fecha >= fechaInicio && t.Fecha < fechaFin)
+                .Where(t => t.Estado == EstadoTurno.Completado.ToString() || t.Estado == EstadoTurno.Pendiente.ToString())
+                .GroupBy(t => t.Profesional)
+                .Select(t => new TurnosHoyProfesionalDTO
+                {
+                    ProfesionalId = t.Key.Id,
+                    ProfesionalNombre = t.Key.NombreCompleto,
+                    CantidadTurnosHoy = t.Count(),
+                    Completados = t.Count(turno => turno.Estado == EstadoTurno.Completado.ToString()),
+                    Pendientes = t.Count(turno => turno.Estado == EstadoTurno.Pendiente.ToString())
+                })
+                .ToListAsync();
+        }
 
         // Obetener el número total de turnos por especialidad del profesional según el filtro de fecha
         [HttpPost("turnos/total-por-especialidad")]
@@ -214,6 +235,40 @@ namespace ClinicPass.API.Controllers
                     Provincia = g.Key.Provincia ?? "Sin provincia",
                     Localidad = g.Key.Localidad ?? "Sin localidad",
                     CantidadPacientes = g.Count()
+                })
+                .ToListAsync();
+        }
+
+        // =======================
+        // FICHA DE SEGUIMIENTO
+        // =======================
+
+        // Obtener el total de fichas de seguimiento
+        [HttpGet("fichas/total")]
+        public async Task<int> TotalFichasDeSeguimiento()
+        {
+            var totalFichas = await _db.FichasDeSeguimiento.CountAsync();
+            return totalFichas;
+        }
+
+        // =======================
+        // TRATAMIENTO
+        // =======================
+
+        // Obtener total de pacientes por tratamiento y cuantos pacientes lo finalizaron
+        [HttpGet("tratamientos/pacientes-por-tratamiento")]
+        public async Task<IEnumerable<PacientesPorTratamientoDTO>> PacientesPorTratamiento()
+        {
+            return await _db.HistorialClinicoTratamientos
+                .Include(hct => hct.Tratamiento)
+                .Include(hct => hct.HistoriaClinica)
+                .ThenInclude(hc => hc.Paciente)
+                .GroupBy(hct => hct.Tratamiento.Nombre)
+                .Select(g => new PacientesPorTratamientoDTO
+                {
+                    TratamientoNombre = g.Key,
+                    CantidadPacientes = g.Select(hct => hct.HistoriaClinica.IdPaciente).Distinct().Count(),
+                    PacientesFinalizados = g.Count(hct => hct.FechaFin != null)
                 })
                 .ToListAsync();
         }
