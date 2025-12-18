@@ -10,6 +10,7 @@ import { createTurno, getTurnos } from '../hooks/turnosApi';
 import { getProfesionales } from '../hooks/profesionalesApi';
 import { Paciente } from '../types/paciente';
 import { getPacientes } from '../hooks/pacientesApi';
+import toast from 'react-hot-toast';
 
 
 
@@ -190,9 +191,9 @@ export const Calendario: React.FC = () => {
       };
       try{
          await createTurno(nuevoTurno);
-        alert('Turno Creado')
+        toast.success('Turno Creado')
       }catch(error){
-        throw new Error("No se creo el turno")
+        toast.error("No se creo el turno")
       }
       setTurnos([...turnos, nuevoTurno]);
 

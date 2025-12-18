@@ -12,6 +12,7 @@ import {
   PieChart,
   Activity
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface ReporteData {
   mes: string;
@@ -72,11 +73,11 @@ export const Reportes: React.FC = () => {
   const promedioTurnos = Math.round(totalTurnos / datosGenerales.length);
 
   const handleExportarPDF = () => {
-    alert('Exportando reporte a PDF...');
+    toast.loading('Exportando reporte a PDF...');
   };
 
   const handleExportarExcel = () => {
-    alert('Exportando reporte a Excel...');
+    toast.loading('Exportando reporte a Excel...');
   };
 
   const StatCard: React.FC<{

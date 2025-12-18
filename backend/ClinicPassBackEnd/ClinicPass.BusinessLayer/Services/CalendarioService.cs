@@ -10,6 +10,7 @@ using ClinicPass.BusinessLayer.DTOs;
 using ClinicPass.BusinessLayer.Interfaces;
 using ClinicPass.DataAccessLayer;
 using Microsoft.EntityFrameworkCore;
+using ClinicPass.DataAccessLayer.DTOs.Reportes;
 
 namespace ClinicPass.BusinessLayer.Services
 {
@@ -30,8 +31,27 @@ namespace ClinicPass.BusinessLayer.Services
                 .Select(t => MapearDto(t))
                 .ToListAsync();
         }
+		public async Task<TurnoResumenDTO> ObtenerTodosCantidad()
+		{
+			var totalTurnos = await _context.Turnos.CountAsync();
 
-        public async Task<IEnumerable<CalendarioTurnoDto>> ObtenerPorRangoFecha(DateTime fechaInicio,DateTime fechaFin)
+			var turnosPorMes = await _context.Turnos
+				.GroupBy(t => new { t.Fecha.Year, t.Fecha.Month })
+				.Select(g => g.Count())
+				.ToListAsync();
+
+			var promedioMensual = turnosPorMes.Any()
+				? turnosPorMes.Average()
+				: 0;
+
+			return new TurnoResumenDTO
+			{
+				TotalTurnos = totalTurnos,
+				PromedioMensual = promedioMensual
+			};
+		}
+
+		public async Task<IEnumerable<CalendarioTurnoDto>> ObtenerPorRangoFecha(DateTime fechaInicio,DateTime fechaFin)
         {
             // Normalizar fechas a UTC y cubrir el día completo
             fechaInicio = DateTime.SpecifyKind(
