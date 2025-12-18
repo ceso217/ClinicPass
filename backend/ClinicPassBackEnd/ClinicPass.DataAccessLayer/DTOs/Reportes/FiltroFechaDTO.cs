@@ -17,8 +17,8 @@ namespace ClinicPass.DataAccessLayer.DTOs.Reportes
     }
     public class FiltroFechaDTO
     {
-        public DateTime FechaInicio { get; set; }
-        public DateTime FechaFin { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
         public FiltroFecha TipoFiltro { get; set; }
     }
 }

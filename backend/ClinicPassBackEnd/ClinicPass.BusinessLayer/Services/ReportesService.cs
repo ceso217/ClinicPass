@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ClinicPass.BusinessLayer.Services
 {
-	public class FiltroDeFechaService
+	public class ReportesService
 	{
 		public async Task<FiltroFechaDTO> FiltroDeFecha(FiltroFechaDTO? filtro = null)
 		{
@@ -35,8 +35,8 @@ namespace ClinicPass.BusinessLayer.Services
 				{
 					throw new ArgumentException("Para un filtro personalizado, las fechas son obligatorias.");
 				}
-				fechaInicio = DateTime.SpecifyKind(filtro.FechaInicio, DateTimeKind.Utc);
-				fechaFin = DateTime.SpecifyKind(filtro.FechaFin, DateTimeKind.Utc);
+				fechaInicio = DateTime.SpecifyKind(filtro.FechaInicio ?? fechaInicio, DateTimeKind.Utc);
+				fechaFin = DateTime.SpecifyKind(filtro.FechaFin ?? fechaFin, DateTimeKind.Utc);
 			}
 
 			return new FiltroFechaDTO

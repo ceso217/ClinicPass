@@ -1,25 +1,29 @@
-'use client'
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import { 
-  Users, 
-  Calendar, 
-  FileText, 
-  UserCog, 
+"use client";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import {
+  Users,
+  Calendar,
+  FileText,
+  UserCog,
   TrendingUp,
   Clock,
   CheckCircle,
-  AlertCircle
-} from 'lucide-react';
-import PerformanceCard from './PerformanceCard';
-import toast from 'react-hot-toast';
+  AlertCircle,
+} from "lucide-react";
+import PerformanceCard from "./PerformanceCard";
+import toast from "react-hot-toast";
+import { getNumeroPacientes } from "../hooks/pacientesApi";
+import { getTurnosHoy } from "../hooks/turnosApi";
+import { getProfesionalesActivos } from "../hooks/profesionalesApi";
+import { getNumeroFichas } from "../hooks/fichasDeSeguimientoApi";
 
 interface DashboardStats {
   totalPacientes: number;
   turnosHoy: number;
   profesionalesActivos: number;
-  fichasPendientes: number;
+  fichasTotales: number;
   turnosProgramados: number;
   turnosCompletados: number;
 }
@@ -31,35 +35,47 @@ export const DashboardAdmin: React.FC = () => {
     totalPacientes: 0,
     turnosHoy: 0,
     profesionalesActivos: 0,
-    fichasPendientes: 0,
+    fichasTotales: 0,
     turnosProgramados: 0,
     turnosCompletados: 0,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Reemplazar con llamadas reales a tu API
     const fetchStats = async () => {
       try {
-        // Simular llamada a API
-        setTimeout(() => {
-          setStats({
-            totalPacientes: 248,
-            turnosHoy: 12,
-            profesionalesActivos: 8,
-            fichasPendientes: 5,
-            turnosProgramados: 34,
-            turnosCompletados: 156,
-          });
-          setLoading(false);
-        }, 1000);
+        setLoading(true);
+
+        const pacientes = await getNumeroPacientes();
+        const turnos = await getTurnosHoy();
+        const profesionales = await getProfesionalesActivos();
+        const fichas = await getNumeroFichas();
+        console.log({ pacientes, turnos, profesionales, fichas });
+
+        // if (
+        //   !totalPacientes ||
+        //   !totalFichas ||
+        //   !totalProfesionales ||
+        //   !totalTurnos
+        // )
+        //   throw new Error("Uno o más endpoints fallaron");
+
+        setStats({
+          totalPacientes: pacientes,
+          turnosHoy: turnos,
+          profesionalesActivos: profesionales,
+          fichasTotales: fichas,
+          turnosProgramados: 34,
+          turnosCompletados: 156,
+        });
       } catch (error) {
-        console.error('Error al cargar estadísticas:', error);
+        console.error("Error al cargar estadísticas:", error);
         toast.error(`Error al cargar estadísticas : ${error}`);
+        setLoading(false);
+      } finally {
         setLoading(false);
       }
     };
-
     fetchStats();
   }, []);
 
@@ -74,11 +90,9 @@ export const DashboardAdmin: React.FC = () => {
       <div className="flex items-start justify-between">
         <div>
           <p className="text-gray-600 mb-1">{title}</p>
-          <p className="text-gray-900">{loading ? '...' : value}</p>
+          <p className="text-gray-900">{loading ? "..." : value}</p>
         </div>
-        <div className={`${bgColor} ${iconColor} p-3 rounded-lg`}>
-          {icon}
-        </div>
+        <div className={`${bgColor} ${iconColor} p-3 rounded-lg`}>{icon}</div>
       </div>
     </div>
   );
@@ -138,12 +152,11 @@ export const DashboardAdmin: React.FC = () => {
             value={stats.profesionalesActivos}
             bgColor="bg-purple-100"
             iconColor="text-purple-600"
-            
           />
           <StatCard
             icon={<FileText className="w-6 h-6" />}
             title="Fichas Pendientes"
-            value={stats.fichasPendientes}
+            value={stats.fichasTotales}
             bgColor="bg-orange-100"
             iconColor="text-orange-600"
           />
@@ -160,7 +173,7 @@ export const DashboardAdmin: React.FC = () => {
                 <option>Último trimestre</option>
               </select>
             </div>
-            
+
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -169,11 +182,11 @@ export const DashboardAdmin: React.FC = () => {
                 </div>
                 <span className="text-gray-900">{stats.turnosProgramados}</span>
               </div>
-              
+
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-yellow-500 h-2 rounded-full" 
-                  style={{ width: '45%' }}
+                <div
+                  className="bg-yellow-500 h-2 rounded-full"
+                  style={{ width: "45%" }}
                 ></div>
               </div>
 
@@ -184,18 +197,18 @@ export const DashboardAdmin: React.FC = () => {
                 </div>
                 <span className="text-gray-900">{stats.turnosCompletados}</span>
               </div>
-              
+
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-green-500 h-2 rounded-full" 
-                  style={{ width: '78%' }}
+                <div
+                  className="bg-green-500 h-2 rounded-full"
+                  style={{ width: "78%" }}
                 ></div>
               </div>
             </div>
           </div>
           <PerformanceCard></PerformanceCard>
         </div>
-          {/* <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-md p-6 text-white">
+        {/* <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-md p-6 text-white">
             <TrendingUp className="w-8 h-8 mb-4" />
             <h3 className="mb-2">Rendimiento</h3>
             <p className="mb-4 opacity-90">
@@ -209,51 +222,47 @@ export const DashboardAdmin: React.FC = () => {
         </div> */}
 
         {/* Acciones rápidas */}
-        
 
-        
         <h2 className="text-gray-900 mb-4">Acciones Rápidas</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <QuickActionCard
             icon={<Users className="w-6 h-6" />}
             title="Gestionar Pacientes"
             description="Ver, agregar o editar pacientes"
-            onClick={() => router.push('/pacientes')}
-
+            onClick={() => router.push("/pacientes")}
           />
           <QuickActionCard
             icon={<Calendar className="w-6 h-6" />}
             title="Ver Calendario"
             description="Administrar turnos y citas"
-            onClick={() => router.push('/calendario')}
+            onClick={() => router.push("/calendario")}
           />
           <QuickActionCard
             icon={<UserCog className="w-6 h-6" />}
             title="Administrar Profesionales"
             description="Gestionar personal médico"
-            onClick={() => router.push('/profesionales')}
+            onClick={() => router.push("/profesionales")}
           />
           <QuickActionCard
             icon={<FileText className="w-6 h-6" />}
             title="Historiales Clínicos"
             description="Acceder a registros médicos"
-            onClick={() => router.push('/historiales')}
+            onClick={() => router.push("/historiales")}
           />
           <QuickActionCard
             icon={<AlertCircle className="w-6 h-6" />}
             title="Fichas Pendientes"
             description="Revisar fichas sin completar"
-            onClick={() => console.log('Navegar a fichas pendientes')}
+            onClick={() => console.log("Navegar a fichas pendientes")}
           />
           <QuickActionCard
             icon={<TrendingUp className="w-6 h-6" />}
             title="Reportes"
             description="Generar informes y estadísticas"
-            onClick={() => router.push('/reportes')}
+            onClick={() => router.push("/reportes")}
           />
         </div>
       </div>
     </div>
-
   );
 };

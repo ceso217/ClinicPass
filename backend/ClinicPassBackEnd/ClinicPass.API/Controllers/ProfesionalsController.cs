@@ -129,7 +129,7 @@ namespace ClinicPass.API.Controllers
             {
                 return NotFound();
             }
-            return Ok();
+            return Ok(new { success = true, message = "Estado actualizado" });
         }
     }
 }

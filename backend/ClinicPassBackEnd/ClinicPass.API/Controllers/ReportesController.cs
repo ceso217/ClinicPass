@@ -16,10 +16,10 @@ namespace ClinicPass.API.Controllers
     public class ReportesController : ControllerBase
     {
         private readonly ClinicPassContext _db;
-        private readonly FiltroDeFechaService _filtroService;
+        private readonly ReportesService _filtroService;
 
 
-		public ReportesController(ClinicPassContext db, FiltroDeFechaService filtroService)
+		public ReportesController(ClinicPassContext db, ReportesService filtroService)
         {
             _db = db;
 			_filtroService = filtroService;
@@ -203,10 +203,18 @@ namespace ClinicPass.API.Controllers
 
         // Obtener total de pacientes general
         [HttpGet("pacientes/total")]
-        public async Task<int> TotalPacientes()
+        public async Task<IActionResult> TotalPacientes()
         {
-            var totalPacientes = await _db.Pacientes.CountAsync();
-            return totalPacientes;
+            try
+            {
+                var totalPacientes = await _db.Pacientes.CountAsync();
+                return Ok(totalPacientes);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en TotalPacientes: {ex.Message}");
+                return StatusCode(500, "Error al obtener el conteo de pacientes");
+            }
         }
 
         // Obtener total de pacientes atendidos según el filtro de fecha

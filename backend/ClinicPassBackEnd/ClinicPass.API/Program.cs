@@ -63,6 +63,7 @@ builder.Services.AddScoped<ITurnoService, TurnoService>();
 builder.Services.AddScoped<ITutorService, TutorService>();
 builder.Services.AddScoped<ICoberturaService, CoberturaService>();
 builder.Services.AddScoped<IDocumentoService, DocumentoService>();
+builder.Services.AddScoped<ReportesService>();
 //IdpacienteIdPaciente  
 builder.Services.AddScoped<IProfesionalService, ProfesionalService>();
 

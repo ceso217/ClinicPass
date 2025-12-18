@@ -90,60 +90,63 @@ export const Configuracion: React.FC = () => {
     setSuccessMessage("Contraseña actualizada correctamente");
     setPasswordData({ actual: "", nueva: "", confirmar: "" });
 
-    //obtenerDatos Usuario: 
-    const userString = localStorage.getItem('clinicpass_user');
+    //obtenerDatos Usuario:
+    const userString = localStorage.getItem("clinicpass_user");
     if (!userString) {
-        toast.error("Error: No se encontró información de usuario (ID) en la sesión.");
-        return;
+      toast.error(
+        "Error: No se encontró información de usuario (ID) en la sesión."
+      );
+      return;
     }
-    
+
     let userId: string;
     try {
-        const user = JSON.parse(userString);
-        // Asume que el ID se llama 'id' (camelCase) o 'Id' (PascalCase)
-        userId = user.id || user.Id; 
-        if (!userId) toast.error("ID de usuario no encontrado en el objeto de sesión.");
+      const user = JSON.parse(userString);
+      // Asume que el ID se llama 'id' (camelCase) o 'Id' (PascalCase)
+      userId = user.id || user.Id;
+      if (!userId)
+        toast.error("ID de usuario no encontrado en el objeto de sesión.");
     } catch (e) {
-        console.error("Error de parseo o ID de usuario faltante:", e);
-        toast.error("Error de sesión. Por favor, vuelva a iniciar sesión.");
-        return;
+      console.error("Error de parseo o ID de usuario faltante:", e);
+      toast.error("Error de sesión. Por favor, vuelva a iniciar sesión.");
+      return;
     }
     var stringId = String(userId);
     // --- 3. PREPARAR PAYLOAD (Debe coincidir con el DTO del backend) ---
     const payload = {
-        // Asegúrate de que el backend espera PascalCase: Id, CurrentPassword...
-        Id: stringId,
-        currentPassword: passwordData.actual,
-        newPassword: passwordData.nueva,
-        confirmNewPassword: passwordData.confirmar,
+      // Asegúrate de que el backend espera PascalCase: Id, CurrentPassword...
+      Id: stringId,
+      currentPassword: passwordData.actual,
+      newPassword: passwordData.nueva,
+      confirmNewPassword: passwordData.confirmar,
     };
 
     // --- 4. LLAMADA ASÍNCRONA A LA API ---
     try {
-        // La función de la API debe ser llamada con 'await'
-        const response = await changePassword(payload); 
-        
-        // Si el backend devuelve un mensaje de éxito en JSON (ej: { message: "..." })
-        setSuccessMessage(response.message || "Contraseña actualizada correctamente.");
-        setErrorMessage('');
-        // Limpiar campos y cerrar modal/notificar éxito
-        setPasswordData({ actual: "", nueva: "", confirmar: "" });
-        
-    } catch (error) {
-        // Manejar errores de la API (ej: contraseña actual incorrecta, token expirado)
-        let errorMessage = "Ocurrió un error al intentar cambiar la contraseña.";
-        setErrorMessage(errorMessage);
-        if (error instanceof Error) {
-            errorMessage = error.message;
-        }
-        
-        // Puedes usar una notificación más visible que 'alert'
-        toast.error(`Error al actualizar: ${errorMessage}`);
-        
-        console.error("Error al cambiar la contraseña:", error);
-    }
-};
+      // La función de la API debe ser llamada con 'await'
+      const response = await changePassword(payload);
 
+      // Si el backend devuelve un mensaje de éxito en JSON (ej: { message: "..." })
+      setSuccessMessage(
+        response.message || "Contraseña actualizada correctamente."
+      );
+      setErrorMessage("");
+      // Limpiar campos y cerrar modal/notificar éxito
+      setPasswordData({ actual: "", nueva: "", confirmar: "" });
+    } catch (error) {
+      // Manejar errores de la API (ej: contraseña actual incorrecta, token expirado)
+      let errorMessage = "Ocurrió un error al intentar cambiar la contraseña.";
+      setErrorMessage(errorMessage);
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      // Puedes usar una notificación más visible que 'alert'
+      toast.error(`Error al actualizar: ${errorMessage}`);
+
+      console.error("Error al cambiar la contraseña:", error);
+    }
+  };
 
   const handleSaveNotificaciones = () => {
     // Aquí iría la llamada a la API
@@ -453,7 +456,7 @@ export const Configuracion: React.FC = () => {
                     </div>
 
                     <div className="pt-4">
-                      <button 
+                      <button
                         onClick={handleChangePassword}
                         className="bg-indigo-600 text-white px-6 py-2 rounded-lg cursor-pointer hover:bg-indigo-700 transition flex items-center gap-2"
                       >

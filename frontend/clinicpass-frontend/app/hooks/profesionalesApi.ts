@@ -1,30 +1,42 @@
 // api/pacienteApi.ts
 
 // Asegúrate de importar apiFetch y la interfaz Paciente
-import { apiFetch } from './apiFetch'; // Asume que apiFetch está en un archivo llamado apiFetch.ts
-import {RegisterPayload } from '../types/registerPayload'; // Ajusta la ruta
-import { Profesional } from '../types/profesional';
+import { apiFetch } from "./apiFetch"; // Asume que apiFetch está en un archivo llamado apiFetch.ts
+import { RegisterPayload } from "../types/registerPayload"; // Ajusta la ruta
+import { Profesional } from "../types/profesional";
 
-const BASE_URL = '/api'; // Basado en el endpoint /api/Paciente que mostraste
+const BASE_URL = "/api";
 
 /**
  * Obtiene la lista completa de pacientes desde la API.
  * @returns {Promise<Profesional[]>} Un array de objetos Paciente.
  */
 export async function getProfesionales(): Promise<any[]> {
-    try {
-        // CORRECCIÓN: Usa la ruta API correcta, típicamente el nombre del controlador en plural
-        const data = await apiFetch(`${BASE_URL}/Profesionals`); 
-        
-        return data.map((p: any) => ({
-            ...p,
-            // Si el backend devuelve 'Id' en PascalCase y esperas 'id' en camelCase:
-            id: p.id || p.Id, 
-        })) as Profesional[];
-    } catch (error) {
-        console.error("Error al obtener profesionales:", error);
-        throw error;
-    }
+  try {
+    // CORRECCIÓN: Usa la ruta API correcta, típicamente el nombre del controlador en plural
+    const data = await apiFetch(`${BASE_URL}/profesionals`);
+
+    return data.map((p: any) => ({
+      ...p,
+      // Si el backend devuelve 'Id' en PascalCase y esperas 'id' en camelCase:
+      id: p.id || p.Id,
+    })) as Profesional[];
+  } catch (error) {
+    console.error("Error al obtener profesionales:", error);
+    throw error;
+  }
+}
+
+export async function getProfesionalesActivos(): Promise<number> {
+  try {
+    const data = await apiFetch(
+      `${BASE_URL}/Reportes/profesionales/total-activos`
+    );
+    return data;
+  } catch (error) {
+    console.error("Error al obtener número de profesionales activos:", error);
+    throw error;
+  }
 }
 
 /**
@@ -33,12 +45,12 @@ export async function getProfesionales(): Promise<any[]> {
  * @returns {Promise<Profesional>} El paciente creado, incluyendo su nuevo ID.
  */
 export async function registerProfesional(
-    payload: RegisterPayload
+  payload: RegisterPayload
 ): Promise<any> {
-    return await apiFetch(`${BASE_URL}/Auth/register`, {
-    method: 'POST',
+  return await apiFetch(`${BASE_URL}/Auth/register`, {
+    method: "POST",
     body: JSON.stringify(payload),
-    });
+  });
 }
 
 /**
@@ -48,13 +60,21 @@ export async function registerProfesional(
  * @param {any} profesionalData - Los datos parciales a actualizar (en camelCase o PascalCase).
  * @returns {Promise<void>}
  */
-export async function updateProfesional(id: string, profesionalData: any): Promise<void> {
-    await apiFetch(`${BASE_URL}/Profesionals/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(profesionalData),
-    });   
+export async function updateProfesional(
+  id: string,
+  profesionalData: any
+): Promise<void> {
+  await apiFetch(`${BASE_URL}/Profesionals/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(profesionalData),
+  });
 }
 
+export async function updateProfesionalActivo(id: string): Promise<void> {
+  await apiFetch(`${BASE_URL}/Profesionals/deactivate-activate/${id}`, {
+    method: "PATCH",
+  });
+}
 
 /**
  * Cambia el estado (activo/inactivo) de un profesional (Soft Delete).
@@ -63,11 +83,14 @@ export async function updateProfesional(id: string, profesionalData: any): Promi
  * @param {boolean} activo - El nuevo estado (false para "eliminar/desactivar").
  * @returns {Promise<void>}
  */
-export async function toggleProfesionalActivo(id: string, activo: boolean): Promise<void> {
-    // Nota: El DTO de C# probablemente espera PascalCase para 'Activo'
-    const updatePayload = { Activo: activo };
-    
-    await updateProfesional(id, updatePayload);
+export async function toggleProfesionalActivo(
+  id: string,
+  activo: boolean
+): Promise<void> {
+  // Nota: El DTO de C# probablemente espera PascalCase para 'Activo'
+  const updatePayload = { Activo: activo };
+
+  await updateProfesional(id, updatePayload);
 }
 
 // --- FUNCIÓN DE ELIMINACIÓN (DELETE) ---
@@ -78,9 +101,9 @@ export async function toggleProfesionalActivo(id: string, activo: boolean): Prom
  * @returns {Promise<void>}
  */
 export async function deleteProfesional(id: string): Promise<void> {
-    await apiFetch(`${BASE_URL}/${id}`, {
-        method: 'DELETE',
-    });
+  await apiFetch(`${BASE_URL}/${id}`, {
+    method: "DELETE",
+  });
 }
 
 /**
@@ -90,11 +113,11 @@ export async function deleteProfesional(id: string): Promise<void> {
  * @returns {Promise<Profesional>} El objeto Profesional.
  */
 export async function getProfesionalById(id: string): Promise<Profesional> {
-    const data = await apiFetch(`${BASE_URL}/id/${id}`);
-    
-    return {
-        ...data,
-        id: data.id || data.Id,
-    } as Profesional;
+  const data = await apiFetch(`${BASE_URL}/id/${id}`);
+
+  return {
+    ...data,
+    id: data.id || data.Id,
+  } as Profesional;
 }
 // Puedes añadir más funciones como deletePaciente, getPacienteById, etc.
