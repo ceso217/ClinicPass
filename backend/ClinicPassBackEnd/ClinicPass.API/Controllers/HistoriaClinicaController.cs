@@ -99,8 +99,32 @@ namespace ClinicPass.API.Controllers
             return Ok("Historia clínica activada.");
         }
 
-        
 
-        
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var historias = await _service.GetAllAsync();
+            return Ok(historias);
+        }
+
+
+        [HttpGet("detalle/{id}")]
+        public async Task<IActionResult> GetDetalle(int id)
+        {
+            var result = await _service.GetDetalleByIdAsync(id);
+            return result == null ? NotFound() : Ok(result);
+        }
+
+        [HttpGet("ordenada/{id}")]
+        public async Task<IActionResult> GetOrdenada(int id)
+        {
+            var result = await _service.GetOrdenadaByIdAsync(id);
+            return result == null ? NotFound() : Ok(result);
+        }
+
+
+
+
+
     }
 }

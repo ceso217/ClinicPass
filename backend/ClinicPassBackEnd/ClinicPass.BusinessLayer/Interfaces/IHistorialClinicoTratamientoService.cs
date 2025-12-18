@@ -1,4 +1,5 @@
 ﻿using ClinicPass.DataAccessLayer.DTOs.HistorialClinicoTratamiento;
+using ClinicPass.DataAccessLayer.DTOs.Tratamiento;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -21,5 +22,8 @@ namespace ClinicPass.BusinessLayer.Interfaces
         Task<bool> FinalizarTratamientoAsync(int idTratamiento, int idHistorialClinico);
 
         Task<bool> DeleteAsync(int idTratamiento, int idHistorialClinico);
+
+        Task<TratamientoEstadisticaDTO?> GetEstadisticasPorTratamientoAsync(int idTratamiento);
+
     }
 }

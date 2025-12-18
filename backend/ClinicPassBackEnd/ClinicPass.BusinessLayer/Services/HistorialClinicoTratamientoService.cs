@@ -1,7 +1,8 @@
-﻿using ClinicPass.DataAccessLayer.Data;
+﻿using ClinicPass.BusinessLayer.Interfaces;
+using ClinicPass.DataAccessLayer.Data;
 using ClinicPass.DataAccessLayer.DTOs.HistorialClinicoTratamiento;
+using ClinicPass.DataAccessLayer.DTOs.Tratamiento;
 using ClinicPass.DataAccessLayer.Models;
-using ClinicPass.BusinessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -123,5 +124,26 @@ namespace ClinicPass.BusinessLayer.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<TratamientoEstadisticaDTO?> GetEstadisticasPorTratamientoAsync(int idTratamiento)
+        {
+            var query = _context.HistorialClinicoTratamientos
+                .Include(h => h.Tratamiento)
+                .Where(h => h.IdTratamiento == idTratamiento);
+
+            var existe = await query.AnyAsync();
+            if (!existe) return null;
+
+            return new TratamientoEstadisticaDTO
+            {
+                IdTratamiento = idTratamiento,
+                NombreTratamiento = query.First().Tratamiento.Nombre,
+
+                TotalHistorias = await query.CountAsync(),
+                Activos = await query.CountAsync(h => h.Activo),
+                Finalizados = await query.CountAsync(h => !h.Activo)
+            };
+        }
+
     }
 }

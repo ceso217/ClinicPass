@@ -29,6 +29,18 @@ namespace ClinicPass.API.Controllers
             return Ok(await _service.GetAllAsync(incluirInactivos));
         }
 
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var tratamiento = await _service.GetByIdAsync(id);
+            if (tratamiento == null)
+                return NotFound();
+
+            return Ok(tratamiento);
+        }
+
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] TratamientoUpdateDTO dto)
         {
