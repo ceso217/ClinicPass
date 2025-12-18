@@ -17,7 +17,7 @@ enum FiltroFecha {
  */
 export async function getTurnos(): Promise<Turno[]> {
   try {
-    const data = await apiFetch(`${BASE_URL}`);
+    const data = await apiFetch(`${BASE_URL}/turnos`);
 
     return data.map((t: any) => ({
       id: t.idTurno,
