@@ -21,7 +21,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             var historia = await _context.HistoriasClinicas
                 .Include(h => h.Paciente)
-                
+
                 .Include(h => h.Fichas)
                     .ThenInclude(f => f.Profesional)
                 .FirstOrDefaultAsync(h => h.IdHistorialClinico == id);
@@ -33,7 +33,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             var historia = await _context.HistoriasClinicas
                 .Include(h => h.Paciente)
-                    
+
                 .Include(h => h.Fichas)
                     .ThenInclude(f => f.Profesional)
                 .FirstOrDefaultAsync(h => h.IdPaciente == idPaciente);
@@ -55,9 +55,9 @@ namespace ClinicPass.BusinessLayer.Services
             await _context.SaveChangesAsync();
 
             await _context.Entry(historia).Reference(h => h.Paciente).LoadAsync();
-            
-                
-               
+
+
+
 
             return MapToDTO(historia);
         }
@@ -73,7 +73,7 @@ namespace ClinicPass.BusinessLayer.Services
                 AntecedentesPersonales = h.AntecedentesPersonales,
                 Activa = h.Activa,
 
-                
+
 
                 Fichas = h.Fichas.Select(f => new FichaDeSeguimientoDTO
                 {

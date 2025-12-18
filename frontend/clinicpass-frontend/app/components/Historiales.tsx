@@ -1,218 +1,142 @@
 'use client'
 import React, { useState, useEffect } from 'react';
+
 import type { Paciente } from '../types/paciente';
-import type { HistorialTratamiento } from '../types/tratamiento';
+//import type { HistorialTratamiento } from '../types/tratamiento';
+import type { HistoriaClinicaResumen } from '../types/HistoriaClinicaResumen';
+import type { HistoriaClinicaDetalle } from '../types/HistoriaClinicaDetalle';
 
-import { Search, FileText, Calendar, User, ChevronRight, ArrowLeft, Plus, Download } from 'lucide-react';
+import {
+  Search,
+  FileText,
+  Calendar,
+  User,
+  ChevronRight,
+  ArrowLeft,
+  Plus,
+  Download
+} from 'lucide-react';
 
-const API_URL = 'https://localhost:7083/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-
-import { FichaSeguimientoModal } from './modals/FichaSeguimientoModal';
-import { TratamientoModal } from './modals/TratamientoModal';
+// import { FichaSeguimientoModal } from './modals/FichaSeguimientoModal';
+// import { TratamientoModal } from './modals/TratamientoModal';
 
 export const Historiales: React.FC = () => {
-  const [pacientes, setPacientes] = useState<Paciente[]>([]);
+
+  // ================================
+  // Estados generales
+  // ================================
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [ordenFichas, setOrdenFichas] = useState<'desc' | 'asc'>('desc');
-  const [fichas, setFichas] = useState<any[]>([]);
 
-  const [selectedPaciente, setSelectedPaciente] = useState<Paciente | null>(null);
-  const [idHistoriaClinica, setIdHistoriaClinica] = useState<number | null>(null);
-  const [tratamientos, setTratamientos] = useState<HistorialTratamiento[]>([]);
+  // ================================
+  // Datos desde API
+  // ================================
+  const [resumenes, setResumenes] = useState<HistoriaClinicaResumen[]>([]);
+  const [detalle, setDetalle] = useState<HistoriaClinicaDetalle | null>(null);
 
+  // ================================
+  // Selección
+  // ================================
+  const [selectedPaciente, setSelectedPaciente] = useState<HistoriaClinicaResumen | null>(null);
 
-
-
-  // Tratamientos
+  // ================================
+  // Modales (a futuro)
+  // ================================
   const [showTratamientoModal, setShowTratamientoModal] = useState(false);
-  const [tratamientoEdit, setTratamientoEdit] = useState<any | null>(null);
-
-  // Fichas
   const [showFichaModal, setShowFichaModal] = useState(false);
-  const [fichaEdit, setFichaEdit] = useState<any | null>(null);
 
-  const filteredPacientes: Paciente[] = pacientes.filter((p) =>
-    p.nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.dni.includes(searchTerm)
-  );
+  // =========================================================
+  // FETCH 1 – Obtener lista de historias clínicas (RESUMEN)
+  // GET /HistoriaClinica
+  // =========================================================
+  const fetchHistoriasClinicas = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_URL}/api/HistoriaClinica`);
 
-  const fichasPaciente = selectedPaciente
-    ? fichas.filter(f => f.pacienteId === selectedPaciente.idPaciente)
-    : [];
+      if (!res.ok) throw new Error('Error al obtener historias clínicas');
 
+      const data: HistoriaClinicaResumen[] = await res.json();
+      setResumenes(data);
+    } catch (err) {
+      setError('No se pudieron cargar los historiales');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleSelectPaciente = (paciente: Paciente) => {
-    setSelectedPaciente(paciente);
+  // =========================================================
+  // FETCH 2 – Obtener detalle de una historia clínica
+  // GET /HistoriaClinica/{id}
+  // =========================================================
+  const fetchDetalleHistoriaClinica = async (idHistoriaClinica: number) => {
+    try {
+      const res = await fetch(`${API_URL}/api/HistoriaClinica/detalle/${idHistoriaClinica}`);
+
+      if (!res.ok) throw new Error('Error al obtener detalle');
+
+      const data: HistoriaClinicaDetalle = await res.json();
+      setDetalle(data);
+    } catch {
+      setDetalle(null);
+    }
+  };
+
+  // =========================================================
+  // Effects
+  // =========================================================
+  useEffect(() => {
+    fetchHistoriasClinicas();
+  }, []);
+
+  useEffect(() => {
+    if (selectedPaciente) {
+      fetchDetalleHistoriaClinica(selectedPaciente.idHistorialClinico);
+    } else {
+      setDetalle(null);
+    }
+  }, [selectedPaciente]);
+
+  // =========================================================
+  // Helpers
+  // =========================================================
+  const handleSelectPaciente = (historia: HistoriaClinicaResumen) => {
+    setSelectedPaciente(historia);
   };
 
   const handleBack = () => {
     setSelectedPaciente(null);
   };
 
+  const filteredHistorias = resumenes.filter(h =>
+    h.paciente.nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    h.paciente.dni.includes(searchTerm)
+  );
 
-  useEffect(() => {
-    const fetchPacientes = async () => {
-      try {
-        const res = await fetch(`${API_URL}/HistoriaClinica`);
+  const fichasOrdenadas = detalle?.fichas
+    ?.slice()
+    .sort((a, b) =>
+      ordenFichas === 'desc'
+        ? new Date(b.fechaCreacion).getTime() - new Date(a.fechaCreacion).getTime()
+        : new Date(a.fechaCreacion).getTime() - new Date(b.fechaCreacion).getTime()
+    ) ?? [];
 
-        if (!res.ok) {
-          throw new Error('Error al obtener pacientes');
-        }
-
-        const data: asdfjkdh[] = await res.json();
-        setPacientes(data);
-      } catch (err) {
-        setError('No se pudieron cargar los pacientes');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPacientes();
-  }, []);
-
-
-  useEffect(() => {
-    if (!selectedPaciente) {
-      setIdHistoriaClinica(null);
-      setTratamientos([]);
-      return;
-    }
-
-    //Obtener ID de Historia Clinica
-    const fetchHistoriaClinica = async () => {
-      try {
-        const res = await fetch(
-          `${API_URL}/HistoriaClinica/paciente/${selectedPaciente.idPaciente}`
-        );
-
-        if (!res.ok) throw new Error();
-
-        const data = await res.json();
-        setIdHistoriaClinica(data.idHistorialClinico);
-      } catch {
-        setIdHistoriaClinica(null);
-        setTratamientos([]);
-      }
-    };
-
-    fetchHistoriaClinica();
-  }, [selectedPaciente]);
-
-  //Obtener tratamientos
-  useEffect(() => {
-    if (!idHistoriaClinica) {
-      setTratamientos([]);
-      return;
-    }
-
-    const fetchTratamientos = async () => {
-      try {
-        const res = await fetch(
-          `${API_URL}/HistorialClinicoTratamientos/historia/${idHistoriaClinica}`
-        );
-
-        if (!res.ok) throw new Error();
-
-        const data = await res.json();
-
-
-        setTratamientos(Array.isArray(data) ? data : []);
-      } catch {
-        setTratamientos([]);
-      }
-    };
-
-    fetchTratamientos();
-  }, [idHistoriaClinica]);
-
-
-
-  const getEstadoColor = (estado: string) => {
-    switch (estado) {
-      case 'Activo':
-        return 'bg-green-100 text-green-700';
-      case 'Finalizado':
-        return 'bg-gray-100 text-gray-700';
-      case 'Programado':
-        return 'bg-blue-100 text-blue-700';
-      case 'Cancelado':
-        return 'bg-red-100 text-red-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
-    }
-  };
+  // =========================================================
+  // FUNCIONES VIEJAS (NO SE USAN MÁS)
+  // =========================================================
   /*
-  const handleSaveTratamiento = (data: any) => {
-    if (!selectedPaciente) return;
-
-    if (tratamientoEdit) {
-      // Editar
-      setTratamientos(prev =>
-        prev.map(t =>
-          t.id === tratamientoEdit.id ? { ...t, ...data } : t
-        )
-      );
-    } else {
-      // Crear
-      const newTratamiento = {
-        id: tratamientos.length + 1,
-        pacienteId: selectedPaciente.idPaciente,
-        ...data,
-      };
-      setTratamientos(prev => [...prev, newTratamiento]);
-    }
-  };
+  const handleSaveTratamiento = () => {}
+  const handleSaveFicha = () => {}
   */
 
-
-  const handleSaveFicha = (data: any) => {
-    if (!selectedPaciente) return;
-
-    if (fichaEdit) {
-      setFichas(prev =>
-        prev.map(f =>
-          f.id === fichaEdit.id ? { ...f, ...data } : f
-        )
-      );
-    } else {
-      const newFicha = {
-        id: fichas.length + 1,
-        pacienteId: selectedPaciente.idPaciente,
-        profesionalNombre: 'Dr. Mock',
-        ...data,
-      };
-
-      setFichas(prev => [...prev, newFicha]);
-    }
-  };
-
-  const calcularEdad = (fechaNacimiento?: string | null): number | null => {
-    if (!fechaNacimiento) return null;
-
-    const hoy = new Date();
-    const nacimiento = new Date(fechaNacimiento);
-
-    let edad = hoy.getFullYear() - nacimiento.getFullYear();
-    const mes = hoy.getMonth() - nacimiento.getMonth();
-
-    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-      edad--;
-    }
-
-    return edad;
-  };
-
-
-
-
-
-  //*************************************************************************** */
-  //TSX
-  //*************************************************************************** */
+  // =========================================================
+  // RENDER
+  // =========================================================
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -234,8 +158,8 @@ export const Historiales: React.FC = () => {
 
               <p className="text-gray-600 mt-1">
                 {selectedPaciente
-                  ? `${selectedPaciente.nombreCompleto} - DNI: ${selectedPaciente.dni}`
-                  : `${filteredPacientes.length} paciente${filteredPacientes.length !== 1 ? 's' : ''}`}
+                  ? `${selectedPaciente.paciente.nombreCompleto} - DNI: ${selectedPaciente.paciente.dni}`
+                  : `${filteredHistorias.length} paciente${filteredHistorias.length !== 1 ? 's' : ''}`}
               </p>
             </div>
           </div>
@@ -270,10 +194,10 @@ export const Historiales: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPacientes.map((paciente) => (
+              {filteredHistorias.map((h) => (
                 <div
-                  key={paciente.idPaciente}
-                  onClick={() => handleSelectPaciente(paciente)}
+                  key={h.idHistorialClinico}
+                  onClick={() => handleSelectPaciente(h)}
                   className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition cursor-pointer"
                 >
                   <div className="flex items-start justify-between mb-4">
@@ -283,13 +207,10 @@ export const Historiales: React.FC = () => {
                       </div>
 
                       <div>
-                        <h3 className="text-gray-900">{paciente.nombreCompleto}</h3>
-                        <p className="text-gray-600">DNI: {paciente.dni}</p>
+                        <h3 className="text-gray-900">{h.paciente.nombreCompleto}</h3>
+                        <p className="text-gray-600">DNI: {h.paciente.dni}</p>
                         <p className="text-gray-500 text-sm">
-                          Edad:{' '}
-                          {calcularEdad(paciente.fechaNacimiento) !== null
-                            ? `${calcularEdad(paciente.fechaNacimiento)} años`
-                            : 'No disponible'}
+                          Edad:{h.paciente.edad}
                         </p>
                       </div>
                     </div>
@@ -313,26 +234,30 @@ export const Historiales: React.FC = () => {
                 <div className="space-y-3 text-gray-600">
                   <div>
                     <p className="text-gray-500">Nombre Completo</p>
-                    <p className="text-gray-900">{selectedPaciente.nombreCompleto}</p>
+                    <p className="text-gray-900">{detalle?.paciente.nombreCompleto}</p>
                   </div>
                   <div>
                     <p className="text-gray-500">DNI</p>
-                    <p className="text-gray-900">{selectedPaciente.dni}</p>
+                    <p className="text-gray-900">{detalle?.paciente.dni}</p>
                   </div>
 
                   <div>
                     <p className="text-gray-500">Fecha de Nacimiento</p>
+                    <p className="text-gray-900">
+                      {detalle?.paciente.fechaNacimiento}
+                    </p>
 
                   </div>
                   <div>
                     <p className="text-gray-500">Dirección</p>
                     <p className="text-gray-900">
-                      {selectedPaciente.calle}, {selectedPaciente.localidad}
+                      {detalle?.paciente.calle}, {detalle?.paciente.localidad} , {detalle?.paciente.provincia}
                     </p>
                   </div>
                   <div>
                     <p className="text-gray-500">Teléfono</p>
-                    <p className="text-gray-900">{selectedPaciente.telefono}</p>
+                   
+                    <p className="text-gray-900">{detalle?.paciente.telefono}</p> 
                   </div>
                 </div>
                 <button
@@ -355,7 +280,7 @@ export const Historiales: React.FC = () => {
                   </button> */}
                   <button
                     onClick={() => {
-                      setTratamientoEdit(null);
+                      //setTratamientoEdit(null);
                       setShowTratamientoModal(true);
                     }}
                     className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
@@ -363,20 +288,20 @@ export const Historiales: React.FC = () => {
                     <Plus className="w-5 h-5" />
                   </button>
                 </div>
-                {tratamientos.length === 0 ? (
+                {detalle?.tratamientos.length === 0 ? (
                   <p className="text-gray-500 text-center py-4">
                     Sin tratamientos
                   </p>
                 ) : (
                   <div className="space-y-3">
-                    {tratamientos.map((t) => (
+                    {detalle?.tratamientos.map((t) => (
                       <div
                         key={t.idTratamiento}
                         className="p-3 border border-gray-200 rounded-lg"
                       >
                         <div className="flex justify-between mb-1">
                           <p className="text-gray-900">
-                            {t.nombreTratamiento}
+                            {t.nombre}
                           </p>
                           <span
                             className={`text-xs px-2 py-1 rounded-full ${t.activo
@@ -388,7 +313,7 @@ export const Historiales: React.FC = () => {
                           </span>
                         </div>
 
-                        <p className="text-gray-600">{t.motivo}</p>
+                        <p className="text-gray-600">{t.descripcion}</p>
                         <p className="text-gray-500 text-sm">
                           Inicio:{' '}
                           {new Date(t.fechaInicio).toLocaleDateString('es-AR')}
@@ -426,7 +351,7 @@ export const Historiales: React.FC = () => {
                       </button> */}
                       <button
                         onClick={() => {
-                          setFichaEdit(null);
+                          // setFichaEdit(null);
                           setShowFichaModal(true);
                         }}
                         className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
@@ -439,16 +364,16 @@ export const Historiales: React.FC = () => {
                 </div>
 
                 <div className="p-6">
-                  {fichasPaciente.length === 0 ? (
+                  {detalle?.fichas.length === 0 ? (
                     <div className="text-center py-12 text-gray-500">
                       <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400" />
                       <p>No hay fichas de seguimiento registradas</p>
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {fichasPaciente.map((ficha, index) => (
+                      {detalle?.fichas.map((ficha, index) => (
                         <div
-                          key={ficha.id}
+                          key={ficha.idFichaSeguimiento}
                           className="relative pl-8 pb-6 border-l-2 border-gray-200 last:border-l-0 last:pb-0"
                         >
                           {/* Punto en la línea de tiempo */}
@@ -460,7 +385,7 @@ export const Historiales: React.FC = () => {
                                 <div className="flex items-center gap-3 mb-2">
                                   <Calendar className="w-5 h-5 text-indigo-600" />
                                   <p className="text-gray-900">
-                                    {new Date(ficha.fecha).toLocaleDateString('es-AR', {
+                                    {new Date(ficha.fechaCreacion).toLocaleDateString('es-AR', {
                                       weekday: 'long',
                                       year: 'numeric',
                                       month: 'long',
@@ -470,7 +395,7 @@ export const Historiales: React.FC = () => {
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-600">
                                   <User className="w-4 h-4" />
-                                  <p>{ficha.profesionalNombre}</p>
+                                  <p>{ficha.nombreProfesional}</p>
                                 </div>
                               </div>
                             </div>
@@ -478,7 +403,7 @@ export const Historiales: React.FC = () => {
                             <div className="space-y-3">
                               <div>
                                 <p className="text-gray-500 mb-1">Diagnóstico</p>
-                                <p className="text-gray-900">{ficha.diagnostico}</p>
+                                {/* <p className="text-gray-900">{ficha.idUsuario}</p> */}
                               </div>
                               <div>
                                 <p className="text-gray-500 mb-1">Observaciones</p>
@@ -486,16 +411,16 @@ export const Historiales: React.FC = () => {
                               </div>
                               <div>
                                 <p className="text-gray-500 mb-1">Antecedentes</p>
-                                <p className="text-gray-900">{ficha.antecedentes}</p>
+                                {/* <p className="text-gray-900">{ficha.}</p> */}
                               </div>
-                              {ficha.proximaConsulta && (
+                              {/* {ficha.proximaConsulta && (
                                 <div className="pt-3 border-t border-gray-200">
                                   <p className="text-gray-500 mb-1">Próxima Consulta</p>
                                   <p className="text-indigo-600">
                                     {new Date(ficha.proximaConsulta).toLocaleDateString('es-AR')}
                                   </p>
                                 </div>
-                              )}
+                              )} */}
                             </div>
                           </div>
                         </div>
