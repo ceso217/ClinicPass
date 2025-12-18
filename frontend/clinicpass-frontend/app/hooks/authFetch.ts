@@ -10,7 +10,7 @@ export interface ChangePasswordPayload {
 export interface ResetPasswordPayload {
     Id: string;
     NewPassword: string;
-    ConfirmedNewPassword: string;
+    ConfirmNewPassword: string;
 }
 
 const BASE_URL = '/api';

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.Elfie.Model;
 using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Microsoft.EntityFrameworkCore;
+using ClinicPass.BusinessLayer.Services;
+
 
 namespace ClinicPass.API.Controllers
 {
@@ -14,49 +16,17 @@ namespace ClinicPass.API.Controllers
     public class ReportesController : ControllerBase
     {
         private readonly ClinicPassContext _db;
+        private readonly FiltroDeFechaService _filtroService;
 
-        public ReportesController(ClinicPassContext db)
+
+		public ReportesController(ClinicPassContext db, FiltroDeFechaService filtroService)
         {
             _db = db;
-        }
+			_filtroService = filtroService;
+		}
 
         // función para obtener la fecha de incio y de fin según el filtro
-        public async Task<FiltroFechaDTO> FiltroDeFecha(FiltroFechaDTO? filtro = null)
-        {
-            DateTime fechaInicio = DateTime.UtcNow.Date;
-            DateTime fechaFin = fechaInicio.AddDays(1); // Mañana a las 00:00
-            if (filtro.TipoFiltro == FiltroFecha.UltimaSemana)
-            {
-                fechaInicio = fechaInicio.AddDays(-7);
-            }
-            else if (filtro.TipoFiltro == FiltroFecha.UltimoMes)
-            {
-                fechaInicio = fechaInicio.AddDays(-30);
-            }
-            else if (filtro.TipoFiltro == FiltroFecha.UltimoTrimestre)
-            {
-                fechaInicio = fechaInicio.AddDays(-90);
-            }
-            else if (filtro.TipoFiltro == FiltroFecha.UltimoAno)
-            {
-                fechaInicio = fechaInicio.AddDays(-365);
-            }
-            else if (filtro.TipoFiltro == FiltroFecha.Personalizado)
-            {
-                if (filtro == null)
-                {
-                    throw new ArgumentException("Para un filtro personalizado, las fechas son obligatorias.");
-                }
-                fechaInicio = DateTime.SpecifyKind(filtro.FechaInicio, DateTimeKind.Utc);
-                fechaFin = DateTime.SpecifyKind(filtro.FechaFin, DateTimeKind.Utc);
-            }
 
-            return new FiltroFechaDTO
-            {
-                FechaInicio = fechaInicio,
-                FechaFin = fechaFin
-            };
-        }
 
         // =======================
         // TURNOS
@@ -66,7 +36,7 @@ namespace ClinicPass.API.Controllers
         [HttpPost("turnos/total")]
         public async Task<int> TotalTurnosPorFiltro([FromBody] FiltroFechaDTO? filtroFecha)
         {
-            var fechasFiltro = await FiltroDeFecha(filtroFecha);
+            var fechasFiltro = await _filtroService.FiltroDeFecha(filtroFecha);
 
             var totalTurnos = await _db.Turnos
                     .Where(t => t.Fecha >= fechasFiltro.FechaInicio && t.Fecha < fechasFiltro.FechaFin)
@@ -84,7 +54,7 @@ namespace ClinicPass.API.Controllers
                 EstadoTurno.Completado.ToString()
             };
 
-            var fechasFiltro = await FiltroDeFecha(filtro);
+            var fechasFiltro = await _filtroService.FiltroDeFecha(filtro);
 
             return await _db.Turnos
                 .Where(t => t.Fecha >= fechasFiltro.FechaInicio && t.Fecha < fechasFiltro.FechaFin)
@@ -102,7 +72,7 @@ namespace ClinicPass.API.Controllers
         [HttpPost("turnos/total-por-estado")]
         public async Task<IEnumerable<EstadoTurnosDTO>> TotalTurnosEstado([FromBody] FiltroFechaDTO filtro)
         {
-            var fechasFiltro = await FiltroDeFecha(filtro);
+            var fechasFiltro = await _filtroService.FiltroDeFecha(filtro);
 
             return await _db.Turnos
                 .Where(t => t.Fecha >= fechasFiltro.FechaInicio && t.Fecha < fechasFiltro.FechaFin)
@@ -119,7 +89,7 @@ namespace ClinicPass.API.Controllers
         [HttpPost("turnos/por-profesional-estado")]
         public async Task<IEnumerable<TurnosPorProfesionalEstadoDTO>> ObtenerTurnosPorProfesionalEstado([FromBody] FiltroFechaDTO filtro)
         {
-            var fechasFiltro = await FiltroDeFecha(filtro);
+            var fechasFiltro = await _filtroService.FiltroDeFecha(filtro);
             return await _db.Turnos
                 .Include(t => t.Profesional)
                 .Where(t => t.Fecha >= fechasFiltro.FechaInicio && t.Fecha < fechasFiltro.FechaFin)
@@ -142,7 +112,7 @@ namespace ClinicPass.API.Controllers
         [HttpPost("turnos/total-por-especialidad")]
         public async Task<IEnumerable<TotalEspecialidadDTO>> TotalTurnosEspecialidad([FromBody] FiltroFechaDTO filtro)
         {
-            var fechasFiltro = await FiltroDeFecha(filtro);
+            var fechasFiltro = await _filtroService.FiltroDeFecha(filtro);
 
             return await _db.Turnos
                 .Include(t => t.Profesional)
@@ -164,7 +134,7 @@ namespace ClinicPass.API.Controllers
         [HttpPost("profesionales/actividad")]
         public async Task<IEnumerable<ProfesionalTurnosYFichasDTO>> TotalProfesionalesConTurnosYFichas([FromBody] FiltroFechaDTO filtro)
         {
-            var fechasFiltro = await FiltroDeFecha(filtro);
+            var fechasFiltro = await _filtroService.FiltroDeFecha(filtro);
 
             return await _db.Turnos
                     .Include(t => t.Profesional)
@@ -214,7 +184,7 @@ namespace ClinicPass.API.Controllers
         [HttpPost("pacientes/total-atendidos")]
         public async Task<int> TotalPacientesAtendidos([FromBody] FiltroFechaDTO filtro)
         {
-            var fechasFiltro = await FiltroDeFecha(filtro);
+            var fechasFiltro = await _filtroService.FiltroDeFecha(filtro);
             var totalPacientes = await _db.Turnos
                 .Where(t => t.Estado == EstadoTurno.Completado.ToString())
                 .Where(t => t.Fecha >= fechasFiltro.FechaInicio && t.Fecha < fechasFiltro.FechaFin)
