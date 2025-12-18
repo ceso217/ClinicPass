@@ -1,8 +1,12 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, Clock, User, UserPlus, Stethoscope, AlertCircle } from 'lucide-react';
-import { mockPacientes, mockProfesionales, Turno, Paciente } from '../../data/mockData';
+// import { mockPacientes, mockProfesionales } from '../../data/mockData';
+import {Turno} from '../../types/turno';
+import {Paciente} from '../../types/paciente';
+import {Profesional} from '../../types/profesional';
 import { PacienteModal } from './PacienteModal';
+import { Profesionales } from '../Profesionales';
 
 interface TurnoModalProps {
   isOpen: boolean;
@@ -10,6 +14,8 @@ interface TurnoModalProps {
   onSave: (turno: Partial<Turno>) => void;
   turno?: Turno | null;
   fechaPreseleccionada?: string;
+  pacientes?: Paciente[];
+  profesionales?: Profesional[];
 }
 
 export const TurnoModal: React.FC<TurnoModalProps> = ({
@@ -18,21 +24,23 @@ export const TurnoModal: React.FC<TurnoModalProps> = ({
   onSave,
   turno,
   fechaPreseleccionada,
+  pacientes = [], //valor por defecto
+  profesionales = [] //valor por defecto
 }) => {
   const [formData, setFormData] = useState({
     fecha: fechaPreseleccionada || '',
     hora: '',
     pacienteId: 0,
     profesionalId: 0,
-    estado: 'Programado' as 'Programado' | 'Confirmado' | 'Completado' | 'Cancelado',
+    estado: 'Pendiente' as 'Pendiente'  | 'Confirmado' | 'Completado' | 'Cancelado',
     observaciones: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [searchPaciente, setSearchPaciente] = useState('');
   const [showPacienteModal, setShowPacienteModal] = useState(false);
-  const [pacientes, setPacientes] = useState(mockPacientes);
-  const [profesionales] = useState(mockProfesionales.filter(p => p.activo));
+
+  
 
   // Horarios disponibles (de 8:00 a 20:00, cada 30 min)
   const generarHorarios = () => {
@@ -75,8 +83,8 @@ export const TurnoModal: React.FC<TurnoModalProps> = ({
       )
     : pacientes;
 
-  const pacienteSeleccionado = pacientes.find((p) => p.id === formData.pacienteId);
-  const profesionalSeleccionado = profesionales.find((p) => p.id === formData.profesionalId);
+  const pacienteSeleccionado = pacientes.find((p) => p.idPaciente === formData.pacienteId);
+  const profesionalSeleccionado = profesionales.find((p) => Number(p.id) === formData.profesionalId);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -113,8 +121,8 @@ export const TurnoModal: React.FC<TurnoModalProps> = ({
       return;
     }
 
-    const paciente = pacientes.find((p) => p.id === formData.pacienteId);
-    const profesional = profesionales.find((p) => p.id === formData.profesionalId);
+    const paciente = pacientes.find((p) => p.idPaciente === formData.pacienteId);
+    const profesional = profesionales.find((p) => p.id === String(formData.profesionalId));
 
     const turnoAEnviar: Partial<Turno> = {
       id: turno?.id,
@@ -124,8 +132,8 @@ export const TurnoModal: React.FC<TurnoModalProps> = ({
       pacienteNombre: paciente?.nombreCompleto || '',
       profesionalId: formData.profesionalId,
       profesionalNombre: profesional?.nombreCompleto || '',
-      estado: formData.estado,
       fichaCreada: false,
+      estado: formData.estado
     };
 
     onSave(turnoAEnviar);
@@ -133,7 +141,7 @@ export const TurnoModal: React.FC<TurnoModalProps> = ({
 
   const handleAddPaciente = (nuevoPaciente: Partial<Paciente>) => {
     const newPaciente: Paciente = {
-      id: pacientes.length + 1,
+      idPaciente: pacientes.length + 1,
       nombreCompleto: nuevoPaciente.nombreCompleto || '',
       dni: nuevoPaciente.dni || '',
       fechaNacimiento: nuevoPaciente.fechaNacimiento || '',
@@ -143,8 +151,8 @@ export const TurnoModal: React.FC<TurnoModalProps> = ({
       calle: nuevoPaciente.calle || '',
       telefono: nuevoPaciente.telefono || '',
     };
-    setPacientes([...pacientes, newPaciente]);
-    setFormData({ ...formData, pacienteId: newPaciente.id });
+    // setPacientes([...pacientes, newPaciente]);
+    setFormData({ ...formData, pacienteId: newPaciente.idPaciente });
     setShowPacienteModal(false);
   };
 
@@ -256,10 +264,10 @@ export const TurnoModal: React.FC<TurnoModalProps> = ({
                   ) : (
                     pacientesFiltrados.map((paciente) => (
                       <button
-                        key={paciente.id}
-                        onClick={() => setFormData({ ...formData, pacienteId: paciente.id })}
+                        key={paciente.idPaciente}
+                        onClick={() => setFormData({ ...formData, pacienteId: paciente.idPaciente })}
                         className={`w-full p-3 text-left hover:bg-gray-50 transition border-b border-gray-200 last:border-0 ${
-                          formData.pacienteId === paciente.id ? 'bg-green-50' : ''
+                          formData.pacienteId === paciente.idPaciente ? 'bg-green-50' : ''
                         }`}
                       >
                         <div className="flex items-center justify-between">
@@ -269,7 +277,7 @@ export const TurnoModal: React.FC<TurnoModalProps> = ({
                               DNI: {paciente.dni} • {paciente.edad} años
                             </p>
                           </div>
-                          {formData.pacienteId === paciente.id && (
+                          {formData.pacienteId === paciente.idPaciente && (
                             <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center">
                               <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                                 <path
@@ -316,7 +324,7 @@ export const TurnoModal: React.FC<TurnoModalProps> = ({
                 >
                   <option value="">Seleccione un profesional</option>
                   {profesionales.map((prof) => (
-                    <option key={prof.id} value={prof.id}>
+                    <option key={String(prof.id)} value={prof.id}>
                       {prof.nombreCompleto} - {prof.especialidad}
                     </option>
                   ))}
@@ -329,7 +337,7 @@ export const TurnoModal: React.FC<TurnoModalProps> = ({
                       <strong>{profesionalSeleccionado.nombreCompleto}</strong>
                     </p>
                     <p className="text-blue-700">
-                      {profesionalSeleccionado.especialidad} • Tel: {profesionalSeleccionado.telefono}
+                      {profesionalSeleccionado.especialidad} • Tel: {profesionalSeleccionado.phoneNumber}
                     </p>
                   </div>
                 )}
@@ -344,7 +352,7 @@ export const TurnoModal: React.FC<TurnoModalProps> = ({
                 onChange={(e) => setFormData({ ...formData, estado: e.target.value as any })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
               >
-                <option value="Programado">Programado</option>
+                <option value="Pendiente">Pendiente</option>
                 <option value="Confirmado">Confirmado</option>
                 <option value="Completado">Completado</option>
                 <option value="Cancelado">Cancelado</option>

@@ -1,18 +1,38 @@
 'use client'
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Clock, User, Filter } from 'lucide-react';
-import { mockTurnos, mockProfesionales, mockPacientes, type Turno } from '../data/mockData';
+import { mockTurnos, mockProfesionales, mockPacientes} from '../data/mockData';
+import {Profesional} from '../types/profesional';
+import {Turno} from '../types/turno';
+
 import { TurnoModal } from './modals/TurnoModal';
+import { createTurno, getTurnos } from '../hooks/turnosApi';
+import { getProfesionales } from '../hooks/profesionalesApi';
+import { Paciente } from '../types/paciente';
+import { getPacientes } from '../hooks/pacientesApi';
+
+
+
 
 export const Calendario: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [turnos, setTurnos] = useState<Turno[]>(mockTurnos);
+  //**************** */
+  //TURNOS
+  //**************** */
+  const [turnos, setTurnos] = useState<Turno[]>([]);
+  const [profesionales, setProfesionales] = useState<Profesional[]>([]);
+  const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [filterProfesional, setFilterProfesional] = useState<number | null>(null);
   const [filterEstado, setFilterEstado] = useState<string>('');
+
+  //Modal
   const [showTurnoModal, setShowTurnoModal] = useState(false);
   const [selectedTurno, setSelectedTurno] = useState<Turno | null>(null);
 
+  //fecha
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
@@ -21,6 +41,33 @@ export const Calendario: React.FC = () => {
   const lastDayOfMonth = new Date(year, month + 1, 0);
   const firstDayWeekday = firstDayOfMonth.getDay();
   const daysInMonth = lastDayOfMonth.getDate();
+
+  // Función para cargar los datos Turnos (usada en useEffect)
+  const fetchTurnos= useCallback(async () => {
+      setIsLoading(true);
+      try {
+          const data: Turno[] = await getTurnos(); 
+          setTurnos(data);
+          const profesionalesList: Profesional[] = await getProfesionales();
+          setProfesionales(profesionalesList);
+          const pacientesList: Paciente[] = await getPacientes();
+          setPacientes(pacientesList);
+          //setFilterProfesional();
+          //setFilterEstado();
+      } catch (err) {
+          console.error("Error al cargar Turnos", err);
+          setError("No se pudieron cargar los turnos. Intente de nuevo.");
+      } finally {
+          setIsLoading(false);
+      }
+  }, []);
+
+  useEffect(() => {
+      fetchTurnos();
+  }, [fetchTurnos]);
+
+
+
 
   // Navegar meses
   const handlePrevMonth = () => {
@@ -32,20 +79,21 @@ export const Calendario: React.FC = () => {
   };
 
   // Obtener turnos por fecha
-  const getTurnosPorFecha = (fecha: Date) => {
+  const getTurnosPorFecha = useCallback((fecha: Date) => {
     const fechaStr = fecha.toISOString().split('T')[0];
-    let filtered = turnos.filter((t) => t.fecha === fechaStr);
+    
+    return turnos.filter((t) => {
+        const coincideFecha = t.fecha === fechaStr;
+        const coincideProfesional = filterProfesional 
+            ? t.profesionalId === filterProfesional 
+            : true;
+        const coincideEstado = filterEstado 
+            ? t.estado === filterEstado 
+            : true;
 
-    if (filterProfesional) {
-      filtered = filtered.filter((t) => t.profesionalId === filterProfesional);
-    }
-
-    if (filterEstado) {
-      filtered = filtered.filter((t) => t.estado === filterEstado);
-    }
-
-    return filtered;
-  };
+        return coincideFecha && coincideProfesional && coincideEstado;
+    });
+}, [turnos, filterProfesional, filterEstado]);
 
   // Turnos del día seleccionado
   const turnosDelDia = useMemo(() => {
@@ -112,32 +160,54 @@ export const Calendario: React.FC = () => {
     setSelectedTurno(null);
     setShowTurnoModal(true);
   };
-  const handleSaveTurno = (turnoData: Partial<Turno>) => {
+  const handleSaveTurno = async (turnoData: Partial<Turno>) => {
     const maxId = turnos.length > 0 ? Math.max(...turnos.map(t => t.id)) : 0;
+
+    // Buscar los nombres basados en los IDs enviados por el modal
+    const profesionalEncontrado = profesionales.find(p => Number(p.id) === turnoData.profesionalId);
+    const pacienteEncontrado = pacientes.find(p => p.idPaciente === turnoData.pacienteId);
     
     if (turnoData.id) {
-      // Lógica de EDICIÓN (el turnoData.id viene del modal)
-      setTurnos(turnos.map(t => t.id === turnoData.id ? { ...t, ...turnoData } as Turno : t));
+
+     setTurnos(turnos.map(t => t.id === turnoData.id ? { 
+      ...t, 
+      ...turnoData,
+      profesionalNombre: profesionalEncontrado?.nombreCompleto || t.profesionalNombre,
+      pacienteNombre: pacienteEncontrado?.nombreCompleto || t.pacienteNombre 
+      } as Turno : t));
+
     } else {
       const nuevoTurno : Turno = {
         id: maxId + 1, 
-        pacienteId: turnoData.pacienteId || 0,
-        pacienteNombre: turnoData.pacienteNombre || '',
-        profesionalId: turnoData.profesionalId || 0, 
-        profesionalNombre: turnoData.profesionalNombre || '',
+        pacienteId: Number(turnoData.pacienteId )|| 0,
+        pacienteNombre: pacienteEncontrado?.nombreCompleto || 'Paciente no encontrado',
+        profesionalId: Number(turnoData.profesionalId) || 0, 
+        profesionalNombre: profesionalEncontrado?.nombreCompleto || 'Profesional no encontrado',
         fecha: turnoData.fecha || '',
         hora: turnoData.hora || '',
-        estado: turnoData.estado || 'Programado', 
+        estado: turnoData.estado || 'Pendiente', 
         fichaCreada: false,
       };
+      try{
+         await createTurno(nuevoTurno);
+        alert('Turno Creado')
+      }catch(error){
+        throw new Error("No se creo el turno")
+      }
       setTurnos([...turnos, nuevoTurno]);
+
     }
     handleCloseModalTurno();
   }
 
-  const handleCloseModalTurno = () => {
+  const handleCloseModalTurno = async () => {
         setShowTurnoModal(false);
         setSelectedTurno(null); 
+
+        const profesionalesList: Profesional[] = await getProfesionales();
+        setProfesionales(profesionalesList);
+        const pacientesList: Paciente[] = await getPacientes();
+        setPacientes(pacientesList);
     };
   const handleAbrirModalTurnoEditar = (turnoParaEditar: Turno | null = null) => {
       setSelectedTurno(turnoParaEditar); // Establece el turno para edición (o null para creación)
@@ -274,10 +344,10 @@ export const Calendario: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="">Todos los profesionales</option>
-                  {mockProfesionales.filter((p) => p.activo).map((prof) => (
+                  {profesionales.map((prof) => (
                     <option key={prof.id} value={prof.id}>
                       {prof.nombreCompleto}
-                    </option>
+                      </option>
                   ))}
                 </select>
                 <select
@@ -286,7 +356,7 @@ export const Calendario: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="">Todos los estados</option>
-                  <option value="Programado">Programado</option>
+                  <option value="Pendiente">Pendiente</option>
                   <option value="Confirmado">Confirmado</option>
                   <option value="Completado">Completado</option>
                   <option value="Cancelado">Cancelado</option>
@@ -357,6 +427,8 @@ export const Calendario: React.FC = () => {
         onSave={handleSaveTurno}
         turno={selectedTurno}
         fechaPreseleccionada={selectedDate?.toISOString().split('T')[0]}
+        profesionales={profesionales}
+        pacientes={pacientes}
       />
 
     </div>
