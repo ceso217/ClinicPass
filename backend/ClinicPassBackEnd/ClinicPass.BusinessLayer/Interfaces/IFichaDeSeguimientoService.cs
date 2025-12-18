@@ -9,6 +9,8 @@ namespace ClinicPass.BusinessLayer.Interfaces
         Task<List<FichaDeSeguimientoDTO>> GetByPacienteAsync(int idPaciente);
         Task<bool> UpdateAsync(int idFicha, FichaDeSeguimientoUpdateDTO dto);
         Task<List<FichaDeSeguimientoDTO>> GetAllAsync();
+        Task<List<FichaDeSeguimientoDTO>> GetByTratamientoAsync(int tratamientoId);
+        Task<List<FichaDeSeguimientoDTO>> GetByTratamientoAndHistoriaAsync(int tratamientoId, int idHistoria);
 
 
     }

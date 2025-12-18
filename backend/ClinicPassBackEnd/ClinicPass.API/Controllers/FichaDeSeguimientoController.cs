@@ -28,6 +28,11 @@ namespace ClinicPass.API.Controllers
         {
             return Ok(await _service.GetAllAsync());
         }
+        [HttpGet("tratamiento/{tratamientoId}")]
+        public async Task<IActionResult> GetByTratamiento(int tratamientoId)
+        {
+            return Ok(await _service.GetByTratamientoAsync(tratamientoId));
+        }
 
 
         [HttpGet("historia/{idHistoria}")]
@@ -35,6 +40,16 @@ namespace ClinicPass.API.Controllers
         {
             return Ok(await _service.GetByHistoriaAsync(idHistoria));
         }
+
+
+        [HttpGet("historia/{idHistoria}/tratamiento/{tratamientoId}")]
+        public async Task<IActionResult> GetByTratamientoAndHistoria(int idHistoria,int tratamientoId)
+        {
+            return Ok(
+                await _service.GetByTratamientoAndHistoriaAsync(tratamientoId, idHistoria)
+            );
+        }
+
 
         [HttpGet("paciente/{idPaciente}")]
         public async Task<IActionResult> GetByPaciente(int idPaciente)

@@ -161,5 +161,46 @@ namespace ClinicPass.BusinessLayer.Services
                 .ToListAsync();
         }
 
+        public async Task<List<FichaDeSeguimientoDTO>> GetByTratamientoAsync(int tratamientoId)
+        {
+            return await _context.FichasDeSeguimiento
+                .Where(f => f.TratamientoId == tratamientoId)
+                .Include(f => f.Profesional)
+                .Select(f => new FichaDeSeguimientoDTO
+                {
+                    IdFichaSeguimiento = f.IdFichaSeguimiento,
+                    IdUsuario = f.IdUsuario,
+                    NombreProfesional = f.Profesional.NombreCompleto,
+                    IdHistorialClinico = f.IdHistorialClinico,
+                    TratamientoId = f.TratamientoId,
+                    FechaCreacion = f.FechaCreacion,
+                    Observaciones = f.Observaciones
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<FichaDeSeguimientoDTO>>
+    GetByTratamientoAndHistoriaAsync(int tratamientoId, int idHistoria)
+        {
+            return await _context.FichasDeSeguimiento
+                .Where(f =>
+                    f.TratamientoId == tratamientoId &&
+                    f.IdHistorialClinico == idHistoria
+                )
+                .Include(f => f.Profesional)
+                .Select(f => new FichaDeSeguimientoDTO
+                {
+                    IdFichaSeguimiento = f.IdFichaSeguimiento,
+                    IdUsuario = f.IdUsuario,
+                    NombreProfesional = f.Profesional.NombreCompleto,
+                    IdHistorialClinico = f.IdHistorialClinico,
+                    TratamientoId = f.TratamientoId,
+                    FechaCreacion = f.FechaCreacion,
+                    Observaciones = f.Observaciones
+                })
+                .ToListAsync();
+        }
+
+
     }
 }
