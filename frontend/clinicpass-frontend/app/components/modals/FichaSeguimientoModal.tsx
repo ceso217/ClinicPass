@@ -3,12 +3,15 @@ import React, { useEffect, useState } from 'react';
 import { X, FileText, Calendar } from 'lucide-react';
 
 export interface FichaSeguimientoForm {
-  fecha: string;
+  idUsuario: number;
+  idHistorialClinico: number;
+  tratamientoId: number;
   observaciones: string;
-  diagnostico: string;
-  antecedentes: string;
-  proximaConsulta?: string;
 }
+// "idUsuario": 0,
+//   "idHistorialClinico": 0,
+//   "tratamientoId": 0,
+//   // "observaciones": "string"
 
 interface FichaSeguimientoModalProps {
   isOpen: boolean;
@@ -27,11 +30,10 @@ export const FichaSeguimientoModal: React.FC<FichaSeguimientoModalProps> = ({
 }) => {
 
 const [formData, setFormData] = useState<FichaSeguimientoForm>({
-    fecha: '',
-    diagnostico: '',
+    idUsuario: 0,
+    idHistorialClinico: 0,
+    tratamientoId: 0,
     observaciones: '',
-    antecedentes: '',
-    proximaConsulta: '',
 });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -39,19 +41,17 @@ const [formData, setFormData] = useState<FichaSeguimientoForm>({
   useEffect(() => {
     if (data && mode === 'edit') {
         setFormData({
-            fecha: data.fecha,
-            diagnostico: data.diagnostico,
+            idUsuario: data.idUsuario,
+            idHistorialClinico: data.idHistorialClinico,
+            tratamientoId: data.tratamientoId,
             observaciones: data.observaciones,
-            antecedentes: data.antecedentes,
-            proximaConsulta: data.proximaConsulta || '',
         });
     } else {
         setFormData({
-            fecha: new Date().toISOString().split('T')[0],
-            diagnostico: '',
+            idHistorialClinico: 0,
+            tratamientoId: 0,
+            idUsuario: 0,
             observaciones: '',
-            antecedentes: '',
-            proximaConsulta: '',
         });
     }
     setErrors({});
@@ -59,11 +59,11 @@ const [formData, setFormData] = useState<FichaSeguimientoForm>({
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.fecha) newErrors.fecha = 'La fecha es requerida';
     if (!formData.observaciones.trim())
       newErrors.observaciones = 'Las observaciones son requeridas';
 
     setErrors(newErrors);
+    
     return Object.keys(newErrors).length === 0;
   };
 
@@ -100,7 +100,7 @@ const [formData, setFormData] = useState<FichaSeguimientoForm>({
         {/* Body */}
         <div className="p-6 space-y-4">
         {/* Fecha */}
-        <div>
+        {/* <div>
             <label className="block text-gray-700 mb-2">
             Fecha <span className="text-red-500">*</span>
             </label>
@@ -116,18 +116,18 @@ const [formData, setFormData] = useState<FichaSeguimientoForm>({
             />
             </div>
             {errors.fecha && <p className="text-red-500 mt-1">{errors.fecha}</p>}
-        </div>
+        </div> */}
 
         {/* Diagnóstico */}
         <div>
             <label className="block text-gray-700 mb-2">
-            Diagnóstico
+              HistorialClinico
             </label>
             <input
             type="text"
-            value={formData.diagnostico}
+            value={formData.idHistorialClinico}
             onChange={(e) =>
-                setFormData({ ...formData, diagnostico: e.target.value })
+                setFormData({ ...formData, idHistorialClinico: Number(e.target.value) })
             }
             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
             placeholder="Diagnóstico clínico"
@@ -137,13 +137,13 @@ const [formData, setFormData] = useState<FichaSeguimientoForm>({
         {/* Antecedentes */}
         <div>
             <label className="block text-gray-700 mb-2">
-            Antecedentes
+            Tratamiento
             </label>
             <textarea
             rows={3}
-            value={formData.antecedentes}
+            value={formData.tratamientoId}
             onChange={(e) =>
-                setFormData({ ...formData, antecedentes: e.target.value })
+                setFormData({ ...formData, tratamientoId: Number(e.target.value) })
             }
             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
             placeholder="Antecedentes relevantes del paciente"
@@ -174,13 +174,13 @@ const [formData, setFormData] = useState<FichaSeguimientoForm>({
         {/* Próxima consulta */}
         <div>
             <label className="block text-gray-700 mb-2">
-            Próxima consulta
+            profesional
             </label>
             <input
-            type="date"
-            value={formData.proximaConsulta}
+            type="text"
+            value={formData.idUsuario}
             onChange={(e) =>
-                setFormData({ ...formData, proximaConsulta: e.target.value })
+                setFormData({ ...formData, idUsuario: Number(e.target.value) })
             }
             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
             />
