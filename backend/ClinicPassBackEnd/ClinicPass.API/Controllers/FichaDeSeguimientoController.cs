@@ -2,6 +2,7 @@
 using ClinicPass.BusinessLayer.Interfaces;
 using ClinicPass.DataAccessLayer.DTOs.Ficha;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ClinicPass.API.Controllers
 {
@@ -21,6 +22,13 @@ namespace ClinicPass.API.Controllers
         {
             return Ok(await _service.CrearFichaAsync(dto));
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            return Ok(await _service.GetAllAsync());
+        }
+
 
         [HttpGet("historia/{idHistoria}")]
         public async Task<IActionResult> GetByHistoria(int idHistoria)

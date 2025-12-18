@@ -144,5 +144,22 @@ namespace ClinicPass.BusinessLayer.Services
             return true;
         }
 
+        public async Task<List<FichaDeSeguimientoDTO>> GetAllAsync()
+        {
+            return await _context.FichasDeSeguimiento
+                .Include(f => f.Profesional)
+                .Select(f => new FichaDeSeguimientoDTO
+                {
+                    IdFichaSeguimiento = f.IdFichaSeguimiento,
+                    IdUsuario = f.IdUsuario,
+                    NombreProfesional = f.Profesional.NombreCompleto,
+                    IdHistorialClinico = f.IdHistorialClinico,
+                    TratamientoId = f.TratamientoId,
+                    FechaCreacion = f.FechaCreacion,
+                    Observaciones = f.Observaciones
+                })
+                .ToListAsync();
+        }
+
     }
 }
