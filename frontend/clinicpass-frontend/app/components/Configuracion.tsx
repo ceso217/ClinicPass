@@ -17,6 +17,7 @@ import {
 import { changePassword, ChangePasswordPayload } from "../hooks/authFetch";
 import { GreenNotification } from "./GreenNotification";
 import { RedNotification } from "./RedNotification";
+import toast from "react-hot-toast";
 
 export const Configuracion: React.FC = () => {
   const { user } = useAuth();
@@ -92,7 +93,7 @@ export const Configuracion: React.FC = () => {
     //obtenerDatos Usuario: 
     const userString = localStorage.getItem('clinicpass_user');
     if (!userString) {
-        alert("Error: No se encontró información de usuario (ID) en la sesión.");
+        toast.error("Error: No se encontró información de usuario (ID) en la sesión.");
         return;
     }
     
@@ -101,10 +102,10 @@ export const Configuracion: React.FC = () => {
         const user = JSON.parse(userString);
         // Asume que el ID se llama 'id' (camelCase) o 'Id' (PascalCase)
         userId = user.id || user.Id; 
-        if (!userId) throw new Error("ID de usuario no encontrado en el objeto de sesión.");
+        if (!userId) toast.error("ID de usuario no encontrado en el objeto de sesión.");
     } catch (e) {
         console.error("Error de parseo o ID de usuario faltante:", e);
-        alert("Error de sesión. Por favor, vuelva a iniciar sesión.");
+        toast.error("Error de sesión. Por favor, vuelva a iniciar sesión.");
         return;
     }
     var stringId = String(userId);
@@ -137,7 +138,7 @@ export const Configuracion: React.FC = () => {
         }
         
         // Puedes usar una notificación más visible que 'alert'
-        alert(`Error al actualizar: ${errorMessage}`);
+        toast.error(`Error al actualizar: ${errorMessage}`);
         
         console.error("Error al cambiar la contraseña:", error);
     }

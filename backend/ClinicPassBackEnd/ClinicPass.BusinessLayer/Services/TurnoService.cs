@@ -144,7 +144,7 @@ namespace ClinicPass.BusinessLayer.Services
             var turno = new Turno
             {
                 Fecha = comprobacion.Fecha,
-                Estado = "Pendiente",
+                Estado = dto.Estado,
                 IdPaciente = dto.PacienteId,
                 ProfesionalId = dto.ProfesionalId,
                 IdFichaSeguimiento = dto.IdFichaDeSeguimiento

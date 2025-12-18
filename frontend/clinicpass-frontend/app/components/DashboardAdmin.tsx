@@ -13,6 +13,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import PerformanceCard from './PerformanceCard';
+import toast from 'react-hot-toast';
 
 interface DashboardStats {
   totalPacientes: number;
@@ -54,6 +55,7 @@ export const DashboardAdmin: React.FC = () => {
         }, 1000);
       } catch (error) {
         console.error('Error al cargar estadísticas:', error);
+        toast.error(`Error al cargar estadísticas : ${error}`);
         setLoading(false);
       }
     };

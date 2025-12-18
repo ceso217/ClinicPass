@@ -12,6 +12,7 @@ import {
   PieChart,
   Activity
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface ReporteData {
   mes: string;
@@ -72,11 +73,11 @@ export const Reportes: React.FC = () => {
   const promedioTurnos = Math.round(totalTurnos / datosGenerales.length);
 
   const handleExportarPDF = () => {
-    alert('Exportando reporte a PDF...');
+    toast.loading('Exportando reporte a PDF...');
   };
 
   const handleExportarExcel = () => {
-    alert('Exportando reporte a Excel...');
+    toast.loading('Exportando reporte a Excel...');
   };
 
   const StatCard: React.FC<{
@@ -109,19 +110,19 @@ export const Reportes: React.FC = () => {
             <p className="text-gray-600 mt-1">Análisis detallado del rendimiento de la clínica</p>
           </div>
           <div className="flex gap-3">
-            <button
-              onClick={handleExportarPDF}
+            {/* <button
+              onClick={handleExportarExcel}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center gap-2"
             >
               <Download className="w-5 h-5" />
-              PDF
-            </button>
+              Excel
+            </button> */}
             <button
-              onClick={handleExportarExcel}
+              onClick={handleExportarPDF}
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-2"
             >
               <Download className="w-5 h-5" />
-              Excel
+              PDF
             </button>
           </div>
         </div>

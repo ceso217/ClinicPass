@@ -30,7 +30,7 @@ export interface Turno {
   profesionalNombre: string;
   fecha: string;
   hora: string;
-  estado: 'Programado' | 'Confirmado' | 'Completado' | 'Cancelado';
+  estado: 'Programado' | 'Pendiente' | 'Completado' | 'Cancelado';
   fichaCreada: boolean;
 }
 
@@ -180,56 +180,56 @@ export const mockTutores: Tutor[] = [
 ];
 
 export const mockProfesionales: Profesional[] = [
-  {
-    id: 1,
-    nombreCompleto: 'Dra. María González',
-    dni: '23456789',
-    correo: 'profesional@clinicpass.com',
-    especialidad: 'Cardiología',
-    telefono: '3794-654321',
-    rol: 2,
-    activo: true,
-  },
-  {
-    id: 2,
-    nombreCompleto: 'Dr. Juan Pérez',
-    dni: '34567890',
-    correo: 'juan.perez@clinicpass.com',
-    especialidad: 'Pediatría',
-    telefono: '3794-111222',
-    rol: 2,
-    activo: true,
-  },
-  {
-    id: 3,
-    nombreCompleto: 'Dra. Laura Sánchez',
-    dni: '45678901',
-    correo: 'laura.sanchez@clinicpass.com',
-    especialidad: 'Traumatología',
-    telefono: '3794-222333',
-    rol: 2,
-    activo: true,
-  },
-  {
-    id: 4,
-    nombreCompleto: 'Dr. Roberto García',
-    dni: '56789012',
-    correo: 'roberto.garcia@clinicpass.com',
-    especialidad: 'Clínica Médica',
-    telefono: '3794-333444',
-    rol: 2,
-    activo: false,
-  },
-  {
-    id: 5,
-    nombreCompleto: 'Dra. Carmen Díaz',
-    dni: '67890123',
-    correo: 'carmen.diaz@clinicpass.com',
-    especialidad: 'Dermatología',
-    telefono: '3794-444555',
-    rol: 2,
-    activo: true,
-  },
+  // {
+  //   id: 1,
+  //   nombreCompleto: 'Dra. María González',
+  //   dni: '23456789',
+  //   correo: 'profesional@clinicpass.com',
+  //   especialidad: 'Cardiología',
+  //   telefono: '3794-654321',
+  //   rol: 2,
+  //   activo: true,
+  // },
+  // {
+  //   id: 2,
+  //   nombreCompleto: 'Dr. Juan Pérez',
+  //   dni: '34567890',
+  //   correo: 'juan.perez@clinicpass.com',
+  //   especialidad: 'Pediatría',
+  //   telefono: '3794-111222',
+  //   rol: 2,
+  //   activo: true,
+  // },
+  // {
+  //   id: 3,
+  //   nombreCompleto: 'Dra. Laura Sánchez',
+  //   dni: '45678901',
+  //   correo: 'laura.sanchez@clinicpass.com',
+  //   especialidad: 'Traumatología',
+  //   telefono: '3794-222333',
+  //   rol: 2,
+  //   activo: true,
+  // },
+  // {
+  //   id: 4,
+  //   nombreCompleto: 'Dr. Roberto García',
+  //   dni: '56789012',
+  //   correo: 'roberto.garcia@clinicpass.com',
+  //   especialidad: 'Clínica Médica',
+  //   telefono: '3794-333444',
+  //   rol: 2,
+  //   activo: false,
+  // },
+  // {
+  //   id: 5,
+  //   nombreCompleto: 'Dra. Carmen Díaz',
+  //   dni: '67890123',
+  //   correo: 'carmen.diaz@clinicpass.com',
+  //   especialidad: 'Dermatología',
+  //   telefono: '3794-444555',
+  //   rol: 2,
+  //   activo: true,
+  // },
 ];
 
 export const mockTurnos: Turno[] = [

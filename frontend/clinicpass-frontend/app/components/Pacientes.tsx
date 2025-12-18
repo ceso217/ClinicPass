@@ -4,6 +4,8 @@ import { Search, Plus, Edit, Eye, Filter, X, Trash2 } from 'lucide-react';
 // IMPORTAMOS TODAS LAS FUNCIONES API NECESARIAS
 import { getPacientes, createPaciente, updatePaciente } from '../hooks/pacientesApi'; 
 import { Paciente, PacientePayload } from '../types/paciente'; // Asegúrate de tener PacientePayload en tu types/paciente
+import toast from 'react-hot-toast';
+import { toastConfirm } from '../utils/toastConfirm';
 
 export const Pacientes: React.FC = () => {
   // Usamos un estado para el loading
@@ -99,11 +101,11 @@ export const Pacientes: React.FC = () => {
 const handleSave = async () => {
     // 1. Validaciones básicas antes de enviar (DNI y Nombre Completo son [Required] en C#)
     if (!formData.nombreCompleto || !formData.dni) {
-      alert("El Nombre Completo y DNI son campos obligatorios.");
+      toast.error("El Nombre Completo y DNI son campos obligatorios.");
       return;
     }
 
-    setLoading(true);
+   
 
     // Desestructuración: Excluimos propiedades solo del frontend/cálculo (id, edad, etc.)
     const { idPaciente, edad, ultimaConsulta, ...rawPayload } = formData; 
@@ -146,16 +148,29 @@ const handleSave = async () => {
                 // Si selectedPaciente existe pero no tiene ID, algo falló en la carga.
                 throw new Error("ID del paciente no disponible para la edición.");
             }
+             // AGREGAR (POST)
+            const confirmado = await toastConfirm(
+              "¿Estás seguro de que deseas editar el paciente?"
+            );
 
+            if (!confirmado) {
+              return null
+            }
+             setLoading(true);
             // Nota: Usamos payloadToSend directamente, ya que contiene solo las propiedades mapeadas.
             await updatePaciente(idToUse, payloadToSend);
+            toast.success("El paciente fue actualizado correctamente");
             
         } else {
             // AGREGAR (POST)
-            if (!window.confirm(`¿Estás seguro de que deseas Crear un Nuevo paciente? Luego de la creación no se eliminara por motivos de seguridad.`)) 
+            const confirmado = await toastConfirm(
+              "¿Estás seguro de que deseas crear un nuevo paciente? Luego de la creación no se eliminará por motivos de seguridad."
+            );
+
+            if (!confirmado) 
             { return null}
             else{await createPaciente(payloadToSend);}
-            
+            toast.success("El paciente fue creado correctamente");
         }
 
         // 5. Recarga y Cierre
@@ -164,7 +179,7 @@ const handleSave = async () => {
         
     } catch (error) {
         console.error("Error al guardar el paciente:", error);
-        alert("Ocurrió un error al guardar los datos del paciente. Verifique la consola para detalles del error 400.");
+        toast.error("Ocurrió un error al guardar los datos del paciente. Verifique la consola para detalles del error 400.");
     } finally {
         setLoading(false);
     }

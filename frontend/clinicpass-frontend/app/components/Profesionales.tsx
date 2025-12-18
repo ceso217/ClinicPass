@@ -4,6 +4,7 @@ import { Search, Plus, Edit, UserX, UserCheck, Filter, X } from 'lucide-react';
 import { getProfesionales, registerProfesional, updateProfesional} from '../hooks/profesionalesApi'; 
 import {  type Profesional } from '../types/profesional';
 import { RegisterPayload } from '../types/registerPayload';
+import toast from 'react-hot-toast';
 
 type RoleType = 'Admin' | 'Profesional';
 
@@ -137,6 +138,10 @@ export const Profesionales: React.FC = () => {
                 rol: formData.rol,
                 // No incluimos password/repeatPassword a menos que el usuario lo haya activado
             };
+            if (formData.nombreCompleto === '') {
+                toast.error("El Nombre no puede estar vacio");
+                return null;
+            }
             
             // 3. Llamada a la API de actualización
             // Nota: Aquí asumimos que updateProfesional no devuelve nada (Promise<void>), solo confirma el éxito.
@@ -157,7 +162,7 @@ export const Profesionales: React.FC = () => {
 
             // 5. Validación de contraseñas
             if (!formData.password || !formData.repeatPassword || formData.password !== formData.repeatPassword) {
-                alert('Las contraseñas no coinciden o están vacías.');
+                toast.error('Las contraseñas no coinciden o están vacías.');
                 return;
             }
 
@@ -171,7 +176,7 @@ export const Profesionales: React.FC = () => {
 
             // 3. Validar que exista el espacio
             if (espacioIndex === -1) {
-                alert("Por favor, ingrese el Nombre y el Apellido separados por un espacio (Ej: 'Juan Perez').");
+                toast.error("Por favor, ingrese el Nombre y el Apellido separados por un espacio (Ej: 'Juan Perez').");
                 return; 
             }
 
@@ -217,12 +222,12 @@ export const Profesionales: React.FC = () => {
             // Reaplicar filtros
             handleSearch(searchTerm, filterEspecialidad, filterActivo, updatedList);
         }
-        alert("Cambios Guardados Correctamente");
+        toast.success("Cambios Guardados Correctamente");
         handleCloseModal();
     } catch(error){
     
     console.error("Error al guardar profesional:", error);
-    alert(`Ocurrió un error al guardar los datos. Detalles: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+    toast.error(`Ocurrió un error al guardar los datos. Detalles: ${error instanceof Error ? error.message : 'Error desconocido'}`);
   }
   };
 
@@ -249,7 +254,7 @@ const handleToggleActivo = async (profesional: Profesional) => {
         
     } catch (error) {
         console.error("Error al cambiar estado:", error);
-        alert("Error al cambiar el estado del profesional.");
+        toast.error("Error al cambiar el estado del profesional.");
     }
 };
 
