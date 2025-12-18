@@ -90,8 +90,20 @@ namespace ClinicPass.BusinessLayer.Services
             return result.Succeeded;
         }
 
-        // Delete profesional
+        // Boton dar de baja dar de alta
+        public async Task<bool> ToggleActivoAsync(int id)
+        {
+            var profesional = await _userManager.FindByIdAsync(id.ToString());
+            if (profesional == null)
+            {
+                return false;
+            }
+            profesional.Activo = !profesional.Activo;
+            var result = await _userManager.UpdateAsync(profesional);
+            return result.Succeeded;
+        }
 
+        // Delete profesional
         public async Task<bool> DeleteAsync(int id)
         {
             var profesional = await _userManager.FindByIdAsync(id.ToString());
@@ -118,14 +130,5 @@ namespace ClinicPass.BusinessLayer.Services
                 Id = p.Id,
             };
         }
-
-        //        private string HashPassword(string password)
-        //        {
-        //            using var sha256 = SHA256.Create();
-        //            var bytes = Encoding.UTF8.GetBytes(password);
-        //            var hash = sha256.ComputeHash(bytes);
-        //            return Convert.ToHexString(hash);
-        //        }
-
     }
 }
