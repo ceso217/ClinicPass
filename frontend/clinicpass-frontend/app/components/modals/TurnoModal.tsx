@@ -12,6 +12,7 @@ interface TurnoModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (turno: Partial<Turno>) => void;
+  onCreatePaciente: (paciente: Partial<Paciente>) => Promise<Paciente>;
   turno?: Turno | null;
   fechaPreseleccionada?: string;
   pacientes?: Paciente[];
@@ -22,6 +23,7 @@ export const TurnoModal: React.FC<TurnoModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  onCreatePaciente,
   turno,
   fechaPreseleccionada,
   pacientes = [], //valor por defecto
@@ -139,21 +141,20 @@ export const TurnoModal: React.FC<TurnoModalProps> = ({
     onSave(turnoAEnviar);
   };
 
-  const handleAddPaciente = (nuevoPaciente: Partial<Paciente>) => {
-    const newPaciente: Paciente = {
-      idPaciente: pacientes.length + 1,
-      nombreCompleto: nuevoPaciente.nombreCompleto || '',
-      dni: nuevoPaciente.dni || '',
-      fechaNacimiento: nuevoPaciente.fechaNacimiento || '',
-      edad: nuevoPaciente.edad || 0,
-      localidad: nuevoPaciente.localidad || '',
-      provincia: nuevoPaciente.provincia || '',
-      calle: nuevoPaciente.calle || '',
-      telefono: nuevoPaciente.telefono || '',
-    };
-    // setPacientes([...pacientes, newPaciente]);
-    setFormData({ ...formData, pacienteId: newPaciente.idPaciente });
+  const handleAddPaciente = async (nuevoPaciente: Partial<Paciente>) => {
+    try {
+    const pacienteCreado = await onCreatePaciente(nuevoPaciente);
+
+    // Seleccionarlo automáticamente
+    setFormData(prev => ({
+      ...prev,
+      pacienteId: pacienteCreado.idPaciente
+    }));
+
     setShowPacienteModal(false);
+  } catch (error) {
+    console.error(error);
+  }
   };
 
   if (!isOpen) return null;
