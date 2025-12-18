@@ -38,6 +38,17 @@ namespace ClinicPass.API.Controllers
             return Ok(await _service.GetByHistoriaClinicaAsync(idHistorialClinico));
         }
 
+
+        [HttpGet("tratamiento/{idTratamiento}/estadisticas")]
+        public async Task<IActionResult> GetEstadisticasPorTratamiento(int idTratamiento)
+        {
+            var data = await _service.GetEstadisticasPorTratamientoAsync(idTratamiento);
+            if (data == null) return NotFound();
+
+            return Ok(data);
+        }
+
+
         [HttpPut("{idTratamiento}/{idHistorialClinico}")]
         public async Task<IActionResult> Update(
             int idTratamiento,
