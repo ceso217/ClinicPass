@@ -92,8 +92,23 @@ namespace ClinicPass.BusinessLayer.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<TratamientoDTO?> GetByIdAsync(int id)
+        {
+            return await _context.Tratamientos
+                .Where(t => t.IdTratamiento == id)
+                .Select(t => new TratamientoDTO
+                {
+                    IdTratamiento = t.IdTratamiento,
+                    Nombre = t.Nombre,
+                    Descripcion = t.Descripcion,
+                    Activo = t.Activo
+                })
+                .FirstOrDefaultAsync();
+        }
+
     }
-    
+
 }
 
 

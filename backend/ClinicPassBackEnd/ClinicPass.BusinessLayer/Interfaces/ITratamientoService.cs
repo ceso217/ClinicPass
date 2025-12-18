@@ -9,5 +9,7 @@ namespace ClinicPass.BusinessLayer.Interfaces
         Task<List<TratamientoDTO>> GetAllAsync(bool incluirInactivos = false);
         Task<bool> UpdateAsync(int id, TratamientoUpdateDTO dto);
         Task<bool> DesactivarAsync(int id);
+        Task<TratamientoDTO?> GetByIdAsync(int id);
+
     }
 }
