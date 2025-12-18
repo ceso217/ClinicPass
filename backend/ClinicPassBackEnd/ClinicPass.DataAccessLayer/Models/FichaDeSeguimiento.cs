@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClinicPass.DataAccessLayer.Models
 {
@@ -11,12 +12,14 @@ namespace ClinicPass.DataAccessLayer.Models
 
         // FK Profesional
         public int IdUsuario { get; set; }
-        public Profesional Profesional { get; set; } = null!;
+         
+        [ForeignKey(nameof(IdUsuario))]
+		public Profesional Profesional { get; set; } = null!;
 
 
 
-        // FK Historia Clínica
-        public int IdHistorialClinico { get; set; }
+		// FK Historia Clínica
+		public int IdHistorialClinico { get; set; }
         public HistoriaClinica HistoriaClinica { get; set; } = null!;
 
         //FK tratamiento opcional

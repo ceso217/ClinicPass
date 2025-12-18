@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Search, Plus, Edit, Eye, Filter, X, Trash2 } from 'lucide-react';
 // IMPORTAMOS TODAS LAS FUNCIONES API NECESARIAS
 import { getPacientes, createPaciente, updatePaciente } from '../hooks/pacientesApi'; 
+import { createHistoriaClinica } from '../hooks/historialesApi';
 import { Paciente, PacientePayload } from '../types/paciente'; // Asegúrate de tener PacientePayload en tu types/paciente
 import toast from 'react-hot-toast';
 import { toastConfirm } from '../utils/toastConfirm';
@@ -120,6 +121,7 @@ const handleSave = async () => {
         Calle: rawPayload.calle || '',
         Telefono: rawPayload.telefono || '',
     };
+   
 
     // 3. Ajuste CRÍTICO para FechaNacimiento (DateTime en C#)
     if (rawPayload.fechaNacimiento) {
@@ -169,8 +171,22 @@ const handleSave = async () => {
 
             if (!confirmado) 
             { return null}
-            else{await createPaciente(payloadToSend);}
+            else{
+              const nuevoPaciente = await createPaciente(payloadToSend);
+              // Crear historia clínica automáticamente
+              try {
+                await createHistoriaClinica({
+                  idPaciente: nuevoPaciente.idPaciente,
+                  antecedentesFamiliares: '',
+                  antecedentesPersonales: '',
+                });
+              } catch (e) {
+                toast.error(
+                  'Paciente creado, pero falló la creación de la historia clínica'
+                );
+            }
             toast.success("El paciente fue creado correctamente");
+            }
         }
 
         // 5. Recarga y Cierre
@@ -441,7 +457,7 @@ const handleSave = async () => {
 );
 };
 
-export function calcularEdad(fechaNacimientoString?: string): number {
+export function calcularEdad(fechaNacimientoString?: string | null): number {
   if (!fechaNacimientoString) {
     return 0; // Devolver 0 o un valor por defecto si la fecha es inválida/vacía
   }
