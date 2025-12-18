@@ -10,10 +10,8 @@ export type EstadoTratamiento =
   | 'Cancelado';
 
 export interface TratamientoForm {
-  tipo: string;
+  nombre: string;
   descripcion: string;
-  fechaInicio: string;
-  estado: EstadoTratamiento;
 }
 
 interface TratamientoModalProps {
@@ -32,10 +30,8 @@ export const TratamientoModal: React.FC<TratamientoModalProps> = ({
   mode,
 }) => {
   const [formData, setFormData] = useState<TratamientoForm>({
-    tipo: '',
+    nombre: '',
     descripcion: '',
-    fechaInicio: '',
-    estado: 'Activo',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -45,10 +41,8 @@ export const TratamientoModal: React.FC<TratamientoModalProps> = ({
       setFormData(data);
     } else {
       setFormData({
-        tipo: '',
+        nombre: '',
         descripcion: '',
-        fechaInicio: '',
-        estado: 'Activo',
       });
     }
     setErrors({});
@@ -57,9 +51,8 @@ export const TratamientoModal: React.FC<TratamientoModalProps> = ({
   const validate = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.tipo.trim()) newErrors.tipo = 'El tipo de tratamiento es requerido';
+    if (!formData.nombre.trim()) newErrors.tipo = 'El tipo de tratamiento es requerido';
     if (!formData.descripcion.trim()) newErrors.descripcion = 'La descripción es requerida';
-    if (!formData.fechaInicio) newErrors.fechaInicio = 'La fecha de inicio es requerida';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -104,8 +97,8 @@ export const TratamientoModal: React.FC<TratamientoModalProps> = ({
             </label>
             <input
               type="text"
-              value={formData.tipo}
-              onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
+              value={formData.nombre}
+              onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
               className={`w-full px-4 py-2 border rounded-lg ${
                 errors.tipo ? 'border-red-500' : 'border-gray-300'
               }`}
@@ -132,7 +125,7 @@ export const TratamientoModal: React.FC<TratamientoModalProps> = ({
             )}
           </div>
 
-          <div>
+          {/* <div>
             <label className="block text-gray-700 mb-2">
               Fecha de Inicio <span className="text-red-500">*</span>
             </label>
@@ -150,9 +143,9 @@ export const TratamientoModal: React.FC<TratamientoModalProps> = ({
             {errors.fechaInicio && (
               <p className="text-red-500 mt-1">{errors.fechaInicio}</p>
             )}
-          </div>
+          </div> */}
 
-          <div>
+          {/* <div>
             <label className="block text-gray-700 mb-2">Estado</label>
             <select
               value={formData.estado}
@@ -166,7 +159,7 @@ export const TratamientoModal: React.FC<TratamientoModalProps> = ({
               <option value="Finalizado">Finalizado</option>
               <option value="Cancelado">Cancelado</option>
             </select>
-          </div>
+          </div> */}
         </div>
 
         {/* Footer */}

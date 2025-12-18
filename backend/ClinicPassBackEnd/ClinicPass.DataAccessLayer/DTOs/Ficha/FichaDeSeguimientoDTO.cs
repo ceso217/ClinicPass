@@ -3,7 +3,7 @@
     public int IdFichaSeguimiento { get; set; }
 
     public int IdUsuario { get; set; }
-    public string NombreProfesional { get; set; } = null!;
+    public string? NombreProfesional { get; set; } = null!;
 
     public int IdHistorialClinico { get; set; }
 

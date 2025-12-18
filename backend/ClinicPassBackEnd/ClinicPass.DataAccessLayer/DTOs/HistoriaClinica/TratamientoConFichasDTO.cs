@@ -14,6 +14,6 @@ namespace ClinicPass.DataAccessLayer.DTOs.HistoriaClinica
         public bool Activo { get; set; }
         public DateTime FechaInicio { get; set; }
 
-        public List<FichaDeSeguimientoDTO> FichasDeSeguimiento { get; set; } = new();
+        public List<FichaDeSeguimientoHistorialDTO> FichasDeSeguimiento { get; set; } = new();
     }
 }

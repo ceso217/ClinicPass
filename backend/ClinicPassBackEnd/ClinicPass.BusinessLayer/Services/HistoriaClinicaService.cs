@@ -21,7 +21,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             var historia = await _context.HistoriasClinicas
                 .Include(h => h.Paciente)
-                
+
                 .Include(h => h.Fichas)
                     .ThenInclude(f => f.Profesional)
                 .FirstOrDefaultAsync(h => h.IdHistorialClinico == id);
@@ -33,7 +33,7 @@ namespace ClinicPass.BusinessLayer.Services
         {
             var historia = await _context.HistoriasClinicas
                 .Include(h => h.Paciente)
-                    
+
                 .Include(h => h.Fichas)
                     .ThenInclude(f => f.Profesional)
                 .FirstOrDefaultAsync(h => h.IdPaciente == idPaciente);
@@ -55,9 +55,9 @@ namespace ClinicPass.BusinessLayer.Services
             await _context.SaveChangesAsync();
 
             await _context.Entry(historia).Reference(h => h.Paciente).LoadAsync();
-            
-                
-               
+
+
+
 
             return MapToDTO(historia);
         }
@@ -73,7 +73,7 @@ namespace ClinicPass.BusinessLayer.Services
                 AntecedentesPersonales = h.AntecedentesPersonales,
                 Activa = h.Activa,
 
-                
+
 
                 Fichas = h.Fichas.Select(f => new FichaDeSeguimientoDTO
                 {
@@ -150,116 +150,125 @@ namespace ClinicPass.BusinessLayer.Services
         }
         public async Task<HistoriaClinicaDetalleDTO?> GetDetalleByIdAsync(int id)
         {
-            var historia = await _context.HistoriasClinicas
-                .Include(h => h.Paciente)
-                .Include(h => h.Fichas)
-                    .ThenInclude(f => f.Profesional)
-                .Include(h => h.Tratamientos)
-                    .ThenInclude(t => t.Tratamiento)
-                .FirstOrDefaultAsync(h => h.IdHistorialClinico == id);
-
-            if (historia == null) return null;
-
-            return new HistoriaClinicaDetalleDTO
-            {
-                Paciente = new PacienteDTO
+            return await _context.HistoriasClinicas
+                .Where(h => h.IdHistorialClinico == id)
+                .Select(h => new HistoriaClinicaDetalleDTO
                 {
-                    IdPaciente = historia.Paciente.IdPaciente,
-                    NombreCompleto = historia.Paciente.NombreCompleto,
-                    Dni = historia.Paciente.Dni,
-                    FechaNacimiento = historia.Paciente.FechaNacimiento,
-                    Telefono = historia.Paciente.Telefono,
-                    Localidad = historia.Paciente.Localidad,
-                    Provincia = historia.Paciente.Provincia
-                },
+                    Paciente = new PacienteDTO
+                    {
+                        IdPaciente = h.Paciente.IdPaciente,
+                        NombreCompleto = h.Paciente.NombreCompleto,
+                        Dni = h.Paciente.Dni,
+                        FechaNacimiento = h.Paciente.FechaNacimiento,
+                        Telefono = h.Paciente.Telefono,
+                        Localidad = h.Paciente.Localidad,
+                        Provincia = h.Paciente.Provincia
+                    },
 
-                HistoriaClinica = MapToDTO(historia),
+                    HistoriaClinica = new HistoriaClinicaDTO
+                    {
+                        IdHistorialClinico = h.IdHistorialClinico,
+                        IdPaciente = h.IdPaciente,
+                        AntecedentesFamiliares = h.AntecedentesFamiliares,
+                        AntecedentesPersonales = h.AntecedentesPersonales,
+                        Activa = h.Activa,
+                        Fichas = new List<FichaDeSeguimientoDTO>() // 👈 vacío a propósito
+                    },
 
-                Tratamientos = historia.Tratamientos.Select(t => new TratamientoDetalleDTO
-                {
-                    IdTratamiento = t.IdTratamiento,
-                    Nombre = t.Tratamiento.Nombre,
-                    Descripcion = t.Tratamiento.Descripcion,
-                    Activo = t.Activo,
-                    FechaInicio = t.FechaInicio,
-                    FechaFin = t.FechaFin
-                }).ToList(),
-
-
-                Fichas = historia.Fichas.Select(f => new FichaDeSeguimientoDTO
-                {
-                    IdFichaSeguimiento = f.IdFichaSeguimiento,
-                    FechaCreacion = f.FechaCreacion,
-                    Observaciones = f.Observaciones,
-                    NombreProfesional = f.Profesional.NombreCompleto
-                }).ToList()
-            };
-        }
-
-
-        public async Task<HistoriaClinicaOrdenadaDTO?> GetOrdenadaByIdAsync(int id)
-        {
-            var historia = await _context.HistoriasClinicas
-                .Include(h => h.Paciente)
-                .Include(h => h.Fichas)
-                    .ThenInclude(f => f.Profesional)
-                .Include(h => h.Tratamientos)
-                    .ThenInclude(t => t.Tratamiento)
-                .FirstOrDefaultAsync(h => h.IdHistorialClinico == id);
-
-            if (historia == null) return null;
-
-            return new HistoriaClinicaOrdenadaDTO
-            {
-                Paciente = new PacienteDTO
-                {
-                    IdPaciente = historia.Paciente.IdPaciente,
-                    NombreCompleto = historia.Paciente.NombreCompleto,
-                    Dni = historia.Paciente.Dni,
-                    FechaNacimiento = historia.Paciente.FechaNacimiento,
-                    Telefono = historia.Paciente.Telefono,
-                    Localidad = historia.Paciente.Localidad,
-                    Provincia = historia.Paciente.Provincia
-                },
-
-                HistoriaClinica = new HistoriaClinicaOrdenadaDataDTO
-                {
-                    IdHistorialClinico = historia.IdHistorialClinico,
-                    Activa = historia.Activa,
-                    AntecedentesFamiliares = historia.AntecedentesFamiliares,
-                    AntecedentesPersonales = historia.AntecedentesPersonales,
-
-                    Tratamientos = historia.Tratamientos.Select(t => new TratamientoConFichasDTO
+                    Tratamientos = h.Tratamientos.Select(t => new TratamientoDetalleDTO
                     {
                         IdTratamiento = t.IdTratamiento,
                         Nombre = t.Tratamiento.Nombre,
                         Descripcion = t.Tratamiento.Descripcion,
                         Activo = t.Activo,
                         FechaInicio = t.FechaInicio,
+                        FechaFin = t.FechaFin
+                    }).ToList(),
 
-                        FichasDeSeguimiento = historia.Fichas
-                            .Where(f => f.TratamientoId == t.IdTratamiento)
-                            .Select(f => new FichaDeSeguimientoDTO
+                    Fichas = h.Fichas.Select(f => new FichaDeSeguimientoHistorialDTO
+                    {
+                        IdFichaSeguimiento = f.IdFichaSeguimiento,
+                        FechaCreacion = f.FechaCreacion,
+                        Observaciones = f.Observaciones,
+                        TratamientoId = f.TratamientoId,
+                        IdUsuario = f.IdUsuario,
+
+                        NombreProfesional = _context.Users
+                            .Where(u => u.Id == f.IdUsuario)
+                            .Select(u => u.NombreCompleto)
+                            .FirstOrDefault()
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
+        }
+
+
+
+
+        public async Task<HistoriaClinicaOrdenadaDTO?> GetOrdenadaByIdAsync(int id)
+        {
+            return await _context.HistoriasClinicas
+                .Where(h => h.IdHistorialClinico == id)
+                .Select(h => new HistoriaClinicaOrdenadaDTO
+                {
+                    Paciente = new PacienteDTO
+                    {
+                        IdPaciente = h.Paciente.IdPaciente,
+                        NombreCompleto = h.Paciente.NombreCompleto,
+                        Dni = h.Paciente.Dni,
+                        FechaNacimiento = h.Paciente.FechaNacimiento,
+                        Telefono = h.Paciente.Telefono,
+                        Localidad = h.Paciente.Localidad,
+                        Provincia = h.Paciente.Provincia
+                    },
+
+                    HistoriaClinica = new HistoriaClinicaOrdenadaDataDTO
+                    {
+                        IdHistorialClinico = h.IdHistorialClinico,
+                        Activa = h.Activa,
+                        AntecedentesFamiliares = h.AntecedentesFamiliares,
+                        AntecedentesPersonales = h.AntecedentesPersonales,
+
+                        Tratamientos = h.Tratamientos.Select(t => new TratamientoConFichasDTO
+                        {
+                            IdTratamiento = t.IdTratamiento,
+                            Nombre = t.Tratamiento.Nombre,
+                            Descripcion = t.Tratamiento.Descripcion,
+                            Activo = t.Activo,
+                            FechaInicio = t.FechaInicio,
+
+                            FichasDeSeguimiento = h.Fichas
+                                .Where(f => f.TratamientoId == t.IdTratamiento)
+                                .Select(f => new FichaDeSeguimientoHistorialDTO
+                                {
+                                    IdFichaSeguimiento = f.IdFichaSeguimiento,
+                                    FechaCreacion = f.FechaCreacion,
+                                    Observaciones = f.Observaciones,
+                                    TratamientoId = f.TratamientoId
+                                }).ToList()
+                        }).ToList(),
+
+                        FichasSinTratamiento = h.Fichas
+                            .Where(f => f.TratamientoId == null)
+                            .Select(f => new FichaDeSeguimientoHistorialDTO
                             {
                                 IdFichaSeguimiento = f.IdFichaSeguimiento,
                                 FechaCreacion = f.FechaCreacion,
                                 Observaciones = f.Observaciones,
-                                NombreProfesional = f.Profesional.NombreCompleto
-                            }).ToList()
-                    }).ToList(),
+                                TratamientoId = null,
+                                IdUsuario = f.IdUsuario,
 
-                    FichasSinTratamiento = historia.Fichas
-                        .Where(f => f.TratamientoId == null)
-                        .Select(f => new FichaDeSeguimientoDTO
-                        {
-                            IdFichaSeguimiento = f.IdFichaSeguimiento,
-                            FechaCreacion = f.FechaCreacion,
-                            Observaciones = f.Observaciones,
-                            NombreProfesional = f.Profesional.NombreCompleto
-                        }).ToList()
-                }
-            };
+                                NombreProfesional = _context.Users
+                                .Where(u => u.Id == f.IdUsuario)
+                                .Select(u => u.NombreCompleto)
+                                .FirstOrDefault()
+                            }).ToList()
+                    }
+                })
+                .FirstOrDefaultAsync();
         }
+
+
 
 
 
