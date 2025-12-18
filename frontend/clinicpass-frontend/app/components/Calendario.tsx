@@ -9,7 +9,7 @@ import { TurnoModal } from './modals/TurnoModal';
 import { createTurno, getTurnos } from '../hooks/turnosApi';
 import { getProfesionales } from '../hooks/profesionalesApi';
 import { Paciente } from '../types/paciente';
-import { getPacientes } from '../hooks/pacientesApi';
+import { createPaciente, getPacientes } from '../hooks/pacientesApi';
 import toast from 'react-hot-toast';
 
 
@@ -214,6 +214,35 @@ export const Calendario: React.FC = () => {
       setSelectedTurno(turnoParaEditar); // Establece el turno para edición (o null para creación)
       setShowTurnoModal(true);
   };
+
+  const handleCreatePaciente = async (
+      pacienteData: Partial<Paciente>
+    ): Promise<Paciente> => {
+
+      // reutilizás EXACTAMENTE la misma lógica
+      // que ya tenés en Pacientes.tsx
+      const payload = {
+        nombreCompleto: pacienteData.nombreCompleto || '',
+        dni: pacienteData.dni || '',
+        localidad: pacienteData.localidad || '',
+        provincia: pacienteData.provincia || '',
+        calle: pacienteData.calle || '',
+        telefono: pacienteData.telefono || '',
+        fechaNacimiento: pacienteData.fechaNacimiento
+        ? `${pacienteData.fechaNacimiento}T00:00:00Z`
+        : null
+      };
+
+      await createPaciente(payload);
+      // volvés a pedir pacientes (fuente de verdad)
+      const pacientesActualizados = await getPacientes();
+      setPacientes(pacientesActualizados);
+      toast.success("Paciente Correctamente Creado");
+
+      // devolvés el último creado
+      return pacientesActualizados.at(-1)!;
+    };
+
 
   const monthNames = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -426,6 +455,7 @@ export const Calendario: React.FC = () => {
         isOpen={showTurnoModal}
         onClose={handleCloseModalTurno}
         onSave={handleSaveTurno}
+        onCreatePaciente={handleCreatePaciente}
         turno={selectedTurno}
         fechaPreseleccionada={selectedDate?.toISOString().split('T')[0]}
         profesionales={profesionales}

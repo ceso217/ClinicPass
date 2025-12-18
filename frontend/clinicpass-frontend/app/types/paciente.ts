@@ -3,7 +3,7 @@ export interface Paciente {
     idPaciente: number; 
     nombreCompleto: string; 
     dni: string; 
-    fechaNacimiento: string; 
+    fechaNacimiento: string | null; 
     localidad: string; 
     provincia: string; 
     calle: string; 
