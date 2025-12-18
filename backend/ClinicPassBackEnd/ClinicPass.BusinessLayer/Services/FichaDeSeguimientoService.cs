@@ -81,13 +81,17 @@ namespace ClinicPass.BusinessLayer.Services
             return await _context.FichasDeSeguimiento
                 .Where(f => f.IdHistorialClinico == idHistoria)
                 .Include(f => f.Profesional)
+                .Include(f => f.Tratamiento)
                 .Select(f => new FichaDeSeguimientoDTO
                 {
                     IdFichaSeguimiento = f.IdFichaSeguimiento,
                     IdUsuario = f.IdUsuario,
                     NombreProfesional = f.Profesional.NombreCompleto,
                     IdHistorialClinico = f.IdHistorialClinico,
-                    //FechaPase = f.FechaPase,
+                    TratamientoId = f.TratamientoId,
+                    NombreTratamiento = f.Tratamiento != null
+                        ? f.Tratamiento.Nombre
+                        : null,
                     FechaCreacion = f.FechaCreacion,
                     Observaciones = f.Observaciones
                 })
@@ -173,6 +177,7 @@ namespace ClinicPass.BusinessLayer.Services
                     NombreProfesional = f.Profesional.NombreCompleto,
                     IdHistorialClinico = f.IdHistorialClinico,
                     TratamientoId = f.TratamientoId,
+                    NombreTratamiento = null,
                     FechaCreacion = f.FechaCreacion,
                     Observaciones = f.Observaciones
                 })
@@ -195,6 +200,8 @@ namespace ClinicPass.BusinessLayer.Services
                     NombreProfesional = f.Profesional.NombreCompleto,
                     IdHistorialClinico = f.IdHistorialClinico,
                     TratamientoId = f.TratamientoId,
+                    NombreTratamiento = null,
+
                     FechaCreacion = f.FechaCreacion,
                     Observaciones = f.Observaciones
                 })
