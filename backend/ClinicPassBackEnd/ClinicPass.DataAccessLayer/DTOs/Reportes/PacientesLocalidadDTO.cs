@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ClinicPass.DataAccessLayer.DTOs.Reportes
 {
-    public class PacientesLocalidadProvinciaDTO
+    public class PacientesLocalidadDTO
     {
         public string Provincia { get; set; } = null!;
         public string Localidad { get; set; } = null!;

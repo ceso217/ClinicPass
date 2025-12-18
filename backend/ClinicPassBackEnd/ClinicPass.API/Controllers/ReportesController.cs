@@ -210,6 +210,14 @@ namespace ClinicPass.API.Controllers
         // PACIENTES
         // =======================
 
+        // Obtener total de pacientes general
+        [HttpGet("pacientes/total")]
+        public async Task<int> TotalPacientes()
+        {
+            var totalPacientes = await _db.Pacientes.CountAsync();
+            return totalPacientes;
+        }
+
         // Obtener total de pacientes atendidos según el filtro de fecha
         [HttpPost("pacientes/total-atendidos")]
         public async Task<int> TotalPacientesAtendidos([FromBody] FiltroFechaDTO filtro)
@@ -227,11 +235,11 @@ namespace ClinicPass.API.Controllers
 
         // Obtener el número total de pacientes por localidad
         [HttpGet("pacientes/total-por-localidad")]
-        public async Task<IEnumerable<PacientesLocalidadProvinciaDTO>> TotalPacientesPorLocalidadProvincia()
+        public async Task<IEnumerable<PacientesLocalidadDTO>> TotalPacientesPorLocalidad()
         {
             return await _db.Pacientes
                 .GroupBy(p => new { p.Localidad, p.Provincia })
-                .Select(g => new PacientesLocalidadProvinciaDTO
+                .Select(g => new PacientesLocalidadDTO
                 {
                     Provincia = g.Key.Provincia ?? "Sin provincia",
                     Localidad = g.Key.Localidad ?? "Sin localidad",
