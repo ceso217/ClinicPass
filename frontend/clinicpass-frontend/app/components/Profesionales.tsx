@@ -5,6 +5,7 @@ import { getProfesionales, registerProfesional, updateProfesional} from '../hook
 import {  type Profesional } from '../types/profesional';
 import { RegisterPayload } from '../types/registerPayload';
 import toast from 'react-hot-toast';
+import { resetPasswordByAdmin } from '../hooks/authFetch';
 
 type RoleType = 'Admin' | 'Profesional';
 
@@ -147,6 +148,29 @@ export const Profesionales: React.FC = () => {
             // Nota: Aquí asumimos que updateProfesional no devuelve nada (Promise<void>), solo confirma el éxito.
             await updateProfesional(selectedProfesional.id, updatePayload);
             
+
+            // Cambiar contraseña SOLO si está habilitado
+            if (showPasswordFields) {
+                
+                if (
+                    !formData.password ||
+                    !formData.repeatPassword ||
+                    formData.password !== formData.repeatPassword
+                ) {
+                    toast.error("Las contraseñas no coinciden o están vacías");
+                    return;
+                }
+
+                const passwordPayload = {
+                    Id: String(selectedProfesional.id),
+                    NewPassword: formData.password,
+                    ConfirmNewPassword: formData.repeatPassword,
+                };
+
+                await resetPasswordByAdmin(passwordPayload);
+
+                toast.success("Contraseña actualizada correctamente");
+            }
             
             // 4. Actualizar el estado local (usamos el payload para la actualización)
             const updatedList = profesionales.map((p) =>

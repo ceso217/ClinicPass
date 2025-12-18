@@ -148,10 +148,14 @@ namespace ClinicPass.API.Controllers
 
 			if ((!result.Succeeded))
 			{
-                var errors = result.Errors.Select(e => e.Description);
-                return BadRequest(new { Errors = errors });
-            }
-			return Ok("Contraseña reseteada exitosamente.");
+				var errors = result.Errors.Select(e => e.Description);
+				return BadRequest(new { Errors = errors });
+			}
+			var successResponse = new SuccessMessageDTO
+			{
+				Message = $"Contraseña reseteada exitosamente."
+			};
+			return Ok(successResponse);
         }
 	}
 }
