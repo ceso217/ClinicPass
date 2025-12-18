@@ -14,6 +14,6 @@ namespace ClinicPass.DataAccessLayer.DTOs.HistoriaClinica
         public string? AntecedentesPersonales { get; set; }
 
         public List<TratamientoConFichasDTO> Tratamientos { get; set; } = new();
-        public List<FichaDeSeguimientoDTO> FichasSinTratamiento { get; set; } = new();
+        public List<FichaDeSeguimientoHistorialDTO> FichasSinTratamiento { get; set; } = new();
     }
 }

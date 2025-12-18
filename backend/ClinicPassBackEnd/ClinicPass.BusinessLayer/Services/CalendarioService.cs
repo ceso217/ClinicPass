@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ClinicPass.BusinessLayer.DTOs;
-using ClinicPass.BusinessLayer.Interfaces;
 using ClinicPass.DataAccessLayer;
 using Microsoft.EntityFrameworkCore;
 using ClinicPass.DataAccessLayer.DTOs.Reportes;
