@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ClinicPass.BusinessLayer.Services
 {
-	internal class FiltroDeFechaService
+	public class ReportesService
 	{
+
 	}
 }

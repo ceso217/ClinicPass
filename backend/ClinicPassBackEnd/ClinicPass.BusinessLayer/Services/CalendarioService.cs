@@ -80,11 +80,7 @@ namespace ClinicPass.BusinessLayer.Services
                 })
                 .ToListAsync();
         }
-
-
-
-        public async Task<IEnumerable<CalendarioTurnoDto>> ObtenerPorProfesional(
-            int profesionalId)
+        public async Task<IEnumerable<CalendarioTurnoDto>> ObtenerPorProfesional(int profesionalId)
         {
             return await _context.Turnos
                 .Include(t => t.Profesional)
