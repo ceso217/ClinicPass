@@ -311,13 +311,13 @@ const handleSave = async () => {
               </td>
               <td className="px-6 py-4">
               <div className="flex items-center justify-center gap-2">
-                <button
+                {/* <button
                   onClick={() => console.log('Ver historial', paciente.idPaciente)}
                   className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                   title="Ver historial"
                   >
                   <Eye className="w-4 h-4" />
-                </button>
+                </button> */}
                 <button
                   onClick={() => handleOpenModal(paciente)}
                   className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"

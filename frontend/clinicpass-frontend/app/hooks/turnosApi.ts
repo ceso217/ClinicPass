@@ -17,7 +17,7 @@ enum FiltroFecha {
  */
 export async function getTurnos(): Promise<Turno[]> {
   try {
-    const data = await apiFetch(`${BASE_URL}`);
+    const data = await apiFetch(`${BASE_URL}/Turnos`);
 
     return data.map((t: any) => ({
       id: t.idTurno,
@@ -69,7 +69,7 @@ export async function createTurno(turnoData: Partial<Turno>): Promise<any> {
     ProfesionalId: turnoData.profesionalId,
   };
 
-  return await apiFetch(`${BASE_URL}`, {
+  return await apiFetch(`${BASE_URL}/Turnos`, {
     method: "POST",
     body: JSON.stringify(payload),
   });
@@ -82,7 +82,7 @@ export async function updateEstadoTurno(
   id: number,
   nuevoEstado: string
 ): Promise<void> {
-  await apiFetch(`${BASE_URL}/${id}`, {
+  await apiFetch(`${BASE_URL}/Turnos/${id}`, {
     method: "PUT",
     body: JSON.stringify({ Estado: nuevoEstado }),
   });
@@ -92,7 +92,7 @@ export async function updateEstadoTurno(
  * Elimina un turno
  */
 export async function deleteTurno(id: number): Promise<void> {
-  await apiFetch(`${BASE_URL}/${id}`, {
+  await apiFetch(`${BASE_URL}/Turnos/${id}`, {
     method: "DELETE",
   });
 }
