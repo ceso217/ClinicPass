@@ -15,9 +15,10 @@ import {
 import PerformanceCard from "./PerformanceCard";
 import toast from "react-hot-toast";
 import { getNumeroPacientes } from "../hooks/pacientesApi";
-import { getTurnosHoy } from "../hooks/turnosApi";
+import { getTurnosPeriodo } from "../hooks/turnosApi";
 import { getProfesionalesActivos } from "../hooks/profesionalesApi";
 import { getNumeroFichas } from "../hooks/fichasDeSeguimientoApi";
+import { FiltroFecha } from "../types/filtroFecha";
 
 interface DashboardStats {
   totalPacientes: number;
@@ -47,10 +48,16 @@ export const DashboardAdmin: React.FC = () => {
         setLoading(true);
 
         const pacientes = await getNumeroPacientes();
-        const turnos = await getTurnosHoy();
+        const turnos = await getTurnosPeriodo({ filtro: FiltroFecha.Hoy });
         const profesionales = await getProfesionalesActivos();
         const fichas = await getNumeroFichas();
-        console.log({ pacientes, turnos, profesionales, fichas });
+
+        console.log({
+          pacientes,
+          turnos,
+          profesionales,
+          fichas,
+        });
 
         // if (
         //   !totalPacientes ||
@@ -155,7 +162,7 @@ export const DashboardAdmin: React.FC = () => {
           />
           <StatCard
             icon={<FileText className="w-6 h-6" />}
-            title="Fichas Pendientes"
+            title="Fichas Creadas Totales"
             value={stats.fichasTotales}
             bgColor="bg-orange-100"
             iconColor="text-orange-600"

@@ -3,6 +3,8 @@
 // Asegúrate de importar apiFetch y la interfaz Paciente
 import { apiFetch } from "./apiFetch"; // Asume que apiFetch está en un archivo llamado apiFetch.ts
 import { Paciente, PacientePayload } from "../types/paciente"; // Ajusta la ruta
+import { FiltroFecha } from "../types/filtroFecha";
+import { FiltroFechaDTO } from "../types/filtroFechaDTO";
 
 const BASE_URL = "/api"; // Basado en el endpoint /api/Paciente que mostraste
 
@@ -40,6 +42,24 @@ export async function getNumeroPacientes(): Promise<number> {
   }
 }
 
+export async function getPacientesAtendidos(
+  filtro: FiltroFechaDTO
+): Promise<number> {
+  try {
+    const data = await apiFetch(
+      `${BASE_URL}/Reportes/pacientes/total-atendidos`,
+      {
+        method: "POST",
+        body: JSON.stringify(filtro),
+      }
+    );
+    return data;
+  } catch (error) {
+    console.error("Error al obtener el número de pacientes", error);
+    throw error;
+  }
+}
+
 /**
  * Crea un nuevo paciente.
  * @param {PacientePayload} pacienteData - Los datos del nuevo paciente.
@@ -48,7 +68,7 @@ export async function getNumeroPacientes(): Promise<number> {
 export async function createPaciente(
   pacienteData: PacientePayload
 ): Promise<Paciente> {
-  const data = await apiFetch(BASE_URL, {
+  const data = await apiFetch(`${BASE_URL}/paciente`,{
     method: "POST",
     body: JSON.stringify(pacienteData),
   });
@@ -70,7 +90,7 @@ export async function updatePaciente(
   id: number,
   pacienteData: Partial<PacientePayload>
 ): Promise<void> {
-  await apiFetch(`${BASE_URL}/${id}`, {
+  await apiFetch(`${BASE_URL}/paciente/${id}`, {
     method: "PUT",
     body: JSON.stringify(pacienteData),
   });
@@ -81,7 +101,7 @@ export async function updatePaciente(
  * @returns {Promise<void>}
  */
 export async function deletePaciente(id: number): Promise<void> {
-  await apiFetch(`${BASE_URL}/${id}`, {
+  await apiFetch(`${BASE_URL}/paciente/${id}`, {
     method: "DELETE",
   });
   // La API devuelve 204 No Content si es exitoso, manejado por apiFetch.
