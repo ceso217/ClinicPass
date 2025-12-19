@@ -15,7 +15,7 @@ export interface TurnosEstadosDTO {
  */
 export async function getTurnos(): Promise<Turno[]> {
   try {
-    const data = await apiFetch(`${BASE_URL}/turnos`);
+    const data = await apiFetch(`${BASE_URL}/Turnos`);
 
     return data.map((t: any) => ({
       id: t.idTurno,
@@ -46,7 +46,7 @@ export async function getTurnosPeriodo(
     });
     return data;
   } catch (error) {
-    console.error("Error al obtener el número de turnos:", error);
+    console.error("Error al obtener el n�mero de turnos:", error);
     throw error;
   }
 }

@@ -7,6 +7,15 @@ import { createHistoriaClinica } from '../hooks/historialesApi';
 import { Paciente, PacientePayload } from '../types/paciente'; // Asegúrate de tener PacientePayload en tu types/paciente
 import toast from 'react-hot-toast';
 import { toastConfirm } from '../utils/toastConfirm';
+import { provinciasArgentina } from '../constants/argentina';
+
+
+const formatFechaParaInput = (fechaString: string | null | undefined) => {
+  if (!fechaString) return '';
+  // Extrae solo los primeros 10 caracteres (YYYY-MM-DD)
+  return fechaString.split('T')[0];
+};
+
 
 export const Pacientes: React.FC = () => {
   // Usamos un estado para el loading
@@ -18,6 +27,9 @@ export const Pacientes: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedPaciente, setSelectedPaciente] = useState<Paciente | null>(null);
   const [formData, setFormData] = useState<Partial<Paciente>>({});
+  const provinciaSeleccionada = provinciasArgentina.find(
+    p => p.value === formData.provincia
+  );
 
   // FUNCIÓN PARA CARGAR PACIENTES DESDE LA API
   const fetchPacientes = useCallback(async () => {
@@ -80,7 +92,11 @@ export const Pacientes: React.FC = () => {
   const handleOpenModal = (paciente?: Paciente) => {
     if (paciente) {
       setSelectedPaciente(paciente);
-      setFormData(paciente);
+      setFormData({
+      ...paciente,
+      // Formateamos la fecha aquí para que el input la reconozca
+      fechaNacimiento: formatFechaParaInput(paciente.fechaNacimiento)
+    });
     } else {
       setSelectedPaciente(null);
       setFormData({});
@@ -311,13 +327,13 @@ const handleSave = async () => {
               </td>
               <td className="px-6 py-4">
               <div className="flex items-center justify-center gap-2">
-                <button
+                {/* <button
                   onClick={() => console.log('Ver historial', paciente.idPaciente)}
                   className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                   title="Ver historial"
                   >
                   <Eye className="w-4 h-4" />
-                </button>
+                </button> */}
                 <button
                   onClick={() => handleOpenModal(paciente)}
                   className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
@@ -389,30 +405,54 @@ const handleSave = async () => {
             <input
             type="number"
             value={calcularEdad(formData.fechaNacimiento) || '' }
-            onChange={(e) => setFormData({ ...formData, edad: parseInt(e.target.value) || undefined })}
+            onChange={(e) => setFormData({ ...formData, edad: parseInt(e.target.value)})}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
             placeholder="30"
             />
           </div>
-          <div>
-            <label className="block text-gray-700 mb-2">Localidad</label>
-            <input
-            type="text"
-            value={formData.localidad || ''}
-            onChange={(e) => setFormData({ ...formData, localidad: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-            placeholder="Resistencia"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-2">Provincia</label>
-            <input
-            type="text"
-            value={formData.provincia || ''}
-            onChange={(e) => setFormData({ ...formData, provincia: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-            placeholder="Chaco"
-            />
+         <div>
+              <label className="block text-gray-700 mb-2">Provincia</label>
+              <select
+                value={formData.provincia || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    provincia: e.target.value,
+                    localidad: '', // reset localidad
+                  })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="">Seleccione una provincia</option>
+                {provinciasArgentina.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-gray-700 mb-2">Localidad</label>
+              <select
+                value={formData.localidad || ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, localidad: e.target.value })
+                }
+                disabled={!provinciaSeleccionada}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
+              >
+                <option value="">
+                  {provinciaSeleccionada
+                    ? "Seleccione una localidad"
+                    : "Seleccione una provincia primero"}
+                </option>
+
+                {provinciaSeleccionada?.localidades.map((l) => (
+                  <option key={l.value} value={l.value}>
+                    {l.label}
+                  </option>
+                ))}
+              </select>
           </div>
           <div>
             <label className="block text-gray-700 mb-2">Calle</label>

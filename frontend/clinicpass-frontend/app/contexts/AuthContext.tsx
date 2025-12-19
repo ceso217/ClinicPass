@@ -73,9 +73,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const storedToken = localStorage.getItem("clinicpass_token");
     const storedUser = localStorage.getItem("clinicpass_user");
 
+
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
+      
 
       // Decodificar el token al inicio
       setDecodedPayload(decodeToken(storedToken));
@@ -101,7 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(result.user);
         localStorage.setItem("clinicpass_token", result.token);
         localStorage.setItem("clinicpass_user", JSON.stringify(result.user));
-
+        localStorage.setveItem('user_rol');
         return;
       }
 
@@ -127,12 +129,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Guardar token y usuario
       setToken(data.token);
       setUser(data.user);
+      const payload = decodeToken(data.token); // decodificamos
+      setDecodedPayload(payload); 
+      console.log("rol: " + payload?.role);   // log inmediato
+
       // Decodificar y guardar el payload aquí
-      setDecodedPayload(decodeToken(data.token));
+      // setDecodedPayload(decodeToken(data.token));
 
       localStorage.setItem("clinicpass_token", data.token);
       localStorage.setItem("clinicpass_user", JSON.stringify(data.user));
-      console.log("rol: "+ decodedPayload?.role)
+
+      
+      
     } catch (error) {
       throw error;
     }
@@ -144,6 +152,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setDecodedPayload(null); // Limpiar el payload al cerrar sesión
     localStorage.removeItem("clinicpass_token");
     localStorage.removeItem("clinicpass_user");
+    localStorage.removeItem('user_rol');
 
     window.location.href = "/login";
   };

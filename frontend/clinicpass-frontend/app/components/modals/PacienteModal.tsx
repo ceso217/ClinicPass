@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, User, Calendar, MapPin, Phone, Mail, Users } from 'lucide-react';
 import { Paciente } from '../../data/mockData';
+import { provinciasArgentina } from '@/app/constants/argentina';
 
 interface PacienteModalProps {
   isOpen: boolean;
@@ -37,7 +38,9 @@ export const PacienteModal: React.FC<PacienteModalProps> = ({
     telefono: '',
     relacion: 'Padre',
   });
-
+  const provinciaSeleccionada = provinciasArgentina.find(
+      p => p.value === formData.provincia
+    );
   useEffect(() => {
     if (paciente && mode === 'edit') {
       setFormData(paciente);
@@ -293,16 +296,32 @@ export const PacienteModal: React.FC<PacienteModalProps> = ({
                 <label className="block text-gray-700 mb-2">
                   Localidad <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
+                <select
                   value={formData.localidad}
-                  onChange={(e) => setFormData({ ...formData, localidad: e.target.value })}
+                  disabled={!provinciaSeleccionada}
+                  onChange={(e) =>
+                    setFormData({ ...formData, localidad: e.target.value })
+                  }
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 ${
                     errors.localidad ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Ej: Resistencia"
-                />
-                {errors.localidad && <p className="text-red-500 mt-1">{errors.localidad}</p>}
+                  } disabled:bg-gray-100`}
+                >
+                  <option value="">
+                    {provinciaSeleccionada
+                      ? 'Seleccione una localidad'
+                      : 'Seleccione una provincia primero'}
+                  </option>
+
+                  {provinciaSeleccionada?.localidades.map((l) => (
+                    <option key={l.value} value={l.value}>
+                      {l.label}
+                    </option>
+                  ))}
+                </select>
+
+                {errors.localidad && (
+                  <p className="text-red-500 mt-1">{errors.localidad}</p>
+                )}
               </div>
 
               <div>
@@ -311,14 +330,21 @@ export const PacienteModal: React.FC<PacienteModalProps> = ({
                 </label>
                 <select
                   value={formData.provincia}
-                  onChange={(e) => setFormData({ ...formData, provincia: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      provincia: e.target.value,
+                      localidad: '', // 🔥 reset localidad
+                    })
+                  }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value="Chaco">Chaco</option>
-                  <option value="Corrientes">Corrientes</option>
-                  <option value="Formosa">Formosa</option>
-                  <option value="Misiones">Misiones</option>
-                  <option value="Santa Fe">Santa Fe</option>
+                  <option value="">Seleccione una provincia</option>
+                  {provinciasArgentina.map((p) => (
+                    <option key={p.value} value={p.value}>
+                      {p.label}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

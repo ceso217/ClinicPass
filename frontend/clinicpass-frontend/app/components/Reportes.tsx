@@ -10,6 +10,13 @@ import {
   Clock,
   BarChart3,
   PieChart,
+  Activity
+} from 'lucide-react';
+import toast from 'react-hot-toast';
+import jsPDF from 'jspdf';
+import { useRef } from 'react';
+import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
   Activity,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -38,6 +45,8 @@ interface ReportesStats {
 }
 
 export const Reportes: React.FC = () => {
+  const [tipoReporte, setTipoReporte] = useState<'general' | 'turnos' | 'pacientes' | 'profesionales'>('general');
+  const pdfRef = useRef<HTMLDivElement>(null);
   const [tipoReporte, setTipoReporte] = useState<
     "general" | "turnos" | "pacientes" | "profesionales"
   >("general");
@@ -215,13 +224,52 @@ export const Reportes: React.FC = () => {
   const totalFichas = datosGenerales.reduce((sum, d) => sum + d.fichas, 0);
   const promedioTurnos = Math.round(totalTurnos / datosGenerales.length);
 
-  const handleExportarPDF = () => {
-    toast.loading("Exportando reporte a PDF...");
-  };
+  const handleExportarPDF = async () => {
+   
+  if (!pdfRef.current) return;
 
-  // const handleExportarExcel = () => {
-  //   toast.loading("Exportando reporte a Excel...");
-  // };
+  toast.loading('Generando PDF...');
+
+  try {
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    const sections = pdfRef.current.querySelectorAll('.pdf-section');
+
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i] as HTMLElement;
+
+      const dataUrl = await toPng(section, {
+        pixelRatio: 3,
+        backgroundColor: '#f9fafb',
+      });
+
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise((res) => (img.onload = res));
+
+      const imgHeight = (img.height * pdfWidth) / img.width;
+
+      if (i !== 0) pdf.addPage();
+
+      pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, imgHeight);
+    }
+
+    pdf.save('reporte-clinica.pdf');
+    toast.dismiss();
+    toast.success('PDF generado correctamente');
+  } catch (err) {
+    toast.dismiss();
+    toast.error('Error al generar el PDF');
+    console.error(err);
+  }
+};
+  
+
+  const handleExportarExcel = () => {
+    toast.loading('Exportando reporte a Excel...');
+  };
 
   const StatCard: React.FC<{
     icon: React.ReactNode;
@@ -271,7 +319,9 @@ export const Reportes: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-8">
+          <div className="p-8">
+              <div ref={pdfRef} className="space-y-8">
+                  <section className="pdf-section">
         {/* Filtros */}
         <div className="bg-white rounded-xl shadow-md p-6 mb-8">
           <div className="flex items-center gap-2 mb-4">
@@ -414,25 +464,25 @@ export const Reportes: React.FC = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Gráfico de línea - Evolución */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-indigo-600" />
-                <h3 className="text-gray-900">Evolución de Turnos</h3>
-              </div>
-              <div className="flex gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Gráfico de línea - Evolución */}
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
-                  <span className="text-gray-600">Turnos</span>
+                  <TrendingUp className="w-5 h-5 text-indigo-600" />
+                  <h3 className="text-gray-900">Evolución de Turnos</h3>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-gray-600">Pacientes</span>
+                <div className="flex gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+                    <span className="text-gray-600">Turnos</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span className="text-gray-600">Pacientes</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
             {/* Gráfico de línea simulado */}
             <div className="relative h-64">
@@ -533,12 +583,12 @@ export const Reportes: React.FC = () => {
             </div>
           </div>
 
-          {/* Gráfico circular - Distribución por especialidad */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center gap-2 mb-6">
-              <PieChart className="w-5 h-5 text-indigo-600" />
-              <h3 className="text-gray-900">Distribución por Especialidad</h3>
-            </div>
+            {/* Gráfico circular - Distribución por especialidad */}
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <PieChart className="w-5 h-5 text-indigo-600" />
+                <h3 className="text-gray-900">Distribución por Especialidad</h3>
+              </div>
 
             <div className="flex items-center justify-center mb-6">
               {/* Gráfico circular SVG */}

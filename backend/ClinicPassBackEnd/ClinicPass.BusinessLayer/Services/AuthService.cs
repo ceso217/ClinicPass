@@ -73,8 +73,8 @@ namespace ClinicPass.BusinessLayer.Services
             //Roles/Permisos
             foreach (var role in roles)
             {
-                claims.Add(new System.Security.Claims.Claim(ClaimTypes.Role, role));
-            }
+				claims.Add(new Claim("role", role)); // 👈 explícito
+			}
 
             //Expiración en minutos
 

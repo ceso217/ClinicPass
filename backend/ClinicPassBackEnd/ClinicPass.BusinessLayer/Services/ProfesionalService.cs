@@ -70,22 +70,66 @@ namespace ClinicPass.BusinessLayer.Services
                 return false;
             }
 
-            // esto al final lo voy a poner en authcontroller como un endpoint aparte para cambiar email
+			// 🔹 VALIDAR EMAIL ÚNICO
+			var existingEmailUser = await _userManager.Users
+				.FirstOrDefaultAsync(p => p.Email == profesionalDTO.Email && p.Id != id);
 
-            //var existingEmailUser = await _userManager.Users.FirstOrDefaultAsync(p => p.NormalizedEmail == profesionalDTO.NormalizedEmail && p.Id != id);
-            //if (existingEmailUser != null)
-            //{
-            //    // Email already in use by another user
-            //    return false;
-            //}
+			if (existingEmailUser != null)
+				return false;
 
-            profesional.NombreCompleto = profesionalDTO.NombreCompleto;
+			// 🔹 ACTUALIZAR EMAIL SI CAMBIÓ
+			if (profesional.Email != profesionalDTO.Email)
+			{
+				var emailResult = await _userManager.SetEmailAsync(profesional, profesionalDTO.Email);
+				if (!emailResult.Succeeded)
+					return false;
+
+				// Mantener UserName sincronizado
+				var userNameResult = await _userManager.SetUserNameAsync(profesional, profesionalDTO.Email);
+				if (!userNameResult.Succeeded)
+					return false;
+			}
+
+			// 🔹 ACTUALIZAR ROL (si viene informado)
+			if (!string.IsNullOrWhiteSpace(profesionalDTO.Rol))
+			{
+				// 1. Verificar que el rol exista
+				if (!await _userManager.IsInRoleAsync(profesional, profesionalDTO.Rol))
+				{
+					var currentRoles = await _userManager.GetRolesAsync(profesional);
+
+					// 2. Remover roles actuales
+					if (currentRoles.Any())
+					{
+						var removeResult = await _userManager.RemoveFromRolesAsync(profesional, currentRoles);
+						if (!removeResult.Succeeded)
+							return false;
+					}
+
+					// 3. Asignar nuevo rol
+					var addResult = await _userManager.AddToRoleAsync(profesional, profesionalDTO.Rol);
+					if (!addResult.Succeeded)
+						return false;
+				}
+			}
+			// esto al final lo voy a poner en authcontroller como un endpoint aparte para cambiar email
+
+			//var existingEmailUser = await _userManager.Users.FirstOrDefaultAsync(p => p.NormalizedEmail == profesionalDTO.NormalizedEmail && p.Id != id);
+			//if (existingEmailUser != null)
+			//{
+			//    // Email already in use by another user
+			//    return false;
+			//}
+
+			profesional.NombreCompleto = profesionalDTO.NombreCompleto;
             //profesional.Email = profesionalDTO.Email;
             //profesional.UserName = profesionalDTO.Email; // Keep username in sync with email
             profesional.PhoneNumber = profesionalDTO.PhoneNumber;
             profesional.Activo = profesionalDTO.Activo;
             profesional.Dni = profesionalDTO.Dni;
             profesional.Especialidad = profesionalDTO.Especialidad;
+     
+          
             var result = await _userManager.UpdateAsync(profesional);
             return result.Succeeded;
         }
