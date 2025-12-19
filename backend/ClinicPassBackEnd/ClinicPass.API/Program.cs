@@ -120,7 +120,7 @@ using (var scope = app.Services.CreateScope())
             await roleManager.CreateAsync(new IdentityRole<int>(role));
     }
 
-    var adminUser = await userManager.FindByNameAsync("admin");
+    var adminUser = await userManager.FindByNameAsync("admin@clinicpass.com");
 
     if (adminUser == null)
     {
