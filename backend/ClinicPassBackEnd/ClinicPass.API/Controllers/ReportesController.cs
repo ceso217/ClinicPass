@@ -45,7 +45,7 @@ namespace ClinicPass.API.Controllers
             return totalTurnos;
         }
 
-        // Obtener turnos de estado programado y completado según el filtro de fecha (sin personalizada)
+        // Obtener turnos de estado programado y completado según el filtro de fecha hacia futuro (sin personalizada)
         [HttpPost("turnos/programados-completados")]
         public async Task<IEnumerable<EstadoTurnosDTO>> TurnosProgramadosCompletados([FromBody] FiltroFechaDTO filtro)
         {
@@ -182,6 +182,15 @@ namespace ClinicPass.API.Controllers
             return totalProfesionales;
         }
 
+        //// Obtener el número total de profesionales 
+        [HttpGet("profesionales/total")]
+        public async Task<int> TotalProfesionalesPorFiltro()
+        {
+            var totalProfesionales = await _db.Profesionales.CountAsync();
+
+            return totalProfesionales;
+        }
+
         // Obtener el total de profesionales por especialidad
         [HttpGet("profesionales/total-por-especialidad")]
         public async Task<IEnumerable<TotalEspecialidadDTO>> TotalProfesionalesPorEspecialidad()
@@ -252,10 +261,22 @@ namespace ClinicPass.API.Controllers
         // =======================
 
         // Obtener el total de fichas de seguimiento
-        [HttpGet("fichas/total")]
+        [HttpGet("fichas")]
         public async Task<int> TotalFichasDeSeguimiento()
         {
             var totalFichas = await _db.FichasDeSeguimiento.CountAsync();
+            return totalFichas;
+        }
+
+        [HttpPost("fichas/total")]
+        public async Task<int> TotalFichasPorFiltro([FromBody] FiltroFechaDTO? filtroFecha)
+        {
+            var fechasFiltro = await _filtroService.FiltroDeFecha(filtroFecha);
+
+            var totalFichas = await _db.FichasDeSeguimiento
+                    .Where(f => f.FechaCreacion >= fechasFiltro.FechaInicio && f.FechaCreacion < fechasFiltro.FechaFin)
+                    .CountAsync();
+
             return totalFichas;
         }
 

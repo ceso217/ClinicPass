@@ -27,6 +27,16 @@ export async function getProfesionales(): Promise<any[]> {
   }
 }
 
+export async function getTotalProfesionales(): Promise<number> {
+  try {
+    const data = await apiFetch(`${BASE_URL}/Reportes/profesionales/total`);
+    return data;
+  } catch (error) {
+    console.error("Error al obtener número de profesionales activos:", error);
+    throw error;
+  }
+}
+
 export async function getProfesionalesActivos(): Promise<number> {
   try {
     const data = await apiFetch(
