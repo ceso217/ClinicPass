@@ -11,6 +11,7 @@ import { type Profesional } from "../types/profesional";
 import { RegisterPayload } from "../types/registerPayload";
 import toast from "react-hot-toast";
 import { resetPasswordByAdmin } from "../hooks/authFetch";
+import { especialidadesClinica } from "../constants/especialidades";
 
 type RoleType = "Admin" | "Profesional";
 
@@ -79,9 +80,7 @@ export const Profesionales: React.FC = () => {
     }
 
     if (especialidad) {
-      filtered = filtered.filter((p) =>
-        p.especialidad?.toLowerCase().includes(especialidad.toLowerCase())
-      );
+      filtered = filtered.filter((p) => p.especialidad === especialidad);
     }
 
     if (activo !== "") {
@@ -302,9 +301,11 @@ export const Profesionales: React.FC = () => {
     }
   };
 
-  const especialidades = Array.from(
-    new Set(profesionales.map((p) => p.especialidad))
-  );
+//   const especialidades = Array.from(
+//     new Set(profesionales.map((p) => p.especialidad))
+//   );
+
+
   const activosCount = filteredProfesionales.filter((p) => p.activo).length;
   const inactivosCount = filteredProfesionales.filter((p) => !p.activo).length;
 
@@ -354,17 +355,17 @@ export const Profesionales: React.FC = () => {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
-            <select
-              value={filterEspecialidad}
-              onChange={(e) => handleEspecialidadChange(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            >
-              <option value="">Todas las especialidades</option>
-              {especialidades.map((esp) => (
-                <option key={esp} value={esp}>
-                  {esp}
-                </option>
-              ))}
+           <select
+                value={filterEspecialidad}
+                onChange={(e) => handleEspecialidadChange(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                >
+                <option value="">Todas las especialidades</option>
+                {especialidadesClinica.map((esp) => (
+                    <option key={esp.value} value={esp.value}>
+                    {esp.label}
+                    </option>
+                ))}
             </select>
             <select
               value={filterActivo}
@@ -426,15 +427,19 @@ export const Profesionales: React.FC = () => {
                       key={profesional.id}
                       className="hover:bg-gray-50 transition"
                     >
-                      <td className="px-6 py-4 text-gray-900">
+                    <td className="px-6 py-4 text-gray-900">
                         {profesional.nombreCompleto}
-                      </td>
-                      <td className="px-6 py-4 text-gray-700">
+                    </td>
+                    <td className="px-6 py-4 text-gray-700">
                         {profesional.dni}
-                      </td>
-                      <td className="px-6 py-4 text-gray-700">
-                        {profesional.especialidad}
-                      </td>
+                    </td>
+                    <td className="px-6 py-4 text-gray-700">
+                        {
+                        especialidadesClinica.find(
+                        (e) => e.value === profesional.especialidad
+                        )?.label ?? "-"
+                        }
+                    </td>
                       <td className="px-6 py-4 text-gray-700">
                         {profesional.email}
                       </td>
@@ -563,15 +568,20 @@ export const Profesionales: React.FC = () => {
                   <label className="block text-gray-700 mb-2">
                     Especialidad*
                   </label>
-                  <input
-                    type="text"
-                    value={formData.especialidad || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, especialidad: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                    placeholder="Cardiología"
-                  />
+                  <select
+                        value={formData.especialidad || ""}
+                        onChange={(e) =>
+                            setFormData({ ...formData, especialidad: e.target.value })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        >
+                        <option value="">Seleccione una especialidad</option>
+                        {especialidadesClinica.map((esp) => (
+                            <option key={esp.value} value={esp.value}>
+                            {esp.label}
+                            </option>
+                        ))}
+                    </select>
                 </div>
                 <div>
                   <label className="block text-gray-700 mb-2">Estado</label>
