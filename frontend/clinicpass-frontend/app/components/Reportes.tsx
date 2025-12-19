@@ -387,7 +387,9 @@ export const Reportes: React.FC = () => {
               </div>
             </div>
           </div>
-  
+
+
+          
           {/* Estadísticas por estado */}
           <div className="bg-white rounded-xl shadow-md p-6 mb-8">
             <h3 className="text-gray-900 mb-6">Estado de Turnos</h3>
@@ -403,7 +405,9 @@ export const Reportes: React.FC = () => {
               ))}
             </div>
           </div>
-    
+          
+
+        
           {/* Profesionales más activos */}
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center gap-2 mb-6">
