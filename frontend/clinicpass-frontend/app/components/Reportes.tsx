@@ -22,10 +22,13 @@ import { getTurnosPeriodo } from "../hooks/turnosApi";
 import { getPacientesAtendidos } from "../hooks/pacientesApi";
 import { getNumeroFichasFiltro } from "../hooks/fichasDeSeguimientoApi";
 import {
+  ActividadProfesionalDTO,
   getProfesionalesActivos,
+  getProfesionalesConTurnosYFichas,
   getTotalProfesionales,
 } from "../hooks/profesionalesApi";
 import { FiltroFechaDTO } from "../types/filtroFechaDTO";
+import { tipoTurno } from "../types/tipoTurno";
 
 interface ReporteData {
   mes: string;
@@ -39,7 +42,23 @@ interface ReportesStats {
   pacientesAtendidos: number;
   fichasCompletadas: number;
   tasaOcupacion: number;
+  actividadProfesionales: ActividadProfesionalDTO[];
 }
+
+interface EstadoTurnos {
+  estado: tipoTurno;
+  cantidad: number;
+  porcentaje: number;
+  color: string; // Guardaremos la clase de Tailwind o el Hex
+}
+
+// El mapeo de colores (puedes usar clases de Tailwind)
+export const COLORES_TURNOS: Record<tipoTurno, string> = {
+  [tipoTurno.Pendiente]: "bg-yellow-500",
+  [tipoTurno.Completado]: "bg-green-500",
+  [tipoTurno.Cancelado]: "bg-red-500",
+  [tipoTurno.Programado]: "bg-blue-500",
+};
 
 export const Reportes: React.FC = () => {
   const [tipoReporte, setTipoReporte] = useState<
@@ -54,16 +73,9 @@ export const Reportes: React.FC = () => {
     pacientesAtendidos: 0,
     fichasCompletadas: 0,
     tasaOcupacion: 0,
+    actividadProfesionales: [],
   });
 
-  const etiquetasFiltro: Record<FiltroFecha, string> = {
-    [FiltroFecha.Hoy]: "Hoy",
-    [FiltroFecha.UltimaSemana]: "Última Semana",
-    [FiltroFecha.UltimoMes]: "Último Mes",
-    [FiltroFecha.UltimoTrimestre]: "Último Trimestre",
-    [FiltroFecha.UltimoAno]: "Último Año",
-    [FiltroFecha.Personalizado]: "Rango Personalizado",
-  };
   // const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -80,6 +92,7 @@ export const Reportes: React.FC = () => {
       const profesionalesActivos = await getProfesionalesActivos();
       const profesionalesTotales = await getTotalProfesionales();
       const tasaOcupacion = profesionalesActivos / profesionalesTotales;
+      const actividad = await getProfesionalesConTurnosYFichas(filtro);
 
       console.log({
         totalTurnos,
@@ -93,6 +106,7 @@ export const Reportes: React.FC = () => {
         pacientesAtendidos: pacientesAtendidos,
         fichasCompletadas: fichasCompletadas,
         tasaOcupacion: tasaOcupacion,
+        actividadProfesionales: actividad,
       });
     } catch (error) {
       console.error("Error al cargar estadísticas:", error);
@@ -127,6 +141,15 @@ export const Reportes: React.FC = () => {
     } else {
       toast.error("Seleccione ambas fechas para filtrar.");
     }
+  };
+
+  const etiquetasFiltro: Record<FiltroFecha, string> = {
+    [FiltroFecha.Hoy]: "Hoy",
+    [FiltroFecha.UltimaSemana]: "Última Semana",
+    [FiltroFecha.UltimoMes]: "Último Mes",
+    [FiltroFecha.UltimoTrimestre]: "Último Trimestre",
+    [FiltroFecha.UltimoAno]: "Último Año",
+    [FiltroFecha.Personalizado]: "Rango Personalizado",
   };
 
   // Datos mock para gráficos
@@ -178,6 +201,7 @@ export const Reportes: React.FC = () => {
     { estado: "Cancelados", cantidad: 41, porcentaje: 2, color: "bg-red-500" },
   ];
 
+  //=========================================
   const profesionalesMasActivos = [
     {
       nombre: "Dra. María González",
@@ -340,17 +364,6 @@ export const Reportes: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 mb-2">Período</label>
-                  {/* <select
-                value={periodo}
-                onChange={handlePeriodoChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-              >
-                {Object.values(FiltroFecha).map((valor) => (
-                  <option key={valor} value={valor}>
-                    {valor.replace(/([A-Z])/g, " $1").trim()}
-                  </option>
-                ))}
-              </select> */}
                   <select
                     value={periodo}
                     onChange={(e) => {
@@ -405,24 +418,6 @@ export const Reportes: React.FC = () => {
                     </div>
                   </div>
                 )}
-                {/* <div>
-              <label className="block text-gray-700 mb-2">Fecha Inicio</label>
-              <input
-                type="date"
-                value={fechaInicio}
-                onChange={(e) => setFechaInicio(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Fecha Fin</label>
-              <input
-                type="date"
-                value={fechaFin}
-                onChange={(e) => setFechaFin(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-              />
-            </div> */}
               </div>
             </div>
 

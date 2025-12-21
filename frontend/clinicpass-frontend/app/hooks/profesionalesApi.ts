@@ -4,8 +4,17 @@
 import { apiFetch } from "./apiFetch"; // Asume que apiFetch está en un archivo llamado apiFetch.ts
 import { RegisterPayload } from "../types/registerPayload"; // Ajusta la ruta
 import { Profesional } from "../types/profesional";
+import { FiltroFechaDTO } from "../types/filtroFechaDTO";
 
 const BASE_URL = "/api";
+
+export interface ActividadProfesionalDTO {
+  idProfesional: number;
+  nombreProfesional: string;
+  especialidad: string;
+  cantidadTurnos: number;
+  cantidadFicha: number;
+}
 
 /**
  * Obtiene la lista completa de pacientes desde la API.
@@ -45,6 +54,41 @@ export async function getProfesionalesActivos(): Promise<number> {
     return data;
   } catch (error) {
     console.error("Error al obtener número de profesionales activos:", error);
+    throw error;
+  }
+}
+
+export async function getProfesionalesPorEspecialidad(): Promise<
+  { especialidad: string; total: number }[]
+> {
+  try {
+    const data = await apiFetch(
+      `${BASE_URL}/Reportes/profesionales/total-por-especialidad`,
+      {
+        method: "GET",
+      }
+    );
+    return data as { especialidad: string; total: number }[];
+  } catch (error) {
+    console.error("Error al obtener turnos de hoy:", error);
+    throw error;
+  }
+}
+
+export async function getProfesionalesConTurnosYFichas(
+  filtro: FiltroFechaDTO
+): Promise<ActividadProfesionalDTO[]> {
+  try {
+    const data = await apiFetch(
+      `${BASE_URL}/reportes/profesionales/actividad`,
+      {
+        method: "POST",
+        body: JSON.stringify(filtro),
+      }
+    );
+    return data as ActividadProfesionalDTO[];
+  } catch (error) {
+    console.error("Error al obtener actividad de profesionales:", error);
     throw error;
   }
 }

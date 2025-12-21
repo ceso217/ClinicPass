@@ -48,7 +48,7 @@ export const DashboardAdmin: React.FC = () => {
         setLoading(true);
 
         const pacientes = await getNumeroPacientes();
-        const turnos = await getTurnosPeriodo({ filtro: FiltroFecha.Hoy });
+        const turnos = await getTurnosPeriodo({ tipoFiltro: FiltroFecha.Hoy });
         const profesionales = await getProfesionalesActivos();
         const fichas = await getNumeroFichas();
 

@@ -169,7 +169,9 @@ namespace ClinicPass.API.Controllers
                         Especialidad = grupo.Key.Especialidad,
                         CantidadTurnos = grupo.Count(),
                         CantidadFichasDeSeguimiento = grupo.Count(t => t.IdFichaSeguimiento != null)
-                    }).ToListAsync();
+                    })
+                    .OrderByDescending(x => x.CantidadTurnos)
+                    .ToListAsync();
         }
 
         // Obtener el total de profesionales activos
